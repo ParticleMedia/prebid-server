@@ -115,6 +115,7 @@ func collectStoredData(directory string, fileSystem FileSystem, err error) (File
 		}
 
 	}
+	glog.Errorf("data %s", data)
 	fileSystem.Files = data
 	return fileSystem, err
 }
