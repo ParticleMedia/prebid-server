@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/prebid/prebid-server/stored_requests"
 )
 
@@ -102,7 +101,6 @@ type FileSystem struct {
 }
 
 func collectStoredData(directory string, fileSystem FileSystem, err error) (FileSystem, error) {
-	glog.Errorf("directory %s", directory)
 	if err != nil {
 		return FileSystem{nil, nil}, err
 	}
