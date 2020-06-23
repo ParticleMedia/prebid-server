@@ -18,6 +18,14 @@ import (
 	"github.com/prebid/prebid-server/openrtb_ext"
 )
 
+type BidderToken struct {
+	AnBidderToken []string `json:"anbiddertoken"`
+}
+
+type UserExt struct {
+	Data BidderToken `json:"data"`
+}
+
 type FacebookAdapter struct {
 	http         *adapters.HTTPAdapter
 	URI          string
@@ -54,6 +62,19 @@ func (this *FacebookAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *
 		return nil, []error{&errortypes.BadInput{
 			Message: "No impressions provided",
 		}}
+	}
+
+	// news break aggrement with client of passing facebook biddeer token
+	if request.User != nil && request.User.BuyerUID == "" && request.User.Ext != nil {
+		res := UserExt{}
+		if err := json.Unmarshal(request.User.Ext, &res); err != nil {
+			return nil, []error{&errortypes.BadInput{
+				Message: "Missing bidder token in 'user.ext.data.anbiddertoken'",
+			}}
+		}
+		if &res != nil && &res.Data != nil && len(res.Data.AnBidderToken) > 0 {
+			request.User.BuyerUID = res.Data.AnBidderToken[0]
+		}
 	}
 
 	if request.User == nil || request.User.BuyerUID == "" {
