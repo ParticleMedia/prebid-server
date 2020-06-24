@@ -1,7 +1,8 @@
 FROM ubuntu:18.04 AS build
 RUN apt-get update && \
     apt-get -y upgrade && \
-    apt-get install -y wget
+    apt-get install -y wget && \
+    apt-get install -y tcpdump
 RUN cd /tmp && \
     wget https://dl.google.com/go/go1.12.7.linux-amd64.tar.gz && \
     tar -xf go1.12.7.linux-amd64.tar.gz && \
