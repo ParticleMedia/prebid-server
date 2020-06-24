@@ -30,7 +30,8 @@ COPY static static/
 COPY stored_requests/data stored_requests/data
 RUN apt-get update && \
     apt-get install -y ca-certificates mtr && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get install -y tcpdump && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 
 EXPOSE 8000
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/prebid-server"]
