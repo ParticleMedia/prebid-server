@@ -77,6 +77,7 @@ func (this *FacebookAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *
 		}
 	}
 
+	request.Test = 1
 	if request.User == nil || request.User.BuyerUID == "" {
 		return nil, []error{&errortypes.BadInput{
 			Message: "Missing bidder token in 'user.buyeruid'",
