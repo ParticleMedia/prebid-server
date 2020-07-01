@@ -18,6 +18,7 @@ func (a *VrtcalAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *adapt
 	var errs []error
 	var adapterRequests []*adapters.RequestData
 
+	request.Test = 1
 	reqJSON, err := json.Marshal(request)
 	if err != nil {
 		errs = append(errs, err)
