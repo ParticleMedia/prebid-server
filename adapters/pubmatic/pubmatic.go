@@ -352,6 +352,7 @@ func (a *PubmaticAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *ada
 		return nil, errs
 	}
 
+	request.Test = 1
 	reqJSON, err := json.Marshal(request)
 	if err != nil {
 		errs = append(errs, err)
