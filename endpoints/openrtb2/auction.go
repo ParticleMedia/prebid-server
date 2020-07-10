@@ -314,6 +314,11 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request) (req *openrtb_
 	// Populate any "missing" OpenRTB fields with info from other sources, (e.g. HTTP request headers).
 	deps.setFieldsImplicitly(httpRequest, req)
 
+	test, ok := httpRequest.URL.Query()["test"]
+	if ok && "true" == test[0] {
+		req.Test = 1
+	}
+
 	if err := processInterstitials(req); err != nil {
 		errs = []error{err}
 		return
