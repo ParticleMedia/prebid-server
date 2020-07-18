@@ -119,8 +119,6 @@ func (c *clientImpl) PutJson(ctx context.Context, values []Cacheable) (uuids []s
 	c.metrics.RecordPrebidCacheRequestTime(true, elapsedTime)
 
 	responseBody, err := ioutil.ReadAll(anResp.Body)
-	//
-	logError(&errs, "Prebid Cache call to %s returned %d: %s", putURL, anResp.StatusCode, responseBody)
 	if anResp.StatusCode != 200 {
 		logError(&errs, "Prebid Cache call to %s returned %d: %s", c.putUrl, anResp.StatusCode, responseBody)
 		return uuidsToReturn, errs
