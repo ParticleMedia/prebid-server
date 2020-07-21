@@ -1,0 +1,59 @@
+{
+  "id": "4649926c-d044-4146-8506-0b8aee3a1131",
+  "seatbid": [
+    {
+      "bid": [
+        {
+          "id": "VRTB_4649926c-d044-4146-8506-0b8aee3a1131_1",
+          "impid": "PrebidMobile",
+          "price": 0.1755,
+          "nurl": "https://exchange.vrtcal.com/rexch_bwin.vap?bwdat=bm93KCksNjQsMTk1LCctLScsMC4yNjIsJ0FQUEJVTkRMRTpZMjl0TG5CaGNuUnBZMnhsYm1WM2N5NXVaWGR6WW5KbFlXcz1fX1ZSVERBVEE9VlJURElNOjMyMHg1MDtWUlRPUzpBbmRyb2lkfEVYSUQ6fEJSRVFJRDpCUkVRXzVmMTNlMjMxYzZjODlfNWYxM2UyMzFjNmNjMl8wODE0Mjc0MDBfMTU5NTEzODYwOV8xNzIzMTE2MjM0fEJSRVNJRDo4OWUxZmI0Yy0wMWU0LTQ3MWYtYTU4Ni03ZjVlZDIxOGM2ZDF8SU1QSUQ6MXxTRUFUSUQ6T3Blblh8QURJRDp8TlVSTDp8QklEUzotLS1BRFNPVVJDRUlEX0JJRDoxOTU6MC4yNjItLS0hIXxSRVFVRVNUUzotLS1BRFNPVVJDRUlEX1JFUToyMjctLS0hIS0tLUFEU09VUkNFSURfUkVROjE5NS0tLSEhLS0tQURTT1VSQ0VJRF9SRVE6MTE1LS0tISEtLS1BRFNPVVJDRUlEX1JFUToyMTEtLS0hIS0tLUFEU09VUkNFSURfUkVROjIwOS0tLSEhLS0tQURTT1VSQ0VJRF9SRVE6MjA3LS0tISEtLS1BRFNPVVJDRUlEX1JFUToxNDYtLS0hIS0tLUFEU09VUkNFSURfUkVROjEzNi0tLSEhLS0tQURTT1VSQ0VJRF9SRVE6MjM1LS0tISEnLC0yfnx8fg==",
+          "adm": "<div id='beacon_44846' style='position:absolute;left:0px;top:0px;visibility:hidden;'><img src='https://rtb-us-west1.openx.net/win/vrtcal?p=0.262&t=2DAABBgABAAECAAIBAAsAAgAAAhIcGApwV2RtWDRKM3BkHBbOktqvlLLzmrEBFuHfyP6My8_fhwEAHBbB493h_6yCnuwBFt3kud6lqMD5tAEAFuKIn_ELFQY4JDdhYTYyOWEwLTZmYTMtNGQ5Zi1hNWFkLTZiMmQ4YmI1OWNiZAAsHBUCABwVAgAcFQIAABwmmqfSgwQVDhUEJpan0oMEFraJ0YME1owEFowEFowEFqoCFqoCFqoCFqoCFoYFABwcLBaAsYqku-yDrSoW67K12efigOelAQAAFqramIAEFvzBm4AEFpixwIMEFv6wwIMEFRgcFGQUgAUAFQQmhgUWhgUWhgURNQ4mhgUALCwWydaluLnmws6mARbh3OaQ3uSBo_oBABbiiJ_xCwYoqtqYgAQW_MGbgAQW_rDAgwQWmLHAgwQYBzI1NDYyODEW6kgWhgUlBBZ6GAQxMTgzFQKWwMqMAhEoAk9YDHoUjAEUhAUAFgIYA3J0YoEA3BsEiApiaWRfc291cmNlBVNTUlRCCGJpZF91dWlkJDMwMWMzNDNlLWQ2MDAtNDViMC1hMzE3LTQzOWE4ZGIwNmRkMxhkZWxpdmVyeV9tZWRpdW1fY2F0ZWdvcnkGTU9CSUxFIXJldHJpZXZlZF9mcm9tX3NzcnRiX2Vwb2NoX21pbGxpcw0xNTk1MTM4NjA5OTQyAKw4E2VzcG4uY29tQGdvb2dsZS5jb20AAAA&ph=ccad51ee-4472-44da-b0af-fb6a2ead035d'/></div><script type=\"text/javascript\" src=\"https://pr.ybp.yahoo.com/ab/secure/true/imp/vzl_qLM51CaKq0Mw0Vvq_Vn1MglOVdp64ddxlIWitpeyR29FYLrNdPkxUinUQhjFx9gDyXMJ0hRflBMVDnXPz0EO1r1bhidqco7Xuz0bE00WgTMKgNxYbQLSw-XMFWDvQ3Y-u_z1zM01GNCMFjPQod-xigY1enxyK0N7uDVqkDkmQUj02fh480kwUC-RFBxo6BVQeUHXwtp9TZZt6jcrxrubzo2BmX-qiXfr-Urgi3HPLtUlPLsgh_flkKtSSos2OQnuxOAC00VyqUCiNGnCznfK6yWLfmsbWEx24j16iIbqOebgW3wXgDeX_Pwu1oG7dOVDIHu8PT3aub4VqCa1vFAz08szsSbbvbGdEBFP_a-qB_W09GNnliCWh2NFrBktRr16sr7G1pHft5AMIgvLPNOVtQ8Y2Pu2U3xU-VUlzI09OUpnBSA0D1tYliOHGaEGzcK2KqixAHfvYRrNWoNdiNOsejVCePO5zvnMz6oZAvZu8yieQpCE7JBNJeD1f4xofbwAc0clRJxxwyXK2MjpJhMRMvPRYE5sjuWFunLyzCA9-qyQRZERLAnOU2IetpQFt_HwrjXPX-zbWqCLVMuwPU5LSHBH_dxJ21MstetgT6r0OFchwGRyE6HfxqbgKiAjiorCyhnWhKJirK5vFKV_q5-Ns6_GpRs9FdF6Snl9_c9smG4MtacfAOwp3ukHAm5ZcP1COzC0Qt1l8rQCZ0I3oPSf6qKZWHS6LBMTLyOUEouuTSd169Q0mF3frzoIPP-OpvJ-D_PHk-yfS_2LtZNfe1axmv8Ian9LdquXHlYLDz7phzLsghPL6Dj7gAf8ApFhqNQPbrdi2EwtCS_Idooa3vI5ngd0wgj7CQoTwYPKlbPIEBTx4Eb08szGIFVdI8grc4XZXq8ILRF2HxqXaNAPREro9EmDcKgvMTsBW1Rf-C12N8MXXICGicEXu6JJRv4Mj7VVFkubhxe_LdIlkfy0pxPJARmqNiAuZ7VuNUfyP-4yix4o-w8MRA6BSbMdxS69CSN3QmzO5LlJovI9WMLpMHvr2omCEkIw_yI0ROQt_TZbV2PoX6VBCgJOADov5kq2i0xAkmdqmsgYCsjjIizGy1dw0LsJ__tNvG93zmiUtoU41ffTJQeowyd_Zhyd0KyMFeYRpiclJT0b0lCJUFRPseuBDdFV9Zgi0dzgrernRXatkLQC345OA3Gz6kDKcYSggwXZBa5Iq_M2Dm-sxDb8jE1unSqveYvn3jLKVxVyAXhZDlyH3a-Kmy2kfxpkfItGnbL6oF46_rKdWwk0SAFb8vrOqBeqyVc2780059Oyi1Ri_DO-jCTPvfsVCGk9LIEXtmgvPYKp7gEdkTlg5Mn60KpyRz7kO0g4LuJDUr9y7MmlDwRM5_6ODGVdY6_oOj0PQrOYsWwT1rsiyrCvRew_hGudVALqkGDE6YsdbYz0hOtaG-je17dSUiX3ihjwuRUq/wp/AAABc2WrkxefyMgj0jg1g1MhH6IY7Sejttlvpg\"></script><img width=\"1\" height=\"1\" src=\"https://exchange.vrtcal.com/rexch_t.vap?ssid=64&asid=195&cpm=0.262&debug=QVBQQlVORExFOlkyOXRMbkJoY25ScFkyeGxibVYzY3k1dVpYZHpZbkpsWVdzPV9fVlJUREFUQT1WUlRESU06MzIweDUwO1ZSVE9TOkFuZHJvaWR8QlJFUUlEOkJSRVFfNWYxM2UyMzFjNmM4OV81ZjEzZTIzMWM2Y2MyXzA4MTQyNzQwMF8xNTk1MTM4NjA5XzE3MjMxMTYyMzR8QlJFU0lEOjg5ZTFmYjRjLTAxZTQtNDcxZi1hNTg2LTdmNWVkMjE4YzZkMXxBRFRZUEU6QkFOTkVSfFNFQVRJRDpPcGVuWA==&IID=BREQ_5f13e231c6c89_5f13e231c6cc2_081427400_1595138609_1723116234&COUNTRY=USA\">",
+          "adomain": [
+            "google.com"
+          ],
+          "crid": "v2_1064_goo_2546281",
+          "w": 320,
+          "h": 50,
+          "ext": {
+            "prebid": {
+              "cache": {
+                "key": "",
+                "url": "",
+                "bids": {
+                  "url": "prebid-cache.newsbreak.com/cache?uuid=bd3b3caf-9666-4bb5-ac95-8bb25d0d2e36",
+                  "cacheId": "bd3b3caf-9666-4bb5-ac95-8bb25d0d2e36"
+                }
+              },
+              "targeting": {
+                "hb_bidder": "vrtcal",
+                "hb_bidder_vrtcal": "vrtcal",
+                "hb_cache_host": "prebid-cache.newsbreak.com",
+                "hb_cache_host_vrtcal": "prebid-cache.newsbreak.com",
+                "hb_cache_id": "bd3b3caf-9666-4bb5-ac95-8bb25d0d2e36",
+                "hb_cache_id_vrtcal": "bd3b3caf-9666-4bb5-ac95-8bb25d0d2e36",
+                "hb_cache_path": "/cache",
+                "hb_cache_path_vrtcal": "/cache",
+                "hb_env": "mobile-app",
+                "hb_env_vrtcal": "mobile-app",
+                "hb_pb": "0.17",
+                "hb_pb_vrtcal": "0.17",
+                "hb_size": "320x50",
+                "hb_size_vrtcal": "320x50"
+              },
+              "type": "banner"
+            }
+          }
+        }
+      ],
+      "seat": "vrtcal"
+    }
+  ],
+  "cur": "USD",
+  "ext": {
+    "responsetimemillis": {
+      "vrtcal": 384
+    },
+    "tmaxrequest": 1000
+  }
+}

@@ -1,69 +1,40 @@
+// mock_rubicon.go
 package main
 
 import (
 	"flag"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
-
-	"github.com/prebid/prebid-server/config"
-	"github.com/prebid/prebid-server/currencies"
-	pbc "github.com/prebid/prebid-server/prebid_cache_client"
-	"github.com/prebid/prebid-server/router"
-	"github.com/prebid/prebid-server/server"
-
-	"github.com/golang/glog"
-	"github.com/spf13/viper"
 )
 
-// Rev holds binary revision string
-// Set manually at build time using:
-//    go build -ldflags "-X main.Rev=`git rev-parse --short HEAD`"
-// Populated automatically at build / release time via .travis.yml
-//   `gox -os="linux" -arch="386" -output="{{.Dir}}_{{.OS}}_{{.Arch}}" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...;`
-// See issue #559
-var Rev string
+// mock ad engine that sleeps for a random amount of time, then
+// responds with the JSON string.
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
+var Port = flag.Int("listen-port", 80, "Web server port")
+
+var payload = []byte(``)
+
+// sleep interval is approximately normally distributed:
+// 40ms - 200ms
+// == 160ms
+
+// mean is 120 (ms)
+// P(120-3*s <= x <= 120+3*s) == 0.9973
+// 120-3*s == 40, 120+3*s == 200
+// 3*s = 120-40 = 80, s = 26.666
+func handler(w http.ResponseWriter, r *http.Request) {
+	t := time.Duration(1000*(rand.NormFloat64()*26.6666+120.0)) * time.Microsecond
+	time.Sleep(t)
+	w.Header().Set("Content-Type", "application/javascript")
+	w.Write(payload)
 }
 
 func main() {
-	flag.Parse() // required for glog flags and testing package flags
+	flag.Parse()
 
-	cfg, err := loadConfig()
-	if err != nil {
-		glog.Fatalf("Configuration could not be loaded or did not pass validation: %v", err)
-	}
-
-	err = serve(Rev, cfg)
-	if err != nil {
-		glog.Errorf("prebid-server failed: %v", err)
-	}
-}
-
-const configFileName = "pbs"
-
-func loadConfig() (*config.Configuration, error) {
-	v := viper.New()
-	config.SetupViper(v, configFileName)
-	return config.New(v)
-}
-
-func serve(revision string, cfg *config.Configuration) error {
-	fetchingInterval := time.Duration(cfg.CurrencyConverter.FetchIntervalSeconds) * time.Second
-	currencyConverter := currencies.NewRateConverter(&http.Client{}, cfg.CurrencyConverter.FetchURL, fetchingInterval)
-
-	r, err := router.New(cfg, currencyConverter)
-	if err != nil {
-		return err
-	}
-
-	pbc.InitPrebidCache(cfg.CacheURL.GetBaseURL())
-
-	corsRouter := router.SupportCORS(r)
-	server.Listen(cfg, router.NoCache{Handler: corsRouter}, router.Admin(revision, currencyConverter), r.MetricsEngine)
-
-	r.Shutdown()
-	return nil
+	http.HandleFunc("/openrtb2/auction", handler)
+	listen_addr := fmt.Sprintf(":%d", *Port)
+	http.ListenAndServe(listen_addr, nil)
 }

@@ -1,0 +1,150 @@
+{
+  "id": "f3368d7c-94b7-4033-9f41-b06adc1487f6",
+  "seatbid": [
+    {
+      "bid": [
+        {
+          "id": "VRTB_f3368d7c-94b7-4033-9f41-b06adc1487f6_1",
+          "impid": "PrebidMobile",
+          "price": 2.2494,
+          "nurl": "https://exchange.vrtcal.com/rexch_bwin.vap?bwdat=bm93KCksNjQsMTAyLCctLScsNC4xOTY2MjUsJ0FQUEJVTkRMRTpZMjl0TG5CaGNuUnBZMnhsYm1WM2N5NXVaWGR6WW5KbFlXcz1fX1ZSVERBVEE9VlJURElNOjMyMHg1MDtWUlRPUzpBbmRyb2lkfEVYSUQ6fEJSRVFJRDpCUkVRXzAzNjcxMzIwMF8xNTk1MTM4NTMzXzVmMTNlMWU1NTlhNTdfNWYxM2UxZTU1OWE5MV8xNzIzMTE0NDJ8QlJFU0lEOjF8SU1QSUQ6MXxTRUFUSUQ6MXxBRElEOnxOVVJMOmh0dHBzOi8vYWRwbGF0Zm9ybS52cnRjYWwuY29tL3J0Yl90ZXN0X2VuZHBvaW50X3JldHVybi5waHA/aXNudXJsPTEmcD00LjE5NjYyNXxCSURTOi0tLUFEU09VUkNFSURfQklEOjEwMjo0LjE5NjYyNS0tLSEhfFJFUVVFU1RTOi0tLUFEU09VUkNFSURfUkVROjEwMi0tLSEhJywtMn58fH5odHRwczovL2FkcGxhdGZvcm0udnJ0Y2FsLmNvbS9ydGJfdGVzdF9lbmRwb2ludF9yZXR1cm4ucGhwP2lzbnVybD0xJnA9NC4xOTY2MjU=",
+          "adm": "<a href=\"https://www.vrtcal.com\"><img border=\"0\" src=\"https://adplatform.vrtcal.com/VRTCAL-320x50.jpg\"></a><img width=\"1\" height=\"1\" src=\"https://exchange.vrtcal.com/rexch_t.vap?ssid=64&asid=102&cpm=4.196625&debug=QVBQQlVORExFOlkyOXRMbkJoY25ScFkyeGxibVYzY3k1dVpYZHpZbkpsWVdzPV9fVlJUREFUQT1WUlRESU06MzIweDUwO1ZSVE9TOkFuZHJvaWR8QlJFUUlEOkJSRVFfMDM2NzEzMjAwXzE1OTUxMzg1MzNfNWYxM2UxZTU1OWE1N181ZjEzZTFlNTU5YTkxXzE3MjMxMTQ0MnxCUkVTSUQ6MXxBRFRZUEU6QkFOTkVSfFNFQVRJRDox&IID=BREQ_036713200_1595138533_5f13e1e559a57_5f13e1e559a91_172311442&COUNTRY=USA\">",
+          "adomain": [
+            "vrtcal.com"
+          ],
+          "crid": "v2_1064_vrt_vrtcaltestdisplay2_320_50",
+          "w": 320,
+          "h": 50,
+          "ext": {
+            "prebid": {
+              "cache": {
+                "key": "",
+                "url": "",
+                "bids": {
+                  "url": "prebid-cache.newsbreak.com/cache?uuid=970bb060-1e56-4280-8d8a-f6697959adaa",
+                  "cacheId": "970bb060-1e56-4280-8d8a-f6697959adaa"
+                }
+              },
+              "targeting": {
+                "hb_bidder": "vrtcal",
+                "hb_bidder_vrtcal": "vrtcal",
+                "hb_cache_host": "prebid-cache.newsbreak.com",
+                "hb_cache_host_vrtcal": "prebid-cache.newsbreak.com",
+                "hb_cache_id": "970bb060-1e56-4280-8d8a-f6697959adaa",
+                "hb_cache_id_vrtcal": "970bb060-1e56-4280-8d8a-f6697959adaa",
+                "hb_cache_path": "/cache",
+                "hb_cache_path_vrtcal": "/cache",
+                "hb_env": "mobile-app",
+                "hb_env_vrtcal": "mobile-app",
+                "hb_pb": "2.24",
+                "hb_pb_vrtcal": "2.24",
+                "hb_size": "320x50",
+                "hb_size_vrtcal": "320x50"
+              },
+              "type": "banner"
+            }
+          }
+        }
+      ],
+      "seat": "vrtcal"
+    }
+  ],
+  "cur": "USD",
+  "ext": {
+    "debug": {
+      "httpcalls": {
+        "vrtcal": [
+          {
+            "uri": "http://rtb.vrtcal.com/bidder_prebid.vap?ssp=1804",
+            "requestbody": "{\"id\":\"f3368d7c-94b7-4033-9f41-b06adc1487f6\",\"imp\":[{\"id\":\"PrebidMobile\",\"banner\":{\"format\":[{\"w\":320,\"h\":50}]},\"secure\":1,\"ext\":{\"bidder\":{\"just_an_unused_vrtcal_param\":\"1\"},\"prebid\":{\"storedrequest\":{\"id\":\"prebid_android_article_top_vrtcal\"}}}}],\"app\":{\"name\":\"PrebidMobileSample\",\"bundle\":\"com.particlenews.newsbreak\",\"ver\":\"1.0\",\"publisher\":{\"id\":\"nb_android\"},\"ext\":{\"prebid\":{\"source\":\"prebid-mobile\",\"version\":\"1.6\"}}},\"device\":{\"ua\":\"Mozilla/5.0 (Linux; Android 10; SM-G960U1 Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/84.0.4147.89 Mobile Safari/537.36\",\"lmt\":0,\"ip\":\"24.5.199.219\",\"make\":\"samsung\",\"model\":\"SM-G960U1\",\"os\":\"android\",\"osv\":\"29\",\"h\":668,\"w\":360,\"pxratio\":3,\"language\":\"en\",\"mccmnc\":\"310-260\",\"connectiontype\":1,\"ifa\":\"7aa629a0-6fa3-4d9f-a5ad-6b2d8bb59cbd\"},\"user\":{\"gender\":\"O\"},\"test\":1,\"at\":1,\"tmax\":1000,\"source\":{\"tid\":\"f3368d7c-94b7-4033-9f41-b06adc1487f6\"},\"ext\":{\"prebid\":{\"cache\":{\"bids\":{}},\"storedrequest\":{\"id\":\"nb_android\"},\"targeting\":{\"pricegranularity\":\"dense\"}}}}",
+            "responsebody": "{\n  \"id\": \"f3368d7c-94b7-4033-9f41-b06adc1487f6\",\n  \"seatbid\": [\n    {\n      \"bid\": [\n        {\n          \"id\": \"VRTB_f3368d7c-94b7-4033-9f41-b06adc1487f6_1\",\n          \"impid\": \"PrebidMobile\",\n\t            \"price\": 2.2494,\n          \"adm\": \"<a href=\\\"https://www.vrtcal.com\\\"><img border=\\\"0\\\" src=\\\"https://adplatform.vrtcal.com/VRTCAL-320x50.jpg\\\"></a><img width=\\\"1\\\" height=\\\"1\\\" src=\\\"https://exchange.vrtcal.com/rexch_t.vap?ssid=64&asid=102&cpm=4.196625&debug=QVBQQlVORExFOlkyOXRMbkJoY25ScFkyeGxibVYzY3k1dVpYZHpZbkpsWVdzPV9fVlJUREFUQT1WUlRESU06MzIweDUwO1ZSVE9TOkFuZHJvaWR8QlJFUUlEOkJSRVFfMDM2NzEzMjAwXzE1OTUxMzg1MzNfNWYxM2UxZTU1OWE1N181ZjEzZTFlNTU5YTkxXzE3MjMxMTQ0MnxCUkVTSUQ6MXxBRFRZUEU6QkFOTkVSfFNFQVRJRDox&IID=BREQ_036713200_1595138533_5f13e1e559a57_5f13e1e559a91_172311442&COUNTRY=USA\\\">\"\n\t  \t\t  ,\"nurl\": \"https://exchange.vrtcal.com/rexch_bwin.vap?bwdat=bm93KCksNjQsMTAyLCctLScsNC4xOTY2MjUsJ0FQUEJVTkRMRTpZMjl0TG5CaGNuUnBZMnhsYm1WM2N5NXVaWGR6WW5KbFlXcz1fX1ZSVERBVEE9VlJURElNOjMyMHg1MDtWUlRPUzpBbmRyb2lkfEVYSUQ6fEJSRVFJRDpCUkVRXzAzNjcxMzIwMF8xNTk1MTM4NTMzXzVmMTNlMWU1NTlhNTdfNWYxM2UxZTU1OWE5MV8xNzIzMTE0NDJ8QlJFU0lEOjF8SU1QSUQ6MXxTRUFUSUQ6MXxBRElEOnxOVVJMOmh0dHBzOi8vYWRwbGF0Zm9ybS52cnRjYWwuY29tL3J0Yl90ZXN0X2VuZHBvaW50X3JldHVybi5waHA/aXNudXJsPTEmcD00LjE5NjYyNXxCSURTOi0tLUFEU09VUkNFSURfQklEOjEwMjo0LjE5NjYyNS0tLSEhfFJFUVVFU1RTOi0tLUFEU09VUkNFSURfUkVROjEwMi0tLSEhJywtMn58fH5odHRwczovL2FkcGxhdGZvcm0udnJ0Y2FsLmNvbS9ydGJfdGVzdF9lbmRwb2ludF9yZXR1cm4ucGhwP2lzbnVybD0xJnA9NC4xOTY2MjU=\"\n\t  \t  \t\t  ,\"w\": 320\t  \t  \t\t  ,\"h\": 50\t  \t  \t\t  ,\"crid\": \"v2_1064_vrt_vrtcaltestdisplay2_320_50\"\n\t  \t  \t\t  ,\"adomain\": [\"vrtcal.com\"]\n\t  \t  \t          }\n      ],\n      \"seat\": \"16\"\n    }\n  ],\n  \"cur\": \"USD\"\n}\n",
+            "status": 200
+          }
+        ]
+      },
+      "resolvedrequest": {
+        "id": "f3368d7c-94b7-4033-9f41-b06adc1487f6",
+        "imp": [
+          {
+            "id": "PrebidMobile",
+            "banner": {
+              "format": [
+                {
+                  "w": 320,
+                  "h": 50
+                }
+              ]
+            },
+            "secure": 1,
+            "ext": {
+              "prebid": {
+                "storedrequest": {
+                  "id": "prebid_android_article_top_vrtcal"
+                }
+              },
+              "vrtcal": {
+                "just_an_unused_vrtcal_param": "1"
+              }
+            }
+          }
+        ],
+        "app": {
+          "name": "PrebidMobileSample",
+          "bundle": "com.particlenews.newsbreak",
+          "ver": "1.0",
+          "publisher": {
+            "id": "nb_android"
+          },
+          "ext": {
+            "prebid": {
+              "source": "prebid-mobile",
+              "version": "1.6"
+            }
+          }
+        },
+        "device": {
+          "ua": "Mozilla/5.0 (Linux; Android 10; SM-G960U1 Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/84.0.4147.89 Mobile Safari/537.36",
+          "lmt": 0,
+          "ip": "24.5.199.219",
+          "make": "samsung",
+          "model": "SM-G960U1",
+          "os": "android",
+          "osv": "29",
+          "h": 668,
+          "w": 360,
+          "pxratio": 3,
+          "language": "en",
+          "mccmnc": "310-260",
+          "connectiontype": 1,
+          "ifa": "7aa629a0-6fa3-4d9f-a5ad-6b2d8bb59cbd"
+        },
+        "user": {
+          "gender": "O"
+        },
+        "test": 1,
+        "at": 1,
+        "tmax": 1000,
+        "source": {
+          "tid": "f3368d7c-94b7-4033-9f41-b06adc1487f6"
+        },
+        "ext": {
+          "prebid": {
+            "cache": {
+              "bids": {}
+            },
+            "storedrequest": {
+              "id": "nb_android"
+            },
+            "targeting": {
+              "pricegranularity": "dense"
+            }
+          }
+        }
+      }
+    },
+    "responsetimemillis": {
+      "vrtcal": 296
+    },
+    "tmaxrequest": 1000
+  }
+}
