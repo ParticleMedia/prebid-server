@@ -628,7 +628,7 @@ func SetupViper(v *viper.Viper, filename string) {
 	// (basically so viper knows they exist)
 	v.SetDefault("external_url", "http://localhost:8000")
 	v.SetDefault("host", "")
-	v.SetDefault("port", 80)
+	v.SetDefault("port", 8000)
 	v.SetDefault("admin_port", 6060)
 	v.SetDefault("enable_gzip", false)
 	v.SetDefault("status_response", "")
