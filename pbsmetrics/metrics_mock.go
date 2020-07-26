@@ -52,6 +52,11 @@ func (me *MetricsEngineMock) RecordAdapterRequest(labels AdapterLabels) {
 	me.Called(labels)
 }
 
+// RecordAdapterRequest mock
+func (me *MetricsEngineMock) RecordAdapterWinner(labels AdapterLabels) {
+	me.Called(labels)
+}
+
 // RecordAdapterBidReceived mock
 func (me *MetricsEngineMock) RecordAdapterBidReceived(labels AdapterLabels, bidType openrtb_ext.BidType, hasAdm bool) {
 	me.Called(labels, bidType, hasAdm)
