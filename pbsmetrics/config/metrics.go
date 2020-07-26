@@ -118,6 +118,13 @@ func (me *MultiMetricsEngine) RecordAdapterRequest(labels pbsmetrics.AdapterLabe
 	}
 }
 
+// RecordAdapterRequest across all engines
+func (me *MultiMetricsEngine) RecordAdapterWinner(labels pbsmetrics.AdapterLabels) {
+	for _, thisME := range *me {
+		thisME.RecordAdapterWinner(labels)
+	}
+}
+
 // RecordAdapterBidReceived across all engines
 func (me *MultiMetricsEngine) RecordAdapterBidReceived(labels pbsmetrics.AdapterLabels, bidType openrtb_ext.BidType, hasAdm bool) {
 	for _, thisME := range *me {
@@ -228,6 +235,10 @@ func (me *DummyMetricsEngine) RecordAdapterPanic(labels pbsmetrics.AdapterLabels
 
 // RecordAdapterRequest as a noop
 func (me *DummyMetricsEngine) RecordAdapterRequest(labels pbsmetrics.AdapterLabels) {
+}
+
+// RecordAdapterRequest as a noop
+func (me *DummyMetricsEngine) RecordAdapterWinner(labels pbsmetrics.AdapterLabels) {
 }
 
 // RecordAdapterBidReceived as a noop

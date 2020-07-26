@@ -163,6 +163,9 @@ func (e *exchange) HoldAuction(ctx context.Context, bidRequest *openrtb.BidReque
 		}
 
 		auc = newAuction(adapterBids, len(bidRequest.Imp))
+		if len(auc.winner) > 0 {
+			e.me.RecordAdapterWinner(*blabels[auc.winner])
+		}
 
 		if targData != nil {
 			auc.setRoundedPrices(targData.priceGranularity)

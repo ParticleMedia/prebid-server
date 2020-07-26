@@ -50,6 +50,7 @@ func (d *DebugLog) BuildCacheString() {
 func newAuction(seatBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid, numImps int) *auction {
 	winningBids := make(map[string]*pbsOrtbBid, numImps)
 	winningBidsByBidder := make(map[string]map[openrtb_ext.BidderName]*pbsOrtbBid, numImps)
+	var winner openrtb_ext.BidderName
 
 	for bidderName, seatBid := range seatBids {
 		if seatBid != nil {
@@ -58,6 +59,7 @@ func newAuction(seatBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid, numImps int
 				wbid, ok := winningBids[bid.bid.ImpID]
 				if !ok || cpm > wbid.bid.Price {
 					winningBids[bid.bid.ImpID] = bid
+					winner = bidderName
 				}
 				if bidMap, ok := winningBidsByBidder[bid.bid.ImpID]; ok {
 					bestSoFar, ok := bidMap[bidderName]
@@ -73,6 +75,7 @@ func newAuction(seatBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid, numImps int
 	}
 
 	return &auction{
+		winner:              winner,
 		winningBids:         winningBids,
 		winningBidsByBidder: winningBidsByBidder,
 	}
@@ -289,6 +292,8 @@ func defTTL(bidType openrtb_ext.BidType, defaultTTLs *config.DefaultTTLs) (ttl i
 }
 
 type auction struct {
+	// winner
+	winner openrtb_ext.BidderName
 	// winningBids is a map from imp.id to the highest overall CPM bid in that imp.
 	winningBids map[string]*pbsOrtbBid
 	// winningBidsByBidder stores the highest bid on each imp by each bidder.

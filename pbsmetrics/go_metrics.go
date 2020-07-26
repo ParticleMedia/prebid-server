@@ -68,6 +68,7 @@ type AdapterMetrics struct {
 	ErrorMeters       map[AdapterError]metrics.Meter
 	NoBidMeter        metrics.Meter
 	GotBidsMeter      metrics.Meter
+	WinMeter          metrics.Meter
 	RequestTimer      metrics.Timer
 	PriceHistogram    metrics.Histogram
 	BidsReceivedMeter metrics.Meter
@@ -229,6 +230,7 @@ func makeBlankAdapterMetrics() *AdapterMetrics {
 		ErrorMeters:       make(map[AdapterError]metrics.Meter),
 		NoBidMeter:        blankMeter,
 		GotBidsMeter:      blankMeter,
+		WinMeter:          blankMeter,
 		RequestTimer:      &metrics.NilTimer{},
 		PriceHistogram:    &metrics.NilHistogram{},
 		BidsReceivedMeter: blankMeter,
@@ -261,6 +263,7 @@ func registerAdapterMetrics(registry metrics.Registry, adapterOrAccount string, 
 	am.NoCookieMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.no_cookie_requests", adapterOrAccount, exchange), registry)
 	am.NoBidMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.requests.nobid", adapterOrAccount, exchange), registry)
 	am.GotBidsMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.requests.gotbids", adapterOrAccount, exchange), registry)
+	am.WinMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.requests.wins", adapterOrAccount, exchange), registry)
 	am.RequestTimer = metrics.GetOrRegisterTimer(fmt.Sprintf("%[1]s.%[2]s.request_time", adapterOrAccount, exchange), registry)
 	am.PriceHistogram = metrics.GetOrRegisterHistogram(fmt.Sprintf("%[1]s.%[2]s.prices", adapterOrAccount, exchange), registry, metrics.NewExpDecaySample(1028, 0.015))
 	am.MarkupMetrics = map[openrtb_ext.BidType]*MarkupDeliveryMetrics{
@@ -405,6 +408,15 @@ func (me *Metrics) RecordAdapterPanic(labels AdapterLabels) {
 		return
 	}
 	am.PanicMeter.Mark(1)
+}
+
+func (me *Metrics) RecordAdapterWinner(labels AdapterLabels) {
+	am, ok := me.AdapterMetrics[labels.Adapter]
+	if !ok {
+		glog.Errorf("Trying to run adapter metrics on %s: adapter metrics not found", string(labels.Adapter))
+		return
+	}
+	am.WinMeter.Mark(1)
 }
 
 // RecordAdapterRequest implements a part of the MetricsEngine interface

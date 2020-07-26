@@ -37,6 +37,7 @@ type Metrics struct {
 	adapterPanics        *prometheus.CounterVec
 	adapterPrices        *prometheus.HistogramVec
 	adapterRequests      *prometheus.CounterVec
+	adapterWinner        *prometheus.CounterVec
 	adapterRequestsTimer *prometheus.HistogramVec
 	adapterUserSync      *prometheus.CounterVec
 
@@ -189,6 +190,11 @@ func NewMetrics(cfg config.PrometheusMetrics) *Metrics {
 		"Count of requests labeled by adapter, if has a cookie, and if it resulted in bids.",
 		[]string{adapterLabel, cookieLabel, hasBidsLabel})
 
+	metrics.adapterWinner = newCounter(cfg, metrics.Registry,
+		"adapter_winner",
+		"Count of wins labeled by adapter, if has a cookie, and if it resulted in bids.",
+		[]string{adapterLabel, cookieLabel})
+
 	metrics.adapterRequestsTimer = newHistogram(cfg, metrics.Registry,
 		"adapter_request_time_seconds",
 		"Seconds to resolve each successful request labeled by adapter.",
@@ -326,6 +332,13 @@ func (m *Metrics) RecordAdapterRequest(labels pbsmetrics.AdapterLabels) {
 			adapterErrorLabel: string(err),
 		}).Inc()
 	}
+}
+
+func (m *Metrics) RecordAdapterWinner(labels pbsmetrics.AdapterLabels) {
+	m.adapterWinner.With(prometheus.Labels{
+		adapterLabel: string(labels.Adapter),
+		cookieLabel:  string(labels.CookieFlag),
+	}).Inc()
 }
 
 func (m *Metrics) RecordAdapterPanic(labels pbsmetrics.AdapterLabels) {
