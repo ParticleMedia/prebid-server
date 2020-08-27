@@ -139,10 +139,16 @@ func TestRequestMetric(t *testing.T) {
 	m := createMetricsForTesting()
 	requestType := pbsmetrics.ReqTypeORTB2Web
 	requestStatus := pbsmetrics.RequestStatusBlacklisted
+	ifaFlag := pbsmetrics.IfaFlagNo
+	appVersion := "test_version"
+	os := "test_os"
 
 	m.RecordRequest(pbsmetrics.Labels{
 		RType:         requestType,
 		RequestStatus: requestStatus,
+		IfaFlag:       ifaFlag,
+		AppVersion:    appVersion,
+		OS:            os,
 	})
 
 	expectedCount := float64(1)
@@ -151,6 +157,9 @@ func TestRequestMetric(t *testing.T) {
 		prometheus.Labels{
 			requestTypeLabel:   string(requestType),
 			requestStatusLabel: string(requestStatus),
+			ifaLabel:           string(ifaFlag),
+			appVersionLabel:    string(appVersion),
+			osLabel:            string(os),
 		})
 }
 
