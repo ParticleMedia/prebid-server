@@ -10,11 +10,14 @@ func preloadLabelValues(m *Metrics) {
 		actionValues          = actionsAsString()
 		adapterValues         = adaptersAsString()
 		adapterErrorValues    = adapterErrorsAsString()
+		appVersionValues      = []string{pbsmetrics.AppVersionUnknown}
 		bidTypeValues         = []string{markupDeliveryAdm, markupDeliveryNurl}
 		boolValues            = boolValuesAsString()
 		cacheResultValues     = cacheResultsAsString()
 		cookieValues          = cookieTypesAsString()
 		connectionErrorValues = []string{connectionAcceptError, connectionCloseError}
+		ifaValues             = ifaTypesAsString()
+		osValues              = []string{pbsmetrics.OSUnknown}
 		requestStatusValues   = requestStatusesAsString()
 		requestTypeValues     = requestTypesAsString()
 	)
@@ -37,6 +40,9 @@ func preloadLabelValues(m *Metrics) {
 	preloadLabelValuesForCounter(m.requests, map[string][]string{
 		requestTypeLabel:   requestTypeValues,
 		requestStatusLabel: requestStatusValues,
+		ifaLabel:           ifaValues,
+		appVersionLabel:    appVersionValues,
+		osLabel:            osValues,
 	})
 
 	preloadLabelValuesForHistogram(m.requestsTimer, map[string][]string{

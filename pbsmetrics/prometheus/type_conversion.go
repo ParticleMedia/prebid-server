@@ -59,6 +59,15 @@ func cacheResultsAsString() []string {
 	return valuesAsString
 }
 
+func ifaTypesAsString() []string {
+	values := pbsmetrics.IfaTypes()
+	valuesAsString := make([]string, len(values))
+	for i, v := range values {
+		valuesAsString[i] = string(v)
+	}
+	return valuesAsString
+}
+
 func requestStatusesAsString() []string {
 	values := pbsmetrics.RequestStatuses()
 	valuesAsString := make([]string, len(values))

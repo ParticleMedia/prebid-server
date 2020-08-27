@@ -134,7 +134,7 @@ func NewMetrics(cfg config.PrometheusMetrics) *Metrics {
 	metrics.requests = newCounter(cfg, metrics.Registry,
 		"requests",
 		"Count of total requests to Prebid Server labeled by type and status.",
-		[]string{requestTypeLabel, requestStatusLabel})
+		[]string{requestTypeLabel, requestStatusLabel, ifaLabel, appVersionLabel, osLabel})
 
 	metrics.requestsTimer = newHistogram(cfg, metrics.Registry,
 		"request_time_seconds",
