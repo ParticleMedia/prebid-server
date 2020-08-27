@@ -14,6 +14,9 @@ type Labels struct {
 	Browser       Browser
 	CookieFlag    CookieFlag
 	RequestStatus RequestStatus
+	IfaFlag       IfaFlag
+	OS            string
+	AppVersion    string
 }
 
 // AdapterLabels defines the labels that can be attached to the adapter metrics.
@@ -58,6 +61,9 @@ type Browser string
 // CookieFlag : User ID cookie exists flag
 type CookieFlag string
 
+// IfaFlag : device ifa exists flag
+type IfaFlag string
+
 // RequestStatus : The request return status
 type RequestStatus string
 
@@ -72,6 +78,12 @@ type CacheResult string
 
 // PublisherUnknown : Default value for Labels.PubID
 const PublisherUnknown = "unknown"
+
+// OSUnknown : Default value for Labels.OS
+const OSUnknown = "unknown"
+
+// AppVersionUnknown : Default value for Labels.AppVersion
+const AppVersionUnknown = "unknown"
 
 // The demand sources
 const (
@@ -149,6 +161,19 @@ func CookieTypes() []CookieFlag {
 		CookieFlagYes,
 		CookieFlagNo,
 		CookieFlagUnknown,
+	}
+}
+
+// ifa flag
+const (
+	IfaFlagYes IfaFlag = "exists"
+	IfaFlagNo  IfaFlag = "no"
+)
+
+func IfaTypes() []IfaFlag {
+	return []IfaFlag{
+		IfaFlagYes,
+		IfaFlagNo,
 	}
 }
 

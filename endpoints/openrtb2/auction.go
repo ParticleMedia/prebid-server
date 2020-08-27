@@ -100,6 +100,9 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		Browser:       getBrowserName(r),
 		CookieFlag:    pbsmetrics.CookieFlagUnknown,
 		RequestStatus: pbsmetrics.RequestStatusOK,
+		OS:            pbsmetrics.OSUnknown,
+		AppVersion:    pbsmetrics.AppVersionUnknown,
+		IfaFlag:       pbsmetrics.IfaFlagNo,
 	}
 	defer func() {
 		deps.metricsEngine.RecordRequest(labels)
@@ -123,10 +126,23 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	}
 
 	usersyncs := usersync.ParsePBSCookieFromRequest(r, &(deps.cfg.HostCookie))
+
+	if req.Device != nil {
+		if req.Device.OS != "" {
+			labels.OS = req.Device.OS
+		}
+		if req.Device.IFA != "" {
+			labels.IfaFlag = pbsmetrics.IfaFlagYes
+		}
+	}
+
 	if req.App != nil {
 		labels.Source = pbsmetrics.DemandApp
 		labels.RType = pbsmetrics.ReqTypeORTB2App
 		labels.PubID = effectivePubID(req.App.Publisher)
+		if req.App.Ver != "" {
+			labels.AppVersion = req.App.Ver
+		}
 	} else { //req.Site != nil
 		labels.Source = pbsmetrics.DemandWeb
 		if usersyncs.LiveSyncCount() == 0 {
