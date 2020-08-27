@@ -18,7 +18,7 @@ ENV CGO_ENABLED 0
 COPY ./ ./
 RUN go mod vendor
 RUN go mod tidy
-ARG TEST="true"
+ARG TEST="false"
 RUN if [ "$TEST" != "false" ]; then ./validate.sh ; fi
 RUN go build -mod=vendor .
 
