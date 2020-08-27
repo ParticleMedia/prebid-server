@@ -50,16 +50,19 @@ const (
 	actionLabel          = "action"
 	adapterErrorLabel    = "adapter_error"
 	adapterLabel         = "adapter"
+	appVersionLabel      = "app_version"
 	bidTypeLabel         = "bid_type"
 	cacheResultLabel     = "cache_result"
 	connectionErrorLabel = "connection_error"
 	cookieLabel          = "cookie"
 	hasBidsLabel         = "has_bids"
+	ifaLabel             = "ifa"
 	isAudioLabel         = "audio"
 	isBannerLabel        = "banner"
 	isNativeLabel        = "native"
 	isVideoLabel         = "video"
 	markupDeliveryLabel  = "delivery"
+	osLabel              = "os"
 	privacyBlockedLabel  = "privacy_blocked"
 	requestStatusLabel   = "request_status"
 	requestTypeLabel     = "request_type"
@@ -281,6 +284,9 @@ func (m *Metrics) RecordConnectionClose(success bool) {
 
 func (m *Metrics) RecordRequest(labels pbsmetrics.Labels) {
 	m.requests.With(prometheus.Labels{
+		appVersionLabel:    string(labels.AppVersion),
+		ifaLabel:           string(labels.IfaFlag),
+		osLabel:            string(labels.OS),
 		requestTypeLabel:   string(labels.RType),
 		requestStatusLabel: string(labels.RequestStatus),
 	}).Inc()
