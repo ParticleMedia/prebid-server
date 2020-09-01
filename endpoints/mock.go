@@ -32,8 +32,8 @@ func NewMockEndpoint(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 					  "key": "",
 					  "url": "",
 					  "bids": {
-						"url": "prebid-cache-stage.newsbreak.com/cache?uuid=0c6341bd-606e-4553-8089-4b2798e12105",
-						"cacheId": "0c6341bd-606e-4553-8089-4b2798e12105"
+						"url": "prebid-cache-stage.newsbreak.com/cache?uuid=085345d5-c75e-48be-bc42-8849ad27cb42",
+						"cacheId": "085345d5-c75e-48be-bc42-8849ad27cb42"
 					  }
 					},
 					"targeting": {
@@ -41,8 +41,8 @@ func NewMockEndpoint(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 					  "hb_bidder_pubmatic": "pubmatic",
 					  "hb_cache_host": "prebid-cache-stage.newsbreak.com",
 					  "hb_cache_host_pubmat": "prebid-cache-stage.newsbreak.com",
-					  "hb_cache_id": "0c6341bd-606e-4553-8089-4b2798e12105",
-					  "hb_cache_id_pubmatic": "0c6341bd-606e-4553-8089-4b2798e12105",
+					  "hb_cache_id": "085345d5-c75e-48be-bc42-8849ad27cb42",
+					  "hb_cache_id_pubmatic": "085345d5-c75e-48be-bc42-8849ad27cb42",
 					  "hb_cache_path": "/cache",
 					  "hb_cache_path_pubmat": "/cache",
 					  "hb_env": "mobile-app",
