@@ -57,6 +57,8 @@ const (
 	cookieLabel          = "cookie"
 	hasBidsLabel         = "has_bids"
 	ifaLabel             = "ifa"
+	geoLabel             = "geo"
+	IPLabel              = "ip"
 	isAudioLabel         = "audio"
 	isBannerLabel        = "banner"
 	isNativeLabel        = "native"
@@ -134,7 +136,7 @@ func NewMetrics(cfg config.PrometheusMetrics) *Metrics {
 	metrics.requests = newCounter(cfg, metrics.Registry,
 		"requests",
 		"Count of total requests to Prebid Server labeled by type and status.",
-		[]string{requestTypeLabel, requestStatusLabel, ifaLabel, appVersionLabel, osLabel})
+		[]string{requestTypeLabel, requestStatusLabel, ifaLabel, appVersionLabel, osLabel, geoLabel, IPLabel})
 
 	metrics.requestsTimer = newHistogram(cfg, metrics.Registry,
 		"request_time_seconds",
@@ -287,6 +289,8 @@ func (m *Metrics) RecordRequest(labels pbsmetrics.Labels) {
 		appVersionLabel:    string(labels.AppVersion),
 		ifaLabel:           string(labels.IfaFlag),
 		osLabel:            string(labels.OS),
+		geoLabel:           string(labels.GeoFlag),
+		IPLabel:            string(labels.IPFlag),
 		requestTypeLabel:   string(labels.RType),
 		requestStatusLabel: string(labels.RequestStatus),
 	}).Inc()

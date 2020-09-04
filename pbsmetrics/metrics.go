@@ -17,6 +17,8 @@ type Labels struct {
 	IfaFlag       IfaFlag
 	OS            string
 	AppVersion    string
+	GeoFlag       GeoFlag
+	IPFlag        IPFlag
 }
 
 // AdapterLabels defines the labels that can be attached to the adapter metrics.
@@ -63,6 +65,12 @@ type CookieFlag string
 
 // IfaFlag : device ifa exists flag
 type IfaFlag string
+
+// GeoFlag : device geo exists flag
+type GeoFlag string
+
+// GeoFlag : device geo exists flag
+type IPFlag string
 
 // RequestStatus : The request return status
 type RequestStatus string
@@ -174,6 +182,32 @@ func IfaTypes() []IfaFlag {
 	return []IfaFlag{
 		IfaFlagYes,
 		IfaFlagNo,
+	}
+}
+
+// geo flag
+const (
+	GeoFlagYes GeoFlag = "exists"
+	GeoFlagNo  GeoFlag = "no"
+)
+
+func GeoTypes() []GeoFlag {
+	return []GeoFlag{
+		GeoFlagYes,
+		GeoFlagNo,
+	}
+}
+
+// IP flag
+const (
+	IPFlagYes IPFlag = "exists"
+	IPFlagNo  IPFlag = "no"
+)
+
+func IPTypes() []IPFlag {
+	return []IPFlag{
+		IPFlagYes,
+		IPFlagNo,
 	}
 }
 

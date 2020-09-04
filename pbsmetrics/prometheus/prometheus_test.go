@@ -142,6 +142,8 @@ func TestRequestMetric(t *testing.T) {
 	ifaFlag := pbsmetrics.IfaFlagNo
 	appVersion := "test_version"
 	os := "test_os"
+	geoFlag := pbsmetrics.GeoFlagNo
+	IPFlag := pbsmetrics.IPFlagNo
 
 	m.RecordRequest(pbsmetrics.Labels{
 		RType:         requestType,
@@ -149,6 +151,8 @@ func TestRequestMetric(t *testing.T) {
 		IfaFlag:       ifaFlag,
 		AppVersion:    appVersion,
 		OS:            os,
+		GeoFlag:       geoFlag,
+		IPFlag:        IPFlag,
 	})
 
 	expectedCount := float64(1)
@@ -160,6 +164,8 @@ func TestRequestMetric(t *testing.T) {
 			ifaLabel:           string(ifaFlag),
 			appVersionLabel:    string(appVersion),
 			osLabel:            string(os),
+			geoLabel:           string(geoFlag),
+			IPLabel:            string(IPFlag),
 		})
 }
 

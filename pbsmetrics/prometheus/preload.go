@@ -18,6 +18,8 @@ func preloadLabelValues(m *Metrics) {
 		connectionErrorValues = []string{connectionAcceptError, connectionCloseError}
 		ifaValues             = ifaTypesAsString()
 		osValues              = []string{pbsmetrics.OSUnknown}
+		geoValues             = geoTypesAsString()
+		IPValues              = IPTypesAsString()
 		requestStatusValues   = requestStatusesAsString()
 		requestTypeValues     = requestTypesAsString()
 	)
@@ -43,6 +45,8 @@ func preloadLabelValues(m *Metrics) {
 		ifaLabel:           ifaValues,
 		appVersionLabel:    appVersionValues,
 		osLabel:            osValues,
+		geoLabel:           geoValues,
+		IPLabel:            IPValues,
 	})
 
 	preloadLabelValuesForHistogram(m.requestsTimer, map[string][]string{
