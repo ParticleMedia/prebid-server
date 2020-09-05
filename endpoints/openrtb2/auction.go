@@ -103,6 +103,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		OS:            pbsmetrics.OSUnknown,
 		AppVersion:    pbsmetrics.AppVersionUnknown,
 		IfaFlag:       pbsmetrics.IfaFlagNo,
+		GeoFlag:       pbsmetrics.GeoFlagNo,
+		IPFlag:        pbsmetrics.IPFlagNo,
 	}
 	defer func() {
 		deps.metricsEngine.RecordRequest(labels)
@@ -133,6 +135,13 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		}
 		if req.Device.IFA != "" {
 			labels.IfaFlag = pbsmetrics.IfaFlagYes
+		}
+		if req.Device.IP != "" {
+			labels.IPFlag = pbsmetrics.IPFlagYes
+		}
+
+		if req.Device.Geo != nil {
+			labels.GeoFlag = pbsmetrics.GeoFlagYes
 		}
 	}
 
