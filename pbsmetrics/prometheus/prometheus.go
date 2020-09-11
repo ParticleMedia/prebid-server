@@ -36,6 +36,7 @@ type Metrics struct {
 	adapterErrors        *prometheus.CounterVec
 	adapterPanics        *prometheus.CounterVec
 	adapterPrices        *prometheus.HistogramVec
+	adapterBidCpm        *prometheus.SummaryVec
 	adapterRequests      *prometheus.CounterVec
 	adapterWinner        *prometheus.CounterVec
 	adapterRequestsTimer *prometheus.HistogramVec
@@ -95,8 +96,9 @@ const (
 func NewMetrics(cfg config.PrometheusMetrics) *Metrics {
 	requestTimeBuckets := []float64{0.05, 0.1, 0.15, 0.20, 0.25, 0.3, 0.4, 0.5, 0.75, 1}
 	cacheWriteTimeBuckets := []float64{0.001, 0.002, 0.005, 0.01, 0.025, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1}
-	priceBuckets := []float64{250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	priceBuckets := []float64{250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 7000, 8000, 9000, 10000}
 	queuedRequestTimeBuckets := []float64{0, 1, 5, 30, 60, 120, 180, 240, 300}
+	bidCpmObjectives := map[float64]float64{0.25: 0.05, 0.5: 0.05, 0.75: 0.05}
 
 	metrics := Metrics{}
 	metrics.Registry = prometheus.NewRegistry()
@@ -190,6 +192,12 @@ func NewMetrics(cfg config.PrometheusMetrics) *Metrics {
 		[]string{adapterLabel},
 		priceBuckets)
 
+	metrics.adapterBidCpm = newSummary(cfg, metrics.Registry,
+		"adapter_bid_cpm",
+		"Bid cpm summary labeled by adapter.",
+		[]string{adapterLabel},
+		bidCpmObjectives)
+
 	metrics.adapterRequests = newCounter(cfg, metrics.Registry,
 		"adapter_requests",
 		"Count of requests labeled by adapter, if has a cookie, and if it resulted in bids.",
@@ -262,6 +270,19 @@ func newHistogram(cfg config.PrometheusMetrics, registry *prometheus.Registry, n
 	histogram := prometheus.NewHistogramVec(opts, labels)
 	registry.MustRegister(histogram)
 	return histogram
+}
+
+func newSummary(cfg config.PrometheusMetrics, registry *prometheus.Registry, name, help string, labels []string, objectives map[float64]float64) *prometheus.SummaryVec {
+	opts := prometheus.SummaryOpts{
+		Namespace:  cfg.Namespace,
+		Subsystem:  cfg.Subsystem,
+		Name:       name,
+		Help:       help,
+		Objectives: objectives,
+	}
+	summary := prometheus.NewSummaryVec(opts, labels)
+	registry.MustRegister(summary)
+	return summary
 }
 
 func (m *Metrics) RecordConnectionAccept(success bool) {
@@ -371,6 +392,10 @@ func (m *Metrics) RecordAdapterBidReceived(labels pbsmetrics.AdapterLabels, bidT
 
 func (m *Metrics) RecordAdapterPrice(labels pbsmetrics.AdapterLabels, cpm float64) {
 	m.adapterPrices.With(prometheus.Labels{
+		adapterLabel: string(labels.Adapter),
+	}).Observe(cpm)
+
+	m.adapterBidCpm.With(prometheus.Labels{
 		adapterLabel: string(labels.Adapter),
 	}).Observe(cpm)
 }

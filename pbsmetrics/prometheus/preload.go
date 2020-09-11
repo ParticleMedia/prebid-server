@@ -88,6 +88,10 @@ func preloadLabelValues(m *Metrics) {
 		adapterLabel: adapterValues,
 	})
 
+	preloadLabelValuesForSummary(m.adapterBidCpm, map[string][]string{
+		adapterLabel: adapterValues,
+	})
+
 	preloadLabelValuesForCounter(m.adapterRequests, map[string][]string{
 		adapterLabel: adapterValues,
 		cookieLabel:  cookieValues,
@@ -120,6 +124,12 @@ func preloadLabelValuesForCounter(counter *prometheus.CounterVec, labelsWithValu
 func preloadLabelValuesForHistogram(histogram *prometheus.HistogramVec, labelsWithValues map[string][]string) {
 	registerLabelPermutations(labelsWithValues, func(labels prometheus.Labels) {
 		histogram.With(labels)
+	})
+}
+
+func preloadLabelValuesForSummary(summary *prometheus.SummaryVec, labelsWithValues map[string][]string) {
+	registerLabelPermutations(labelsWithValues, func(labels prometheus.Labels) {
+		summary.With(labels)
 	})
 }
 
