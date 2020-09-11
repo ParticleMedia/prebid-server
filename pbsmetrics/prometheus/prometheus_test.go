@@ -61,7 +61,7 @@ func TestMetricCountGatekeeping(t *testing.T) {
 	// Verify Per-Adapter Cardinality
 	// - This assertion provides a warning for newly added adapter metrics. Threre are 40+ adapters which makes the
 	//   cost of new per-adapter metrics rather expensive. Thought should be given when adding new per-adapter metrics.
-	assert.True(t, perAdapterCardinalityCount <= 22, "Per-Adapter Cardinality")
+	assert.True(t, perAdapterCardinalityCount <= 23, "Per-Adapter Cardinality")
 }
 
 func TestConnectionMetrics(t *testing.T) {
@@ -488,6 +488,8 @@ func TestRecordAdapterPriceMetric(t *testing.T) {
 	expectedSum := cpm
 	result := getHistogramFromHistogramVec(m.adapterPrices, adapterLabel, adapterName)
 	assertHistogram(t, "adapterPrices", result, expectedCount, expectedSum)
+	summaryResult := getSummaryFromSummaryVec(m.adapterBidCpm, adapterLabel, adapterName)
+	assertSummary(t, "adapterBidCpm", summaryResult, expectedCount, expectedSum)
 }
 
 func TestAdapterRequestMetrics(t *testing.T) {
@@ -1002,6 +1004,18 @@ func getHistogramFromHistogramVecByTwoKeys(histogram *prometheus.HistogramVec, l
 	return result
 }
 
+func getSummaryFromSummaryVec(summary *prometheus.SummaryVec, labelKey, labelValue string) dto.Summary {
+	var result dto.Summary
+	processMetrics(summary, func(m dto.Metric) {
+		for _, label := range m.GetLabel() {
+			if label.GetName() == labelKey && label.GetValue() == labelValue {
+				result = *m.GetSummary()
+			}
+		}
+	})
+	return result
+}
+
 func processMetrics(collector prometheus.Collector, handler func(m dto.Metric)) {
 	collectorChan := make(chan prometheus.Metric)
 	go func() {
@@ -1019,4 +1033,9 @@ func processMetrics(collector prometheus.Collector, handler func(m dto.Metric)) 
 func assertHistogram(t *testing.T, name string, histogram dto.Histogram, expectedCount uint64, expectedSum float64) {
 	assert.Equal(t, expectedCount, histogram.GetSampleCount(), name+":count")
 	assert.Equal(t, expectedSum, histogram.GetSampleSum(), name+":sum")
+}
+
+func assertSummary(t *testing.T, name string, summary dto.Summary, expectedCount uint64, expectedSum float64) {
+	assert.Equal(t, expectedCount, summary.GetSampleCount(), name+":count")
+	assert.Equal(t, expectedSum, summary.GetSampleSum(), name+":sum")
 }

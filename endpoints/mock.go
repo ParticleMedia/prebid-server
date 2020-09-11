@@ -1,12 +1,12 @@
 package endpoints
 
 import (
-	"net/http"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
 )
 
 // NewStatusEndpoint returns a handler which writes the given response when the app is ready to serve requests.
-func NewMockEndpoint(w http.ResponseWriter, r *http.Request, _ httprouter.Params)  {
+func NewMockEndpoint(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 	var payload = []byte(`{
 		"id": "6b2ea487-9678-425f-88a4-eb774c384795",
