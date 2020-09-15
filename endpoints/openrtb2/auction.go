@@ -955,10 +955,25 @@ func (deps *endpointDeps) setFieldsImplicitly(httpReq *http.Request, bidReq *ope
 	// Per the OpenRTB spec: A bid request must not contain both a Site and an App object.
 	if bidReq.App == nil {
 		setSiteImplicitly(httpReq, bidReq)
+	} else {
+		setMissingAppFieldsImplicitly(httpReq, bidReq)
 	}
 	setImpsImplicitly(httpReq, bidReq.Imp)
 
 	setAuctionTypeImplicitly(bidReq)
+}
+
+// setMissingAppFieldsImplicitly uses implicit info to populate bidReq.App
+func setMissingAppFieldsImplicitly(httpReq *http.Request, bidReq *openrtb.BidRequest) {
+	if bidReq.App == nil {
+		return
+	}
+	if bidReq.App.Cat == nil || len(bidReq.App.Cat) == 0 {
+		// IAB12:   News
+		// IAB12-2: National News
+		// IAB12-3: Local News
+		bidReq.App.Cat = []string{"IAB12", "IAB12-2", "IAB12-3"}
+	}
 }
 
 // setDeviceImplicitly uses implicit info from httpReq to populate bidReq.Device
