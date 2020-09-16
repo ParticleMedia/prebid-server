@@ -8,15 +8,48 @@ import (
 	"github.com/mxmCherry/openrtb"
 	"github.com/prebid/prebid-server/adapters"
 	"github.com/prebid/prebid-server/errortypes"
+	"github.com/prebid/prebid-server/openrtb_ext"
 )
 
 type VrtcalAdapter struct {
 	endpoint string
 }
 
+func processImp(imp *openrtb.Imp) error {
+	// get the Vrtcal extension
+	var ext adapters.ExtImpBidder
+	var vrtcalExt openrtb_ext.ExtImpVrtcal
+	if err := json.Unmarshal(imp.Ext, &ext); err != nil {
+		return err
+	}
+	if err := json.Unmarshal(ext.Bidder, &vrtcalExt); err != nil {
+		return err
+	}
+
+	// set impression bid floor
+	imp.BidFloor = vrtcalExt.BidFloor
+	// no error
+	return nil
+}
+
 func (a *VrtcalAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
 	var errs []error
+	var validImps []openrtb.Imp
 	var adapterRequests []*adapters.RequestData
+
+	for _, imp := range request.Imp {
+		if err := processImp(&imp); err == nil {
+			validImps = append(validImps, imp)
+		} else {
+			errs = append(errs, err)
+		}
+	}
+
+	if len(validImps) == 0 {
+		return nil, errs
+	}
+
+	request.Imp = validImps
 
 	reqJSON, err := json.Marshal(request)
 	if err != nil {
