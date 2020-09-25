@@ -8,20 +8,21 @@ import (
 func preloadLabelValues(m *Metrics) {
 	var (
 		actionValues          = actionsAsString()
-		adapterValues         = adaptersAsString()
 		adapterErrorValues    = adapterErrorsAsString()
 		appVersionValues      = []string{pbsmetrics.AppVersionUnknown}
+		adapterValues         = adaptersAsString()
 		bidTypeValues         = []string{markupDeliveryAdm, markupDeliveryNurl}
 		boolValues            = boolValuesAsString()
 		cacheResultValues     = cacheResultsAsString()
-		cookieValues          = cookieTypesAsString()
 		connectionErrorValues = []string{connectionAcceptError, connectionCloseError}
 		ifaValues             = ifaTypesAsString()
 		osValues              = []string{pbsmetrics.OSUnknown}
 		geoValues             = geoTypesAsString()
 		IPValues              = IPTypesAsString()
+		cookieValues          = cookieTypesAsString()
 		requestStatusValues   = requestStatusesAsString()
 		requestTypeValues     = requestTypesAsString()
+		sourceValues          = []string{sourceRequest}
 	)
 
 	preloadLabelValuesForCounter(m.connectionsError, map[string][]string{
@@ -98,6 +99,20 @@ func preloadLabelValues(m *Metrics) {
 		hasBidsLabel: boolValues,
 	})
 
+	if !m.metricsDisabled.AdapterConnectionMetrics {
+		preloadLabelValuesForCounter(m.adapterCreatedConnections, map[string][]string{
+			adapterLabel: adapterValues,
+		})
+
+		preloadLabelValuesForCounter(m.adapterReusedConnections, map[string][]string{
+			adapterLabel: adapterValues,
+		})
+
+		preloadLabelValuesForHistogram(m.adapterConnectionWaitTime, map[string][]string{
+			adapterLabel: adapterValues,
+		})
+	}
+
 	preloadLabelValuesForHistogram(m.adapterRequestsTimer, map[string][]string{
 		adapterLabel: adapterValues,
 	})
@@ -112,6 +127,24 @@ func preloadLabelValues(m *Metrics) {
 	preloadLabelValuesForHistogram(m.requestsQueueTimer, map[string][]string{
 		requestTypeLabel:   {string(pbsmetrics.ReqTypeVideo)},
 		requestStatusLabel: {requestSuccessLabel, requestRejectLabel},
+	})
+
+	preloadLabelValuesForCounter(m.privacyCCPA, map[string][]string{
+		sourceLabel: sourceValues,
+		optOutLabel: boolValues,
+	})
+
+	preloadLabelValuesForCounter(m.privacyCOPPA, map[string][]string{
+		sourceLabel: sourceValues,
+	})
+
+	preloadLabelValuesForCounter(m.privacyLMT, map[string][]string{
+		sourceLabel: sourceValues,
+	})
+
+	preloadLabelValuesForCounter(m.privacyTCF, map[string][]string{
+		sourceLabel:  sourceValues,
+		versionLabel: tcfVersionsAsString(),
 	})
 }
 
