@@ -974,6 +974,14 @@ func setMissingAppFieldsImplicitly(httpReq *http.Request, bidReq *openrtb.BidReq
 		// IAB12-3: Local News
 		bidReq.App.Cat = []string{"IAB12", "IAB12-2", "IAB12-3"}
 	}
+
+	if bidReq.Device != nil {
+		if "android" == bidReq.Device.OS {
+			bidReq.App.StoreURL = "https://play.google.com/store/apps/details?id=com.particlenews.newsbreak"
+		} else if "iOS" == bidReq.Device.OS {
+			bidReq.App.StoreURL = "https://apps.apple.com/us/app/news-break-personal-local/id1132762804"
+		}
+	}
 }
 
 // setDeviceImplicitly uses implicit info from httpReq to populate bidReq.Device
