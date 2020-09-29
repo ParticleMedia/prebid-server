@@ -9,6 +9,7 @@ import (
 	"github.com/prebid/prebid-server/adapters/adform"
 	"github.com/prebid/prebid-server/adapters/adkernel"
 	"github.com/prebid/prebid-server/adapters/adkernelAdn"
+	"github.com/prebid/prebid-server/adapters/adman"
 	"github.com/prebid/prebid-server/adapters/admixer"
 	"github.com/prebid/prebid-server/adapters/adocean"
 	"github.com/prebid/prebid-server/adapters/adpone"
@@ -18,9 +19,12 @@ import (
 	"github.com/prebid/prebid-server/adapters/aja"
 	"github.com/prebid/prebid-server/adapters/appnexus"
 	"github.com/prebid/prebid-server/adapters/audienceNetwork"
+	"github.com/prebid/prebid-server/adapters/avocet"
 	"github.com/prebid/prebid-server/adapters/beachfront"
 	"github.com/prebid/prebid-server/adapters/beintoo"
 	"github.com/prebid/prebid-server/adapters/brightroll"
+	"github.com/prebid/prebid-server/adapters/colossus"
+	"github.com/prebid/prebid-server/adapters/connectad"
 	"github.com/prebid/prebid-server/adapters/consumable"
 	"github.com/prebid/prebid-server/adapters/conversant"
 	"github.com/prebid/prebid-server/adapters/cpmstar"
@@ -34,9 +38,11 @@ import (
 	"github.com/prebid/prebid-server/adapters/grid"
 	"github.com/prebid/prebid-server/adapters/gumgum"
 	"github.com/prebid/prebid-server/adapters/improvedigital"
+	"github.com/prebid/prebid-server/adapters/invibes"
 	"github.com/prebid/prebid-server/adapters/ix"
 	"github.com/prebid/prebid-server/adapters/lifestreet"
 	"github.com/prebid/prebid-server/adapters/lockerdome"
+	"github.com/prebid/prebid-server/adapters/logicad"
 	"github.com/prebid/prebid-server/adapters/lunamedia"
 	"github.com/prebid/prebid-server/adapters/marsmedia"
 	"github.com/prebid/prebid-server/adapters/mgid"
@@ -49,6 +55,7 @@ import (
 	"github.com/prebid/prebid-server/adapters/rtbhouse"
 	"github.com/prebid/prebid-server/adapters/rubicon"
 	"github.com/prebid/prebid-server/adapters/sharethrough"
+	"github.com/prebid/prebid-server/adapters/smartadserver"
 	"github.com/prebid/prebid-server/adapters/smartrtb"
 	"github.com/prebid/prebid-server/adapters/somoaudience"
 	"github.com/prebid/prebid-server/adapters/sonobi"
@@ -82,6 +89,7 @@ func NewSyncerMap(cfg *config.Configuration) map[openrtb_ext.BidderName]usersync
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdform, adform.NewAdformSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdkernel, adkernel.NewAdkernelSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdkernelAdn, adkernelAdn.NewAdkernelAdnSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdman, adman.NewAdmanSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdmixer, admixer.NewAdmixerSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdOcean, adocean.NewAdOceanSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdpone, adpone.NewadponeSyncer)
@@ -90,9 +98,12 @@ func NewSyncerMap(cfg *config.Configuration) map[openrtb_ext.BidderName]usersync
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdvangelists, advangelists.NewAdvangelistsSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAJA, aja.NewAJASyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAppnexus, appnexus.NewAppnexusSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderAvocet, avocet.NewAvocetSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderBeachfront, beachfront.NewBeachfrontSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderBeintoo, beintoo.NewBeintooSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderBrightroll, brightroll.NewBrightrollSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderColossus, colossus.NewColossusSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderConnectAd, connectad.NewConnectAdSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderConsumable, consumable.NewConsumableSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderConversant, conversant.NewConversantSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderCpmstar, cpmstar.NewCpmstarSyncer)
@@ -107,9 +118,11 @@ func NewSyncerMap(cfg *config.Configuration) map[openrtb_ext.BidderName]usersync
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderGrid, grid.NewGridSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderGumGum, gumgum.NewGumGumSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderImprovedigital, improvedigital.NewImprovedigitalSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderInvibes, invibes.NewInvibesSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderIx, ix.NewIxSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderLifestreet, lifestreet.NewLifestreetSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderLockerDome, lockerdome.NewLockerDomeSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderLogicad, logicad.NewLogicadSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderLunaMedia, lunamedia.NewLunaMediaSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderMarsmedia, marsmedia.NewMarsmediaSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderMgid, mgid.NewMgidSyncer)
@@ -125,6 +138,7 @@ func NewSyncerMap(cfg *config.Configuration) map[openrtb_ext.BidderName]usersync
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderSomoaudience, somoaudience.NewSomoaudienceSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderSonobi, sonobi.NewSonobiSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderSovrn, sovrn.NewSovrnSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderSmartadserver, smartadserver.NewSmartadserverSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderSmartRTB, smartrtb.NewSmartRTBSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderSynacormedia, synacormedia.NewSynacorMediaSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderTelaria, telaria.NewTelariaSyncer)
