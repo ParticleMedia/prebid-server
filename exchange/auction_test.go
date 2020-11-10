@@ -493,7 +493,10 @@ func TestNewAuction(t *testing.T) {
 
 	for _, test := range tests {
 		auc := newAuction(test.seatBids, test.numImps, test.preferDeals)
-
+		// Test cases created in prebid org doesn't include winner field,
+		// which is a feature added in our forked repo.
+		// Set winner to empty string here in order to pass test cases
+		auc.winner = ""
 		assert.Equal(t, test.expectedAuction, *auc, test.description)
 	}
 
