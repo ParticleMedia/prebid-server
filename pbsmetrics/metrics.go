@@ -11,7 +11,6 @@ type Labels struct {
 	Source        DemandSource
 	RType         RequestType
 	PubID         string // exchange specific ID, so we cannot compile in values
-	Browser       Browser
 	CookieFlag    CookieFlag
 	RequestStatus RequestStatus
 	IfaFlag       IfaFlag
@@ -27,7 +26,6 @@ type AdapterLabels struct {
 	RType         RequestType
 	Adapter       openrtb_ext.BidderName
 	PubID         string // exchange specific ID, so we cannot compile in values
-	Browser       Browser
 	CookieFlag    CookieFlag
 	AdapterBids   AdapterBid
 	AdapterErrors map[AdapterError]struct{}
@@ -121,9 +119,6 @@ type ImpMediaType string
 // RequestType : Request type enumeration
 type RequestType string
 
-// Browser type enumeration
-type Browser string
-
 // CookieFlag : User ID cookie exists flag
 type CookieFlag string
 
@@ -205,19 +200,6 @@ func ImpTypes() []ImpMediaType {
 		ImpTypeVideo,
 		ImpTypeAudio,
 		ImpTypeNative,
-	}
-}
-
-// Browser flag; at this point we only care about identifying Safari
-const (
-	BrowserSafari Browser = "safari"
-	BrowserOther  Browser = "other"
-)
-
-func BrowserTypes() []Browser {
-	return []Browser{
-		BrowserSafari,
-		BrowserOther,
 	}
 }
 
