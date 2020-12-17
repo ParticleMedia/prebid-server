@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/prebid/prebid-server/config"
+	"github.com/prebid/prebid-server/metrics"
 	"github.com/prebid/prebid-server/openrtb_ext"
-	"github.com/prebid/prebid-server/pbsmetrics"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
@@ -138,15 +138,10 @@ func TestConnectionMetrics(t *testing.T) {
 
 func TestRequestMetric(t *testing.T) {
 	m := createMetricsForTesting()
-	requestType := pbsmetrics.ReqTypeORTB2Web
-	requestStatus := pbsmetrics.RequestStatusBlacklisted
-	ifaFlag := pbsmetrics.IfaFlagNo
-	appVersion := "test_version"
-	os := "test_os"
-	geoFlag := pbsmetrics.GeoFlagNo
-	IPFlag := pbsmetrics.IPFlagNo
+	requestType := metrics.ReqTypeORTB2Web
+	requestStatus := metrics.RequestStatusBlacklisted
 
-	m.RecordRequest(pbsmetrics.Labels{
+	m.RecordRequest(metrics.Labels{
 		RType:         requestType,
 		RequestStatus: requestStatus,
 		IfaFlag:       ifaFlag,
@@ -171,11 +166,11 @@ func TestRequestMetric(t *testing.T) {
 }
 
 func TestRequestMetricWithoutCookie(t *testing.T) {
-	requestType := pbsmetrics.ReqTypeORTB2Web
-	performTest := func(m *Metrics, cookieFlag pbsmetrics.CookieFlag) {
-		m.RecordRequest(pbsmetrics.Labels{
+	requestType := metrics.ReqTypeORTB2Web
+	performTest := func(m *Metrics, cookieFlag metrics.CookieFlag) {
+		m.RecordRequest(metrics.Labels{
 			RType:         requestType,
-			RequestStatus: pbsmetrics.RequestStatusBlacklisted,
+			RequestStatus: metrics.RequestStatusBlacklisted,
 			CookieFlag:    cookieFlag,
 		})
 	}
@@ -183,27 +178,27 @@ func TestRequestMetricWithoutCookie(t *testing.T) {
 	testCases := []struct {
 		description   string
 		testCase      func(m *Metrics)
-		cookieFlag    pbsmetrics.CookieFlag
+		cookieFlag    metrics.CookieFlag
 		expectedCount float64
 	}{
 		{
 			description: "Yes",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagYes)
+				performTest(m, metrics.CookieFlagYes)
 			},
 			expectedCount: 0,
 		},
 		{
 			description: "No",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagNo)
+				performTest(m, metrics.CookieFlagNo)
 			},
 			expectedCount: 1,
 		},
 		{
 			description: "Unknown",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagUnknown)
+				performTest(m, metrics.CookieFlagUnknown)
 			},
 			expectedCount: 0,
 		},
@@ -225,9 +220,9 @@ func TestRequestMetricWithoutCookie(t *testing.T) {
 func TestAccountMetric(t *testing.T) {
 	knownPubID := "knownPublisher"
 	performTest := func(m *Metrics, pubID string) {
-		m.RecordRequest(pbsmetrics.Labels{
-			RType:         pbsmetrics.ReqTypeORTB2Web,
-			RequestStatus: pbsmetrics.RequestStatusBlacklisted,
+		m.RecordRequest(metrics.Labels{
+			RType:         metrics.ReqTypeORTB2Web,
+			RequestStatus: metrics.RequestStatusBlacklisted,
 			PubID:         pubID,
 		})
 	}
@@ -247,7 +242,7 @@ func TestAccountMetric(t *testing.T) {
 		{
 			description: "Unknown",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.PublisherUnknown)
+				performTest(m, metrics.PublisherUnknown)
 			},
 			expectedCount: 0,
 		},
@@ -268,7 +263,7 @@ func TestAccountMetric(t *testing.T) {
 
 func TestImpressionsMetric(t *testing.T) {
 	performTest := func(m *Metrics, isBanner, isVideo, isAudio, isNative bool) {
-		m.RecordImps(pbsmetrics.ImpLabels{
+		m.RecordImps(metrics.ImpLabels{
 			BannerImps: isBanner,
 			VideoImps:  isVideo,
 			AudioImps:  isAudio,
@@ -372,7 +367,7 @@ func TestImpressionsMetric(t *testing.T) {
 func TestLegacyImpressionsMetric(t *testing.T) {
 	m := createMetricsForTesting()
 
-	m.RecordLegacyImps(pbsmetrics.Labels{}, 42)
+	m.RecordLegacyImps(metrics.Labels{}, 42)
 
 	expectedCount := float64(42)
 	assertCounterValue(t, "", "impressionsLegacy", m.impressionsLegacy,
@@ -380,9 +375,9 @@ func TestLegacyImpressionsMetric(t *testing.T) {
 }
 
 func TestRequestTimeMetric(t *testing.T) {
-	requestType := pbsmetrics.ReqTypeORTB2Web
-	performTest := func(m *Metrics, requestStatus pbsmetrics.RequestStatus, timeInMs float64) {
-		m.RecordRequestTime(pbsmetrics.Labels{
+	requestType := metrics.ReqTypeORTB2Web
+	performTest := func(m *Metrics, requestStatus metrics.RequestStatus, timeInMs float64) {
+		m.RecordRequestTime(metrics.Labels{
 			RType:         requestType,
 			RequestStatus: requestStatus,
 		}, time.Duration(timeInMs)*time.Millisecond)
@@ -397,7 +392,7 @@ func TestRequestTimeMetric(t *testing.T) {
 		{
 			description: "Success",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.RequestStatusOK, 500)
+				performTest(m, metrics.RequestStatusOK, 500)
 			},
 			expectedCount: 1,
 			expectedSum:   0.5,
@@ -405,7 +400,7 @@ func TestRequestTimeMetric(t *testing.T) {
 		{
 			description: "Error",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.RequestStatusErr, 500)
+				performTest(m, metrics.RequestStatusErr, 500)
 			},
 			expectedCount: 0,
 			expectedSum:   0,
@@ -425,58 +420,58 @@ func TestRequestTimeMetric(t *testing.T) {
 func TestRecordStoredDataFetchTime(t *testing.T) {
 	tests := []struct {
 		description string
-		dataType    pbsmetrics.StoredDataType
-		fetchType   pbsmetrics.StoredDataFetchType
+		dataType    metrics.StoredDataType
+		fetchType   metrics.StoredDataFetchType
 	}{
 		{
 			description: "Update stored account histogram with all label",
-			dataType:    pbsmetrics.AccountDataType,
-			fetchType:   pbsmetrics.FetchAll,
+			dataType:    metrics.AccountDataType,
+			fetchType:   metrics.FetchAll,
 		},
 		{
 			description: "Update stored AMP histogram with all label",
-			dataType:    pbsmetrics.AMPDataType,
-			fetchType:   pbsmetrics.FetchAll,
+			dataType:    metrics.AMPDataType,
+			fetchType:   metrics.FetchAll,
 		},
 		{
 			description: "Update stored category histogram with all label",
-			dataType:    pbsmetrics.CategoryDataType,
-			fetchType:   pbsmetrics.FetchAll,
+			dataType:    metrics.CategoryDataType,
+			fetchType:   metrics.FetchAll,
 		},
 		{
 			description: "Update stored request histogram with all label",
-			dataType:    pbsmetrics.RequestDataType,
-			fetchType:   pbsmetrics.FetchAll,
+			dataType:    metrics.RequestDataType,
+			fetchType:   metrics.FetchAll,
 		},
 		{
 			description: "Update stored video histogram with all label",
-			dataType:    pbsmetrics.VideoDataType,
-			fetchType:   pbsmetrics.FetchAll,
+			dataType:    metrics.VideoDataType,
+			fetchType:   metrics.FetchAll,
 		},
 		{
 			description: "Update stored account histogram with delta label",
-			dataType:    pbsmetrics.AccountDataType,
-			fetchType:   pbsmetrics.FetchDelta,
+			dataType:    metrics.AccountDataType,
+			fetchType:   metrics.FetchDelta,
 		},
 		{
 			description: "Update stored AMP histogram with delta label",
-			dataType:    pbsmetrics.AMPDataType,
-			fetchType:   pbsmetrics.FetchDelta,
+			dataType:    metrics.AMPDataType,
+			fetchType:   metrics.FetchDelta,
 		},
 		{
 			description: "Update stored category histogram with delta label",
-			dataType:    pbsmetrics.CategoryDataType,
-			fetchType:   pbsmetrics.FetchDelta,
+			dataType:    metrics.CategoryDataType,
+			fetchType:   metrics.FetchDelta,
 		},
 		{
 			description: "Update stored request histogram with delta label",
-			dataType:    pbsmetrics.RequestDataType,
-			fetchType:   pbsmetrics.FetchDelta,
+			dataType:    metrics.RequestDataType,
+			fetchType:   metrics.FetchDelta,
 		},
 		{
 			description: "Update stored video histogram with delta label",
-			dataType:    pbsmetrics.VideoDataType,
-			fetchType:   pbsmetrics.FetchDelta,
+			dataType:    metrics.VideoDataType,
+			fetchType:   metrics.FetchDelta,
 		},
 	}
 
@@ -484,22 +479,22 @@ func TestRecordStoredDataFetchTime(t *testing.T) {
 		m := createMetricsForTesting()
 
 		fetchTime := time.Duration(0.5 * float64(time.Second))
-		m.RecordStoredDataFetchTime(pbsmetrics.StoredDataLabels{
+		m.RecordStoredDataFetchTime(metrics.StoredDataLabels{
 			DataType:      tt.dataType,
 			DataFetchType: tt.fetchType,
 		}, fetchTime)
 
 		var metricsTimer *prometheus.HistogramVec
 		switch tt.dataType {
-		case pbsmetrics.AccountDataType:
+		case metrics.AccountDataType:
 			metricsTimer = m.storedAccountFetchTimer
-		case pbsmetrics.AMPDataType:
+		case metrics.AMPDataType:
 			metricsTimer = m.storedAMPFetchTimer
-		case pbsmetrics.CategoryDataType:
+		case metrics.CategoryDataType:
 			metricsTimer = m.storedCategoryFetchTimer
-		case pbsmetrics.RequestDataType:
+		case metrics.RequestDataType:
 			metricsTimer = m.storedRequestFetchTimer
-		case pbsmetrics.VideoDataType:
+		case metrics.VideoDataType:
 			metricsTimer = m.storedVideoFetchTimer
 		}
 
@@ -514,90 +509,90 @@ func TestRecordStoredDataFetchTime(t *testing.T) {
 func TestRecordStoredDataError(t *testing.T) {
 	tests := []struct {
 		description string
-		dataType    pbsmetrics.StoredDataType
-		errorType   pbsmetrics.StoredDataError
+		dataType    metrics.StoredDataType
+		errorType   metrics.StoredDataError
 		metricName  string
 	}{
 		{
 			description: "Update stored_account_errors counter with network label",
-			dataType:    pbsmetrics.AccountDataType,
-			errorType:   pbsmetrics.StoredDataErrorNetwork,
+			dataType:    metrics.AccountDataType,
+			errorType:   metrics.StoredDataErrorNetwork,
 			metricName:  "stored_account_errors",
 		},
 		{
 			description: "Update stored_amp_errors counter with network label",
-			dataType:    pbsmetrics.AMPDataType,
-			errorType:   pbsmetrics.StoredDataErrorNetwork,
+			dataType:    metrics.AMPDataType,
+			errorType:   metrics.StoredDataErrorNetwork,
 			metricName:  "stored_amp_errors",
 		},
 		{
 			description: "Update stored_category_errors counter with network label",
-			dataType:    pbsmetrics.CategoryDataType,
-			errorType:   pbsmetrics.StoredDataErrorNetwork,
+			dataType:    metrics.CategoryDataType,
+			errorType:   metrics.StoredDataErrorNetwork,
 			metricName:  "stored_category_errors",
 		},
 		{
 			description: "Update stored_request_errors counter with network label",
-			dataType:    pbsmetrics.RequestDataType,
-			errorType:   pbsmetrics.StoredDataErrorNetwork,
+			dataType:    metrics.RequestDataType,
+			errorType:   metrics.StoredDataErrorNetwork,
 			metricName:  "stored_request_errors",
 		},
 		{
 			description: "Update stored_video_errors counter with network label",
-			dataType:    pbsmetrics.VideoDataType,
-			errorType:   pbsmetrics.StoredDataErrorNetwork,
+			dataType:    metrics.VideoDataType,
+			errorType:   metrics.StoredDataErrorNetwork,
 			metricName:  "stored_video_errors",
 		},
 		{
 			description: "Update stored_account_errors counter with undefined label",
-			dataType:    pbsmetrics.AccountDataType,
-			errorType:   pbsmetrics.StoredDataErrorUndefined,
+			dataType:    metrics.AccountDataType,
+			errorType:   metrics.StoredDataErrorUndefined,
 			metricName:  "stored_account_errors",
 		},
 		{
 			description: "Update stored_amp_errors counter with undefined label",
-			dataType:    pbsmetrics.AMPDataType,
-			errorType:   pbsmetrics.StoredDataErrorUndefined,
+			dataType:    metrics.AMPDataType,
+			errorType:   metrics.StoredDataErrorUndefined,
 			metricName:  "stored_amp_errors",
 		},
 		{
 			description: "Update stored_category_errors counter with undefined label",
-			dataType:    pbsmetrics.CategoryDataType,
-			errorType:   pbsmetrics.StoredDataErrorUndefined,
+			dataType:    metrics.CategoryDataType,
+			errorType:   metrics.StoredDataErrorUndefined,
 			metricName:  "stored_category_errors",
 		},
 		{
 			description: "Update stored_request_errors counter with undefined label",
-			dataType:    pbsmetrics.RequestDataType,
-			errorType:   pbsmetrics.StoredDataErrorUndefined,
+			dataType:    metrics.RequestDataType,
+			errorType:   metrics.StoredDataErrorUndefined,
 			metricName:  "stored_request_errors",
 		},
 		{
 			description: "Update stored_video_errors counter with undefined label",
-			dataType:    pbsmetrics.VideoDataType,
-			errorType:   pbsmetrics.StoredDataErrorUndefined,
+			dataType:    metrics.VideoDataType,
+			errorType:   metrics.StoredDataErrorUndefined,
 			metricName:  "stored_video_errors",
 		},
 	}
 
 	for _, tt := range tests {
 		m := createMetricsForTesting()
-		m.RecordStoredDataError(pbsmetrics.StoredDataLabels{
+		m.RecordStoredDataError(metrics.StoredDataLabels{
 			DataType: tt.dataType,
 			Error:    tt.errorType,
 		})
 
 		var metricsCounter *prometheus.CounterVec
 		switch tt.dataType {
-		case pbsmetrics.AccountDataType:
+		case metrics.AccountDataType:
 			metricsCounter = m.storedAccountErrors
-		case pbsmetrics.AMPDataType:
+		case metrics.AMPDataType:
 			metricsCounter = m.storedAMPErrors
-		case pbsmetrics.CategoryDataType:
+		case metrics.CategoryDataType:
 			metricsCounter = m.storedCategoryErrors
-		case pbsmetrics.RequestDataType:
+		case metrics.RequestDataType:
 			metricsCounter = m.storedRequestErrors
-		case pbsmetrics.VideoDataType:
+		case metrics.VideoDataType:
 			metricsCounter = m.storedVideoErrors
 		}
 
@@ -612,7 +607,7 @@ func TestRecordStoredDataError(t *testing.T) {
 func TestAdapterBidReceivedMetric(t *testing.T) {
 	adapterName := "anyName"
 	performTest := func(m *Metrics, hasAdm bool) {
-		labels := pbsmetrics.AdapterLabels{
+		labels := metrics.AdapterLabels{
 			Adapter: openrtb_ext.BidderName(adapterName),
 		}
 		bidType := openrtb_ext.BidTypeBanner
@@ -668,7 +663,7 @@ func TestRecordAdapterPriceMetric(t *testing.T) {
 	adapterName := "anyName"
 	cpm := float64(42)
 
-	m.RecordAdapterPrice(pbsmetrics.AdapterLabels{
+	m.RecordAdapterPrice(metrics.AdapterLabels{
 		Adapter: openrtb_ext.BidderName(adapterName),
 	}, cpm)
 
@@ -682,8 +677,8 @@ func TestRecordAdapterPriceMetric(t *testing.T) {
 
 func TestAdapterRequestMetrics(t *testing.T) {
 	adapterName := "anyName"
-	performTest := func(m *Metrics, cookieFlag pbsmetrics.CookieFlag, adapterBids pbsmetrics.AdapterBid) {
-		labels := pbsmetrics.AdapterLabels{
+	performTest := func(m *Metrics, cookieFlag metrics.CookieFlag, adapterBids metrics.AdapterBid) {
+		labels := metrics.AdapterLabels{
 			Adapter:     openrtb_ext.BidderName(adapterName),
 			CookieFlag:  cookieFlag,
 			AdapterBids: adapterBids,
@@ -703,7 +698,7 @@ func TestAdapterRequestMetrics(t *testing.T) {
 		{
 			description: "No Cookie & No Bids",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagNo, pbsmetrics.AdapterBidNone)
+				performTest(m, metrics.CookieFlagNo, metrics.AdapterBidNone)
 			},
 			expectedCount:              1,
 			expectedCookieNoCount:      1,
@@ -714,7 +709,7 @@ func TestAdapterRequestMetrics(t *testing.T) {
 		{
 			description: "Unknown Cookie & No Bids",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagUnknown, pbsmetrics.AdapterBidNone)
+				performTest(m, metrics.CookieFlagUnknown, metrics.AdapterBidNone)
 			},
 			expectedCount:              1,
 			expectedCookieNoCount:      0,
@@ -725,7 +720,7 @@ func TestAdapterRequestMetrics(t *testing.T) {
 		{
 			description: "Has Cookie & No Bids",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagYes, pbsmetrics.AdapterBidNone)
+				performTest(m, metrics.CookieFlagYes, metrics.AdapterBidNone)
 			},
 			expectedCount:              1,
 			expectedCookieNoCount:      0,
@@ -736,7 +731,7 @@ func TestAdapterRequestMetrics(t *testing.T) {
 		{
 			description: "No Cookie & Bids Present",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagNo, pbsmetrics.AdapterBidPresent)
+				performTest(m, metrics.CookieFlagNo, metrics.AdapterBidPresent)
 			},
 			expectedCount:              1,
 			expectedCookieNoCount:      1,
@@ -747,7 +742,7 @@ func TestAdapterRequestMetrics(t *testing.T) {
 		{
 			description: "Unknown Cookie & Bids Present",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagUnknown, pbsmetrics.AdapterBidPresent)
+				performTest(m, metrics.CookieFlagUnknown, metrics.AdapterBidPresent)
 			},
 			expectedCount:              1,
 			expectedCookieNoCount:      0,
@@ -758,7 +753,7 @@ func TestAdapterRequestMetrics(t *testing.T) {
 		{
 			description: "Has Cookie & Bids Present",
 			testCase: func(m *Metrics) {
-				performTest(m, pbsmetrics.CookieFlagYes, pbsmetrics.AdapterBidPresent)
+				performTest(m, metrics.CookieFlagYes, metrics.AdapterBidPresent)
 			},
 			expectedCount:              1,
 			expectedCookieNoCount:      0,
@@ -797,11 +792,11 @@ func TestAdapterRequestMetrics(t *testing.T) {
 
 					if label.GetName() == cookieLabel {
 						switch label.GetValue() {
-						case string(pbsmetrics.CookieFlagNo):
+						case string(metrics.CookieFlagNo):
 							totalCookieNoCount += value
-						case string(pbsmetrics.CookieFlagYes):
+						case string(metrics.CookieFlagYes):
 							totalCookieYesCount += value
-						case string(pbsmetrics.CookieFlagUnknown):
+						case string(metrics.CookieFlagUnknown):
 							totalCookieUnknownCount += value
 						}
 					}
@@ -818,12 +813,12 @@ func TestAdapterRequestMetrics(t *testing.T) {
 
 func TestAdapterRequestErrorMetrics(t *testing.T) {
 	adapterName := "anyName"
-	performTest := func(m *Metrics, adapterErrors map[pbsmetrics.AdapterError]struct{}) {
-		labels := pbsmetrics.AdapterLabels{
+	performTest := func(m *Metrics, adapterErrors map[metrics.AdapterError]struct{}) {
+		labels := metrics.AdapterLabels{
 			Adapter:       openrtb_ext.BidderName(adapterName),
 			AdapterErrors: adapterErrors,
-			CookieFlag:    pbsmetrics.CookieFlagUnknown,
-			AdapterBids:   pbsmetrics.AdapterBidPresent,
+			CookieFlag:    metrics.CookieFlagUnknown,
+			AdapterBids:   metrics.AdapterBidPresent,
 		}
 		m.RecordAdapterRequest(labels)
 	}
@@ -845,8 +840,8 @@ func TestAdapterRequestErrorMetrics(t *testing.T) {
 		{
 			description: "Bad Input Error",
 			testCase: func(m *Metrics) {
-				performTest(m, map[pbsmetrics.AdapterError]struct{}{
-					pbsmetrics.AdapterErrorBadInput: {},
+				performTest(m, map[metrics.AdapterError]struct{}{
+					metrics.AdapterErrorBadInput: {},
 				})
 			},
 			expectedErrorsCount:         1,
@@ -855,8 +850,8 @@ func TestAdapterRequestErrorMetrics(t *testing.T) {
 		{
 			description: "Other Error",
 			testCase: func(m *Metrics) {
-				performTest(m, map[pbsmetrics.AdapterError]struct{}{
-					pbsmetrics.AdapterErrorBadServerResponse: {},
+				performTest(m, map[metrics.AdapterError]struct{}{
+					metrics.AdapterErrorBadServerResponse: {},
 				})
 			},
 			expectedErrorsCount:         1,
@@ -883,7 +878,7 @@ func TestAdapterRequestErrorMetrics(t *testing.T) {
 				value := m.GetCounter().GetValue()
 				errorsCount += value
 				for _, label := range m.GetLabel() {
-					if label.GetName() == adapterErrorLabel && label.GetValue() == string(pbsmetrics.AdapterErrorBadInput) {
+					if label.GetName() == adapterErrorLabel && label.GetValue() == string(metrics.AdapterErrorBadInput) {
 						badInputErrorsCount += value
 					}
 				}
@@ -896,8 +891,8 @@ func TestAdapterRequestErrorMetrics(t *testing.T) {
 
 func TestAdapterTimeMetric(t *testing.T) {
 	adapterName := "anyName"
-	performTest := func(m *Metrics, timeInMs float64, adapterErrors map[pbsmetrics.AdapterError]struct{}) {
-		m.RecordAdapterTime(pbsmetrics.AdapterLabels{
+	performTest := func(m *Metrics, timeInMs float64, adapterErrors map[metrics.AdapterError]struct{}) {
+		m.RecordAdapterTime(metrics.AdapterLabels{
 			Adapter:       openrtb_ext.BidderName(adapterName),
 			AdapterErrors: adapterErrors,
 		}, time.Duration(timeInMs)*time.Millisecond)
@@ -912,7 +907,7 @@ func TestAdapterTimeMetric(t *testing.T) {
 		{
 			description: "Success",
 			testCase: func(m *Metrics) {
-				performTest(m, 500, map[pbsmetrics.AdapterError]struct{}{})
+				performTest(m, 500, map[metrics.AdapterError]struct{}{})
 			},
 			expectedCount: 1,
 			expectedSum:   0.5,
@@ -920,8 +915,8 @@ func TestAdapterTimeMetric(t *testing.T) {
 		{
 			description: "Error",
 			testCase: func(m *Metrics) {
-				performTest(m, 500, map[pbsmetrics.AdapterError]struct{}{
-					pbsmetrics.AdapterErrorTimeout: {},
+				performTest(m, 500, map[metrics.AdapterError]struct{}{
+					metrics.AdapterErrorTimeout: {},
 				})
 			},
 			expectedCount: 0,
@@ -958,9 +953,9 @@ func TestAdapterCookieSyncMetric(t *testing.T) {
 func TestUserIDSetMetric(t *testing.T) {
 	m := createMetricsForTesting()
 	adapterName := "anyName"
-	action := pbsmetrics.RequestActionSet
+	action := metrics.RequestActionSet
 
-	m.RecordUserIDSet(pbsmetrics.UserLabels{
+	m.RecordUserIDSet(metrics.UserLabels{
 		Bidder: openrtb_ext.BidderName(adapterName),
 		Action: action,
 	})
@@ -976,9 +971,9 @@ func TestUserIDSetMetric(t *testing.T) {
 
 func TestUserIDSetMetricWhenBidderEmpty(t *testing.T) {
 	m := createMetricsForTesting()
-	action := pbsmetrics.RequestActionErr
+	action := metrics.RequestActionErr
 
-	m.RecordUserIDSet(pbsmetrics.UserLabels{
+	m.RecordUserIDSet(metrics.UserLabels{
 		Bidder: openrtb_ext.BidderName(""),
 		Action: action,
 	})
@@ -995,7 +990,7 @@ func TestAdapterPanicMetric(t *testing.T) {
 	m := createMetricsForTesting()
 	adapterName := "anyName"
 
-	m.RecordAdapterPanic(pbsmetrics.AdapterLabels{
+	m.RecordAdapterPanic(metrics.AdapterLabels{
 		Adapter: openrtb_ext.BidderName(adapterName),
 	})
 
@@ -1012,18 +1007,18 @@ func TestStoredReqCacheResultMetric(t *testing.T) {
 
 	hitCount := 42
 	missCount := 108
-	m.RecordStoredReqCacheResult(pbsmetrics.CacheHit, hitCount)
-	m.RecordStoredReqCacheResult(pbsmetrics.CacheMiss, missCount)
+	m.RecordStoredReqCacheResult(metrics.CacheHit, hitCount)
+	m.RecordStoredReqCacheResult(metrics.CacheMiss, missCount)
 
 	assertCounterVecValue(t, "", "storedRequestCacheResult:hit", m.storedRequestCacheResult,
 		float64(hitCount),
 		prometheus.Labels{
-			cacheResultLabel: string(pbsmetrics.CacheHit),
+			cacheResultLabel: string(metrics.CacheHit),
 		})
 	assertCounterVecValue(t, "", "storedRequestCacheResult:miss", m.storedRequestCacheResult,
 		float64(missCount),
 		prometheus.Labels{
-			cacheResultLabel: string(pbsmetrics.CacheMiss),
+			cacheResultLabel: string(metrics.CacheMiss),
 		})
 }
 
@@ -1032,18 +1027,18 @@ func TestStoredImpCacheResultMetric(t *testing.T) {
 
 	hitCount := 41
 	missCount := 107
-	m.RecordStoredImpCacheResult(pbsmetrics.CacheHit, hitCount)
-	m.RecordStoredImpCacheResult(pbsmetrics.CacheMiss, missCount)
+	m.RecordStoredImpCacheResult(metrics.CacheHit, hitCount)
+	m.RecordStoredImpCacheResult(metrics.CacheMiss, missCount)
 
 	assertCounterVecValue(t, "", "storedImpressionsCacheResult:hit", m.storedImpressionsCacheResult,
 		float64(hitCount),
 		prometheus.Labels{
-			cacheResultLabel: string(pbsmetrics.CacheHit),
+			cacheResultLabel: string(metrics.CacheHit),
 		})
 	assertCounterVecValue(t, "", "storedImpressionsCacheResult:miss", m.storedImpressionsCacheResult,
 		float64(missCount),
 		prometheus.Labels{
-			cacheResultLabel: string(pbsmetrics.CacheMiss),
+			cacheResultLabel: string(metrics.CacheMiss),
 		})
 }
 
@@ -1052,18 +1047,18 @@ func TestAccountCacheResultMetric(t *testing.T) {
 
 	hitCount := 37
 	missCount := 92
-	m.RecordAccountCacheResult(pbsmetrics.CacheHit, hitCount)
-	m.RecordAccountCacheResult(pbsmetrics.CacheMiss, missCount)
+	m.RecordAccountCacheResult(metrics.CacheHit, hitCount)
+	m.RecordAccountCacheResult(metrics.CacheMiss, missCount)
 
 	assertCounterVecValue(t, "", "accountCacheResult:hit", m.accountCacheResult,
 		float64(hitCount),
 		prometheus.Labels{
-			cacheResultLabel: string(pbsmetrics.CacheHit),
+			cacheResultLabel: string(metrics.CacheHit),
 		})
 	assertCounterVecValue(t, "", "accountCacheResult:miss", m.accountCacheResult,
 		float64(missCount),
 		prometheus.Labels{
-			cacheResultLabel: string(pbsmetrics.CacheMiss),
+			cacheResultLabel: string(metrics.CacheMiss),
 		})
 }
 
@@ -1097,9 +1092,9 @@ func TestPrebidCacheRequestTimeMetric(t *testing.T) {
 func TestMetricAccumulationSpotCheck(t *testing.T) {
 	m := createMetricsForTesting()
 
-	m.RecordLegacyImps(pbsmetrics.Labels{}, 1)
-	m.RecordLegacyImps(pbsmetrics.Labels{}, 2)
-	m.RecordLegacyImps(pbsmetrics.Labels{}, 3)
+	m.RecordLegacyImps(metrics.Labels{}, 1)
+	m.RecordLegacyImps(metrics.Labels{}, 2)
+	m.RecordLegacyImps(metrics.Labels{}, 3)
 
 	expectedValue := float64(1 + 2 + 3)
 	assertCounterValue(t, "", "impressionsLegacy", m.impressionsLegacy,
@@ -1107,7 +1102,7 @@ func TestMetricAccumulationSpotCheck(t *testing.T) {
 }
 
 func TestRecordRequestQueueTimeMetric(t *testing.T) {
-	performTest := func(m *Metrics, requestStatus bool, requestType pbsmetrics.RequestType, timeInSec float64) {
+	performTest := func(m *Metrics, requestStatus bool, requestType metrics.RequestType, timeInSec float64) {
 		m.RecordRequestQueueTime(requestStatus, requestType, time.Duration(timeInSec*float64(time.Second)))
 	}
 
@@ -1122,7 +1117,7 @@ func TestRecordRequestQueueTimeMetric(t *testing.T) {
 			description: "Success",
 			status:      requestSuccessLabel,
 			testCase: func(m *Metrics) {
-				performTest(m, true, pbsmetrics.ReqTypeVideo, 2)
+				performTest(m, true, metrics.ReqTypeVideo, 2)
 			},
 			expectedCount: 1,
 			expectedSum:   2,
@@ -1131,7 +1126,7 @@ func TestRecordRequestQueueTimeMetric(t *testing.T) {
 			description: "TimeoutError",
 			status:      requestRejectLabel,
 			testCase: func(m *Metrics) {
-				performTest(m, false, pbsmetrics.ReqTypeVideo, 50)
+				performTest(m, false, metrics.ReqTypeVideo, 50)
 			},
 			expectedCount: 1,
 			expectedSum:   50,
@@ -1375,45 +1370,45 @@ func TestRecordRequestPrivacy(t *testing.T) {
 	m := createMetricsForTesting()
 
 	// CCPA
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		CCPAEnforced: true,
 		CCPAProvided: true,
 	})
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		CCPAEnforced: true,
 		CCPAProvided: false,
 	})
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		CCPAEnforced: false,
 		CCPAProvided: true,
 	})
 
 	// COPPA
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		COPPAEnforced: true,
 	})
 
 	// LMT
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		LMTEnforced: true,
 	})
 
 	// GDPR
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		GDPREnforced:   true,
-		GDPRTCFVersion: pbsmetrics.TCFVersionErr,
+		GDPRTCFVersion: metrics.TCFVersionErr,
 	})
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		GDPREnforced:   true,
-		GDPRTCFVersion: pbsmetrics.TCFVersionV1,
+		GDPRTCFVersion: metrics.TCFVersionV1,
 	})
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		GDPREnforced:   true,
-		GDPRTCFVersion: pbsmetrics.TCFVersionV2,
+		GDPRTCFVersion: metrics.TCFVersionV2,
 	})
-	m.RecordRequestPrivacy(pbsmetrics.PrivacyLabels{
+	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		GDPREnforced:   true,
-		GDPRTCFVersion: pbsmetrics.TCFVersionV1,
+		GDPRTCFVersion: metrics.TCFVersionV1,
 	})
 
 	assertCounterVecValue(t, "", "privacy_ccpa", m.privacyCCPA,
