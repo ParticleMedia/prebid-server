@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mxmCherry/openrtb"
+	"github.com/mxmCherry/openrtb/v14/openrtb2"
 	"github.com/prebid/prebid-server/adapters"
 	"github.com/prebid/prebid-server/config"
 	"github.com/prebid/prebid-server/errortypes"
@@ -16,24 +16,7 @@ type VrtcalAdapter struct {
 	endpoint string
 }
 
-func processImp(imp *openrtb.Imp) error {
-	// get the Vrtcal extension
-	var ext adapters.ExtImpBidder
-	var vrtcalExt openrtb_ext.ExtImpVrtcal
-	if err := json.Unmarshal(imp.Ext, &ext); err != nil {
-		return err
-	}
-	if err := json.Unmarshal(ext.Bidder, &vrtcalExt); err != nil {
-		return err
-	}
-
-	// set impression bid floor
-	imp.BidFloor = vrtcalExt.BidFloor
-	// no error
-	return nil
-}
-
-func (a *VrtcalAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
+func (a *VrtcalAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
 	var errs []error
 	var validImps []openrtb.Imp
 	var adapterRequests []*adapters.RequestData
@@ -74,7 +57,7 @@ func (a *VrtcalAdapter) MakeRequests(request *openrtb.BidRequest, reqInfo *adapt
 }
 
 // MakeBids make the bids for the bid response.
-func (a *VrtcalAdapter) MakeBids(internalRequest *openrtb.BidRequest, externalRequest *adapters.RequestData, response *adapters.ResponseData) (*adapters.BidderResponse, []error) {
+func (a *VrtcalAdapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest *adapters.RequestData, response *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 
 	if response.StatusCode == http.StatusNoContent {
 		return nil, nil
@@ -92,7 +75,7 @@ func (a *VrtcalAdapter) MakeBids(internalRequest *openrtb.BidRequest, externalRe
 		}}
 	}
 
-	var bidResp openrtb.BidResponse
+	var bidResp openrtb2.BidResponse
 
 	if err := json.Unmarshal(response.Body, &bidResp); err != nil {
 		return nil, []error{err}
