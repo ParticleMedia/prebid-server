@@ -358,7 +358,6 @@ type TCFVersionValue string
 
 const (
 	TCFVersionErr TCFVersionValue = "err"
-	TCFVersionV1  TCFVersionValue = "v1"
 	TCFVersionV2  TCFVersionValue = "v2"
 )
 
@@ -366,7 +365,6 @@ const (
 func TCFVersions() []TCFVersionValue {
 	return []TCFVersionValue{
 		TCFVersionErr,
-		TCFVersionV1,
 		TCFVersionV2,
 	}
 }
@@ -374,8 +372,6 @@ func TCFVersions() []TCFVersionValue {
 // TCFVersionToValue takes an integer TCF version and returns the corresponding TCFVersionValue
 func TCFVersionToValue(version int) TCFVersionValue {
 	switch {
-	case version == 1:
-		return TCFVersionV1
 	case version == 2:
 		return TCFVersionV2
 	}

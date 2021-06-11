@@ -1404,15 +1404,7 @@ func TestRecordRequestPrivacy(t *testing.T) {
 	})
 	m.RecordRequestPrivacy(metrics.PrivacyLabels{
 		GDPREnforced:   true,
-		GDPRTCFVersion: metrics.TCFVersionV1,
-	})
-	m.RecordRequestPrivacy(metrics.PrivacyLabels{
-		GDPREnforced:   true,
 		GDPRTCFVersion: metrics.TCFVersionV2,
-	})
-	m.RecordRequestPrivacy(metrics.PrivacyLabels{
-		GDPREnforced:   true,
-		GDPRTCFVersion: metrics.TCFVersionV1,
 	})
 
 	assertCounterVecValue(t, "", "privacy_ccpa", m.privacyCCPA,
@@ -1446,13 +1438,6 @@ func TestRecordRequestPrivacy(t *testing.T) {
 		prometheus.Labels{
 			sourceLabel:  sourceRequest,
 			versionLabel: "err",
-		})
-
-	assertCounterVecValue(t, "", "privacy_tcf:v1", m.privacyTCF,
-		float64(2),
-		prometheus.Labels{
-			sourceLabel:  sourceRequest,
-			versionLabel: "v1",
 		})
 
 	assertCounterVecValue(t, "", "privacy_tcf:v2", m.privacyTCF,
