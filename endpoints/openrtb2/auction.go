@@ -151,24 +151,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		defer cancel()
 	}
 
-	usersyncs := usersync.ParsePBSCookieFromRequest(r, &(deps.cfg.HostCookie))
-
-	if req.Device != nil {
-		if req.Device.OS != "" {
-			labels.OS = req.Device.OS
-		}
-		if req.Device.IFA != "" {
-			labels.IfaFlag = pbsmetrics.IfaFlagYes
-		}
-		if req.Device.IP != "" {
-			labels.IPFlag = pbsmetrics.IPFlagYes
-		}
-
-		if req.Device.Geo != nil {
-			labels.GeoFlag = pbsmetrics.GeoFlagYes
-		}
-	}
-
+	usersyncs := usersync.ParseCookieFromRequest(r, &(deps.cfg.HostCookie))
 	if req.App != nil {
 		labels.Source = metrics.DemandApp
 		labels.RType = metrics.ReqTypeORTB2App
@@ -178,10 +161,10 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		}
 	} else { //req.Site != nil
 		labels.Source = metrics.DemandWeb
-		if usersyncs.LiveSyncCount() == 0 {
-			labels.CookieFlag = metrics.CookieFlagNo
-		} else {
+		if usersyncs.HasAnyLiveSyncs() {
 			labels.CookieFlag = metrics.CookieFlagYes
+		} else {
+			labels.CookieFlag = metrics.CookieFlagNo
 		}
 		labels.PubID = getAccountID(req.Site.Publisher)
 	}
