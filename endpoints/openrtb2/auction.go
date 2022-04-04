@@ -1696,7 +1696,7 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 		if err != nil {
 			return nil, nil, []error{err}
 		}
-		if isAppRequest && (deps.cfg.GenerateRequestID || bidRequestID == "{{UUID}}") {
+		if (deps.cfg.GenerateRequestID && isAppRequest) || bidRequestID == "{{UUID}}" {
 			uuidPatch, err := generateUuidForBidRequest(deps.uuidGenerator)
 			if err != nil {
 				return nil, nil, []error{err}
@@ -1954,20 +1954,6 @@ func generateUuidForBidRequest(uuidGenerator uuidutil.UUIDGenerator) ([]byte, er
 	return []byte(`{"id":"` + newBidRequestID + `"}`), nil
 }
 
-func checkIfAppRequest(request []byte) (bool, error) {
-	requestApp, dataType, _, err := jsonparser.Get(request, "app")
-	if dataType == jsonparser.NotExist {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	if requestApp != nil {
-		return true, nil
-	}
-	return false, nil
-}
-
 func (deps *endpointDeps) setIntegrationType(req *openrtb_ext.RequestWrapper, account *config.Account) error {
 	reqExt, err := req.GetRequestExt()
 	if err != nil {
@@ -1986,4 +1972,18 @@ func (deps *endpointDeps) setIntegrationType(req *openrtb_ext.RequestWrapper, ac
 		reqExt.SetPrebid(reqPrebid)
 	}
 	return nil
+}
+
+func checkIfAppRequest(request []byte) (bool, error) {
+	requestApp, dataType, _, err := jsonparser.Get(request, "app")
+	if dataType == jsonparser.NotExist {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	if requestApp != nil {
+		return true, nil
+	}
+	return false, nil
 }
