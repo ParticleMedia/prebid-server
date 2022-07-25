@@ -268,6 +268,12 @@ func (me *MultiMetricsEngine) RecordDebugRequest(debugEnabled bool, pubId string
 	}
 }
 
+func (me *MultiMetricsEngine) RecordStoredResponse(pubId string) {
+	for _, thisME := range *me {
+		thisME.RecordStoredResponse(pubId)
+	}
+}
+
 // NilMetricsEngine implements the MetricsEngine interface where no metrics are actually captured. This is
 // used if no metric backend is configured and also for tests.
 type NilMetricsEngine struct{}
@@ -386,4 +392,7 @@ func (me *NilMetricsEngine) RecordAdapterGDPRRequestBlocked(adapter openrtb_ext.
 
 // RecordDebugRequest as a noop
 func (me *NilMetricsEngine) RecordDebugRequest(debugEnabled bool, pubId string) {
+}
+
+func (me *NilMetricsEngine) RecordStoredResponse(pubId string) {
 }
