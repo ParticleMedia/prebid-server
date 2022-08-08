@@ -930,6 +930,10 @@ func TestParseImpInfoSingleImpression(t *testing.T) {
 			Imp:          json.RawMessage(`{"id": "some-static-imp","video":{"mimes":["video/mp4"]},"ext": {"appnexus": {"placementId": "abc","position": "below"}}}`),
 			ImpExtPrebid: openrtb_ext.ExtImpPrebid{},
 		},
+		{
+			Imp:          json.RawMessage(`{"id":"my-imp-id", "video":{"h":300, "w":200}, "ext":{"prebid":{"storedrequest": {"id": "6"}}}}`),
+			ImpExtPrebid: openrtb_ext.ExtImpPrebid{StoredRequest: &openrtb_ext.ExtStoredRequest{ID: "6"}},
+		},
 	}
 
 	for i, requestData := range testStoredRequests {
@@ -1023,7 +1027,7 @@ func TestStoredRequests(t *testing.T) {
 		empty_fetcher.EmptyFetcher{},
 	}
 
-	testStoreVideoAttr := []bool{true, true, false, false}
+	testStoreVideoAttr := []bool{true, true, false, false, false}
 
 	for i, requestData := range testStoredRequests {
 		impInfo, errs := parseImpInfo([]byte(requestData))
@@ -1039,7 +1043,6 @@ func TestStoredRequests(t *testing.T) {
 			}
 		}
 		expectJson := json.RawMessage(testFinalRequests[i])
-
 		assert.JSONEq(t, string(expectJson), string(newRequest), "Incorrect result request %d", i)
 
 		expectedImp := testStoredImpIds[i]
