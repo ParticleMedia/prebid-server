@@ -48,19 +48,6 @@ func (this *FacebookAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo 
 		}}
 	}
 
-	// news break aggrement with client of passing facebook biddeer token
-	if request.User != nil && request.User.BuyerUID == "" && request.User.Ext != nil {
-		res := UserExt{}
-		if err := json.Unmarshal(request.User.Ext, &res); err != nil {
-			return nil, []error{&errortypes.BadInput{
-				Message: "Missing bidder token in 'user.ext.data.anbiddertoken'",
-			}}
-		}
-		if &res != nil && &res.Data != nil && len(res.Data.AnBidderToken) > 0 {
-			request.User.BuyerUID = res.Data.AnBidderToken[0]
-		}
-	}
-
 	if request.User == nil || request.User.BuyerUID == "" {
 		return nil, []error{&errortypes.BadInput{
 			Message: "Missing bidder token in 'user.buyeruid'",

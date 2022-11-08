@@ -63,7 +63,7 @@ func TestMetricCountGatekeeping(t *testing.T) {
 	// Verify Per-Adapter Cardinality
 	// - This assertion provides a warning for newly added adapter metrics. Threre are 40+ adapters which makes the
 	//   cost of new per-adapter metrics rather expensive. Thought should be given when adding new per-adapter metrics.
-	assert.True(t, perAdapterCardinalityCount <= 28, "Per-Adapter Cardinality count equals %d \n", perAdapterCardinalityCount)
+	assert.True(t, perAdapterCardinalityCount <= 27, "Per-Adapter Cardinality count equals %d \n", perAdapterCardinalityCount)
 }
 
 func TestConnectionMetrics(t *testing.T) {
@@ -145,11 +145,6 @@ func TestRequestMetric(t *testing.T) {
 	m.RecordRequest(metrics.Labels{
 		RType:         requestType,
 		RequestStatus: requestStatus,
-		IfaFlag:       ifaFlag,
-		AppVersion:    appVersion,
-		OS:            os,
-		GeoFlag:       geoFlag,
-		IPFlag:        IPFlag,
 	})
 
 	expectedCount := float64(1)
@@ -158,11 +153,6 @@ func TestRequestMetric(t *testing.T) {
 		prometheus.Labels{
 			requestTypeLabel:   string(requestType),
 			requestStatusLabel: string(requestStatus),
-			ifaLabel:           string(ifaFlag),
-			appVersionLabel:    string(appVersion),
-			osLabel:            string(os),
-			geoLabel:           string(geoFlag),
-			IPLabel:            string(IPFlag),
 		})
 }
 
@@ -725,8 +715,6 @@ func TestRecordAdapterPriceMetric(t *testing.T) {
 	expectedSum := cpm
 	result := getHistogramFromHistogramVec(m.adapterPrices, adapterLabel, adapterName)
 	assertHistogram(t, "adapterPrices", result, expectedCount, expectedSum)
-	summaryResult := getSummaryFromSummaryVec(m.adapterBidCpm, adapterLabel, adapterName)
-	assertSummary(t, "adapterBidCpm", summaryResult, expectedCount, expectedSum)
 }
 
 func TestAdapterRequestMetrics(t *testing.T) {
@@ -1614,18 +1602,6 @@ func getHistogramFromHistogramVecByTwoKeys(histogram *prometheus.HistogramVec, l
 				if m.Label[valInd].GetName() == label2Key && m.Label[valInd].GetValue() == label2Value {
 					result = *m.GetHistogram()
 				}
-			}
-		}
-	})
-	return result
-}
-
-func getSummaryFromSummaryVec(summary *prometheus.SummaryVec, labelKey, labelValue string) dto.Summary {
-	var result dto.Summary
-	processMetrics(summary, func(m dto.Metric) {
-		for _, label := range m.GetLabel() {
-			if label.GetName() == labelKey && label.GetValue() == labelValue {
-				result = *m.GetSummary()
 			}
 		}
 	})

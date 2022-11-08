@@ -2,6 +2,5 @@ package openrtb_ext
 
 // ExtImpVrtcal defines the contract for bidrequest.imp[i].ext.vrtcal
 type ExtImpVrtcal struct {
-	Just_an_unused_vrtcal_param string  `json:"Just_an_unused_vrtcal_param"`
-	BidFloor                    float64 `json:"bidfloor"`
+	Just_an_unused_vrtcal_param string `json:"Just_an_unused_vrtcal_param"`
 }

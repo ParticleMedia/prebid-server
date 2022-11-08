@@ -339,9 +339,6 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 			// A non-nil auction is only needed if targeting is active. (It is used below this block to extract cache keys)
 			auc = newAuction(adapterBids, len(r.BidRequestWrapper.Imp), targData.preferDeals)
 			auc.setRoundedPrices(targData.priceGranularity)
-			if len(auc.winner) > 0 {
-				e.me.RecordAdapterWinner(*blabels[auc.winner])
-			}
 
 			if requestExt.Prebid.SupportDeals {
 				dealErrs := applyDealSupport(r.BidRequestWrapper.BidRequest, auc, bidCategory)

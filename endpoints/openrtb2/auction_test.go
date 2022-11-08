@@ -542,19 +542,6 @@ func TestExchangeError(t *testing.T) {
 	}
 }
 
-// TestImplicitAppCat makes sure App.Cat is set on the request.
-func TestImplicitAppCat(t *testing.T) {
-	httpReq := httptest.NewRequest("POST", "/openrtb2/auction", strings.NewReader(validRequest(t, "app.json")))
-	bidReq := &openrtb.BidRequest{}
-	bidReq.App = &openrtb.App{}
-
-	setMissingAppFieldsImplicitly(httpReq, bidReq)
-
-	if bidReq.App.Cat == nil || len(bidReq.App.Cat) == 0 {
-		t.Fatal("bidrequest.App.Cat should have been set implicitly.")
-	}
-}
-
 // TestUserAgentSetting makes sure we read the User-Agent header if it wasn't defined on the request.
 func TestUserAgentSetting(t *testing.T) {
 	httpReq := httptest.NewRequest("POST", "/openrtb2/auction", strings.NewReader(validRequest(t, "site.json")))

@@ -171,9 +171,6 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		labels.Source = metrics.DemandApp
 		labels.RType = metrics.ReqTypeORTB2App
 		labels.PubID = getAccountID(req.App.Publisher)
-		if req.App.Ver != "" {
-			labels.AppVersion = req.App.Ver
-		}
 	} else { //req.Site != nil
 		labels.Source = metrics.DemandWeb
 		if usersyncs.HasAnyLiveSyncs() {
@@ -316,11 +313,6 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request) (req *openrtb_
 
 	// Populate any "missing" OpenRTB fields with info from other sources, (e.g. HTTP request headers).
 	deps.setFieldsImplicitly(httpRequest, req)
-
-	test, ok := httpRequest.URL.Query()["test"]
-	if ok && "true" == test[0] {
-		req.Test = 1
-	}
 
 	if err := processInterstitials(req); err != nil {
 		errs = []error{err}
@@ -1543,27 +1535,6 @@ func (deps *endpointDeps) setFieldsImplicitly(httpReq *http.Request, r *openrtb_
 	setImpsImplicitly(httpReq, r.GetImp())
 
 	setAuctionTypeImplicitly(r)
-}
-
-// setMissingAppFieldsImplicitly uses implicit info to populate bidReq.App
-func setMissingAppFieldsImplicitly(httpReq *http.Request, bidReq *openrtb.BidRequest) {
-	if bidReq.App == nil {
-		return
-	}
-	if bidReq.App.Cat == nil || len(bidReq.App.Cat) == 0 {
-		// IAB12:   News
-		// IAB12-2: National News
-		// IAB12-3: Local News
-		bidReq.App.Cat = []string{"IAB12", "IAB12-2", "IAB12-3"}
-	}
-
-	if bidReq.Device != nil {
-		if "android" == bidReq.Device.OS {
-			bidReq.App.StoreURL = "https://play.google.com/store/apps/details?id=com.particlenews.newsbreak"
-		} else if "iOS" == bidReq.Device.OS {
-			bidReq.App.StoreURL = "https://apps.apple.com/us/app/news-break-personal-local/id1132762804"
-		}
-	}
 }
 
 // setDeviceImplicitly uses implicit info from httpReq to populate bidReq.Device

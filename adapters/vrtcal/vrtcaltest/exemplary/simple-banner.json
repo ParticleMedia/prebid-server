@@ -14,8 +14,7 @@
         },
         "ext": {
           "bidder": {
-            "Just_an_unused_vrtcal_param": "unused_data_for_this",
-            "bidfloor": 2
+            "Just_an_unused_vrtcal_param": "unused_data_for_this"
           }
         }
       }
@@ -41,11 +40,10 @@
                   }
                 ]
               },
-              "bidfloor": 2,
+
 	      "ext": {
 		  "bidder": {
-        "Just_an_unused_vrtcal_param": "unused_data_for_this",
-        "bidfloor": 2
+        "Just_an_unused_vrtcal_param": "unused_data_for_this"
 		  }
 	     }
             }

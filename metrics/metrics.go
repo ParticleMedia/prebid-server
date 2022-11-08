@@ -13,11 +13,6 @@ type Labels struct {
 	PubID         string // exchange specific ID, so we cannot compile in values
 	CookieFlag    CookieFlag
 	RequestStatus RequestStatus
-	IfaFlag       IfaFlag
-	OS            string
-	AppVersion    string
-	GeoFlag       GeoFlag
-	IPFlag        IPFlag
 }
 
 // AdapterLabels defines the labels that can be attached to the adapter metrics.
@@ -124,15 +119,6 @@ type RequestType string
 // CookieFlag : User ID cookie exists flag
 type CookieFlag string
 
-// IfaFlag : device ifa exists flag
-type IfaFlag string
-
-// GeoFlag : device geo exists flag
-type GeoFlag string
-
-// GeoFlag : device geo exists flag
-type IPFlag string
-
 // RequestStatus : The request return status
 type RequestStatus string
 
@@ -147,12 +133,6 @@ type CacheResult string
 
 // PublisherUnknown : Default value for Labels.PubID
 const PublisherUnknown = "unknown"
-
-// OSUnknown : Default value for Labels.OS
-const OSUnknown = "unknown"
-
-// AppVersionUnknown : Default value for Labels.AppVersion
-const AppVersionUnknown = "unknown"
 
 // The demand sources
 const (
@@ -217,45 +197,6 @@ func CookieTypes() []CookieFlag {
 		CookieFlagYes,
 		CookieFlagNo,
 		CookieFlagUnknown,
-	}
-}
-
-// ifa flag
-const (
-	IfaFlagYes IfaFlag = "exists"
-	IfaFlagNo  IfaFlag = "no"
-)
-
-func IfaTypes() []IfaFlag {
-	return []IfaFlag{
-		IfaFlagYes,
-		IfaFlagNo,
-	}
-}
-
-// geo flag
-const (
-	GeoFlagYes GeoFlag = "exists"
-	GeoFlagNo  GeoFlag = "no"
-)
-
-func GeoTypes() []GeoFlag {
-	return []GeoFlag{
-		GeoFlagYes,
-		GeoFlagNo,
-	}
-}
-
-// IP flag
-const (
-	IPFlagYes IPFlag = "exists"
-	IPFlagNo  IPFlag = "no"
-)
-
-func IPTypes() []IPFlag {
-	return []IPFlag{
-		IPFlagYes,
-		IPFlagNo,
 	}
 }
 
@@ -461,7 +402,6 @@ type MetricsEngine interface {
 	RecordImps(labels ImpLabels)                           // RecordImps across openRTB2 engines that support the 'Native' Imp Type
 	RecordRequestTime(labels Labels, length time.Duration) // ignores adapter. only statusOk and statusErr fom status
 	RecordAdapterRequest(labels AdapterLabels)
-	RecordAdapterWinner(labels AdapterLabels)
 	RecordAdapterConnections(adapterName openrtb_ext.BidderName, connWasReused bool, connWaitTime time.Duration)
 	RecordDNSTime(dnsLookupTime time.Duration)
 	RecordTLSHandshakeTime(tlsHandshakeTime time.Duration)

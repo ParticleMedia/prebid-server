@@ -86,21 +86,16 @@ const (
 	actionLabel          = "action"
 	adapterErrorLabel    = "adapter_error"
 	adapterLabel         = "adapter"
-	appVersionLabel      = "app_version"
 	bidTypeLabel         = "bid_type"
 	cacheResultLabel     = "cache_result"
 	connectionErrorLabel = "connection_error"
 	cookieLabel          = "cookie"
 	hasBidsLabel         = "has_bids"
-	ifaLabel             = "ifa"
-	geoLabel             = "geo"
-	IPLabel              = "ip"
 	isAudioLabel         = "audio"
 	isBannerLabel        = "banner"
 	isNativeLabel        = "native"
 	isVideoLabel         = "video"
 	markupDeliveryLabel  = "delivery"
-	osLabel              = "os"
 	optOutLabel          = "opt_out"
 	privacyBlockedLabel  = "privacy_blocked"
 	requestStatusLabel   = "request_status"
@@ -145,9 +140,8 @@ const (
 func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMetrics, syncerKeys []string) *Metrics {
 	standardTimeBuckets := []float64{0.05, 0.1, 0.15, 0.20, 0.25, 0.3, 0.4, 0.5, 0.75, 1}
 	cacheWriteTimeBuckets := []float64{0.001, 0.002, 0.005, 0.01, 0.025, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1}
-	priceBuckets := []float64{250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 7000, 8000, 9000, 10000}
+	priceBuckets := []float64{250, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 	queuedRequestTimeBuckets := []float64{0, 1, 5, 30, 60, 120, 180, 240, 300}
-	bidCpmObjectives := map[float64]float64{0.25: 0.05, 0.5: 0.05, 0.75: 0.05}
 
 	metrics := Metrics{}
 	reg := prometheus.NewRegistry()
@@ -194,7 +188,7 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 	metrics.requests = newCounter(cfg, reg,
 		"requests",
 		"Count of total requests to Prebid Server labeled by type and status.",
-		[]string{requestTypeLabel, requestStatusLabel, ifaLabel, appVersionLabel, osLabel, geoLabel, IPLabel})
+		[]string{requestTypeLabel, requestStatusLabel})
 
 	metrics.debugRequests = newCounterWithoutLabels(cfg, reg,
 		"debug_requests",
@@ -364,11 +358,6 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 		"Count of requests labeled by adapter, if has a cookie, and if it resulted in bids.",
 		[]string{adapterLabel, cookieLabel, hasBidsLabel})
 
-	metrics.adapterWinner = newCounter(cfg, metrics.Registry,
-		"adapter_winner",
-		"Count of wins labeled by adapter, if has a cookie, and if it resulted in bids.",
-		[]string{adapterLabel, cookieLabel})
-
 	if !metrics.metricsDisabled.AdapterConnectionMetrics {
 		metrics.adapterCreatedConnections = newCounter(cfg, reg,
 			"adapter_connection_created",
@@ -489,19 +478,6 @@ func newHistogramVec(cfg config.PrometheusMetrics, registry *prometheus.Registry
 	return histogram
 }
 
-func newSummary(cfg config.PrometheusMetrics, registry *prometheus.Registry, name, help string, labels []string, objectives map[float64]float64) *prometheus.SummaryVec {
-	opts := prometheus.SummaryOpts{
-		Namespace:  cfg.Namespace,
-		Subsystem:  cfg.Subsystem,
-		Name:       name,
-		Help:       help,
-		Objectives: objectives,
-	}
-	summary := prometheus.NewSummaryVec(opts, labels)
-	registry.MustRegister(summary)
-	return summary
-}
-
 func newHistogram(cfg config.PrometheusMetrics, registry *prometheus.Registry, name, help string, buckets []float64) prometheus.Histogram {
 	opts := prometheus.HistogramOpts{
 		Namespace: cfg.Namespace,
@@ -537,11 +513,6 @@ func (m *Metrics) RecordConnectionClose(success bool) {
 
 func (m *Metrics) RecordRequest(labels metrics.Labels) {
 	m.requests.With(prometheus.Labels{
-		appVersionLabel:    string(labels.AppVersion),
-		ifaLabel:           string(labels.IfaFlag),
-		osLabel:            string(labels.OS),
-		geoLabel:           string(labels.GeoFlag),
-		IPLabel:            string(labels.IPFlag),
 		requestTypeLabel:   string(labels.RType),
 		requestStatusLabel: string(labels.RequestStatus),
 	}).Inc()
@@ -669,13 +640,6 @@ func (m *Metrics) RecordAdapterRequest(labels metrics.AdapterLabels) {
 	}
 }
 
-func (m *Metrics) RecordAdapterWinner(labels pbsmetrics.AdapterLabels) {
-	m.adapterWinner.With(prometheus.Labels{
-		adapterLabel: string(labels.Adapter),
-		cookieLabel:  string(labels.CookieFlag),
-	}).Inc()
-}
-
 // Keeps track of created and reused connections to adapter bidders and the time from the
 // connection request, to the connection creation, or reuse from the pool across all engines
 func (m *Metrics) RecordAdapterConnections(adapterName openrtb_ext.BidderName, connWasReused bool, connWaitTime time.Duration) {
@@ -726,10 +690,6 @@ func (m *Metrics) RecordAdapterBidReceived(labels metrics.AdapterLabels, bidType
 
 func (m *Metrics) RecordAdapterPrice(labels metrics.AdapterLabels, cpm float64) {
 	m.adapterPrices.With(prometheus.Labels{
-		adapterLabel: string(labels.Adapter),
-	}).Observe(cpm)
-
-	m.adapterBidCpm.With(prometheus.Labels{
 		adapterLabel: string(labels.Adapter),
 	}).Observe(cpm)
 }

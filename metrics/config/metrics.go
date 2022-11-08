@@ -128,13 +128,6 @@ func (me *MultiMetricsEngine) RecordAdapterRequest(labels metrics.AdapterLabels)
 	}
 }
 
-// RecordAdapterRequest across all engines
-func (me *MultiMetricsEngine) RecordAdapterWinner(labels pbsmetrics.AdapterLabels) {
-	for _, thisME := range *me {
-		thisME.RecordAdapterWinner(labels)
-	}
-}
-
 // Keeps track of created and reused connections to adapter bidders and the time from the
 // connection request, to the connection creation, or reuse from the pool across all engines
 func (me *MultiMetricsEngine) RecordAdapterConnections(bidderName openrtb_ext.BidderName, connWasReused bool, connWaitTime time.Duration) {
@@ -324,10 +317,6 @@ func (me *NilMetricsEngine) RecordAdapterPanic(labels metrics.AdapterLabels) {
 
 // RecordAdapterRequest as a noop
 func (me *NilMetricsEngine) RecordAdapterRequest(labels metrics.AdapterLabels) {
-}
-
-// RecordAdapterRequest as a noop
-func (me *DummyMetricsEngine) RecordAdapterWinner(labels pbsmetrics.AdapterLabels) {
 }
 
 // RecordAdapterConnections as a noop

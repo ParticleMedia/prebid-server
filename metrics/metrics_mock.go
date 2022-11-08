@@ -57,11 +57,6 @@ func (me *MetricsEngineMock) RecordAdapterRequest(labels AdapterLabels) {
 	me.Called(labels)
 }
 
-// RecordAdapterRequest mock
-func (me *MetricsEngineMock) RecordAdapterWinner(labels AdapterLabels) {
-	me.Called(labels)
-}
-
 // RecordAdapterConnections mock
 func (me *MetricsEngineMock) RecordAdapterConnections(bidderName openrtb_ext.BidderName, connWasReused bool, connWaitTime time.Duration) {
 	me.Called(bidderName, connWasReused, connWaitTime)

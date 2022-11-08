@@ -18,22 +18,7 @@ type VrtcalAdapter struct {
 
 func (a *VrtcalAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
 	var errs []error
-	var validImps []openrtb.Imp
 	var adapterRequests []*adapters.RequestData
-
-	for _, imp := range request.Imp {
-		if err := processImp(&imp); err == nil {
-			validImps = append(validImps, imp)
-		} else {
-			errs = append(errs, err)
-		}
-	}
-
-	if len(validImps) == 0 {
-		return nil, errs
-	}
-
-	request.Imp = validImps
 
 	reqJSON, err := json.Marshal(request)
 	if err != nil {
