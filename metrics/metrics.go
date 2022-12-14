@@ -51,6 +51,12 @@ type PrivacyLabels struct {
 	LMTEnforced    bool
 }
 
+type ModuleLabels struct {
+	Module    string
+	Stage     string
+	AccountID string
+}
+
 type StoredDataType string
 
 const (
@@ -436,4 +442,11 @@ type MetricsEngine interface {
 	RecordStoredResponse(pubId string)
 	RecordAdsCertReq(success bool)
 	RecordAdsCertSignTime(adsCertSignTime time.Duration)
+	RecordModuleCalled(labels ModuleLabels, duration time.Duration)
+	RecordModuleFailed(labels ModuleLabels)
+	RecordModuleSuccessNooped(labels ModuleLabels)
+	RecordModuleSuccessUpdated(labels ModuleLabels)
+	RecordModuleSuccessRejected(labels ModuleLabels)
+	RecordModuleExecutionError(labels ModuleLabels)
+	RecordModuleTimeout(labels ModuleLabels)
 }
