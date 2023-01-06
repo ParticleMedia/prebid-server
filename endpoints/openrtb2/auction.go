@@ -180,7 +180,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	}
 
 	if rejectErr := hookexecution.FindFirstRejectOrNil(errL); rejectErr != nil {
-		labels, ao = rejectAuctionRequest(*rejectErr, w, req.BidRequest, labels, ao)
+		labels, ao = rejectAuctionRequest(*rejectErr, w, deps.hookExecutor, req.BidRequest, labels, ao)
 		return
 	}
 
@@ -249,16 +249,17 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		ao.Errors = append(ao.Errors, err)
 		return
 	} else if isRejectErr {
-		labels, ao = rejectAuctionRequest(*rejectErr, w, req.BidRequest, labels, ao)
+		labels, ao = rejectAuctionRequest(*rejectErr, w, deps.hookExecutor, req.BidRequest, labels, ao)
 		return
 	}
 
-	labels, ao = sendAuctionResponse(w, response, labels, ao)
+	labels, ao = sendAuctionResponse(w, deps.hookExecutor, response, labels, ao)
 }
 
 func rejectAuctionRequest(
 	rejectErr hookexecution.RejectError,
 	w http.ResponseWriter,
+	hookExecutor hookexecution.HookStageExecutor,
 	request *openrtb2.BidRequest,
 	labels metrics.Labels,
 	ao analytics.AuctionObject,
@@ -271,15 +272,17 @@ func rejectAuctionRequest(
 	ao.Response = response
 	ao.Errors = append(ao.Errors, rejectErr)
 
-	return sendAuctionResponse(w, response, labels, ao)
+	return sendAuctionResponse(w, hookExecutor, response, labels, ao)
 }
 
 func sendAuctionResponse(
 	w http.ResponseWriter,
+	hookExecutor hookexecution.HookStageExecutor,
 	response *openrtb2.BidResponse,
 	labels metrics.Labels,
 	ao analytics.AuctionObject,
 ) (metrics.Labels, analytics.AuctionObject) {
+	hookExecutor.ExecuteAuctionResponseStage(response)
 	// Fixes #231
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
