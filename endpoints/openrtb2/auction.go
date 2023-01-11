@@ -180,7 +180,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	}
 
 	if rejectErr := hookexecution.FindFirstRejectOrNil(errL); rejectErr != nil {
-		labels, ao = rejectAuctionRequest(*rejectErr, w, deps.hookExecutor, req.BidRequest, labels, ao)
+		labels, ao = rejectAuctionRequest(*rejectErr, w, deps.hookExecutor, req.BidRequest, account, labels, ao)
 		return
 	}
 
@@ -249,11 +249,11 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		ao.Errors = append(ao.Errors, err)
 		return
 	} else if isRejectErr {
-		labels, ao = rejectAuctionRequest(*rejectErr, w, deps.hookExecutor, req.BidRequest, labels, ao)
+		labels, ao = rejectAuctionRequest(*rejectErr, w, deps.hookExecutor, req.BidRequest, account, labels, ao)
 		return
 	}
 
-	labels, ao = sendAuctionResponse(w, deps.hookExecutor, response, labels, ao)
+	labels, ao = sendAuctionResponse(w, deps.hookExecutor, response, req.BidRequest, account, labels, ao)
 }
 
 func rejectAuctionRequest(
@@ -261,6 +261,7 @@ func rejectAuctionRequest(
 	w http.ResponseWriter,
 	hookExecutor hookexecution.HookStageExecutor,
 	request *openrtb2.BidRequest,
+	account *config.Account,
 	labels metrics.Labels,
 	ao analytics.AuctionObject,
 ) (metrics.Labels, analytics.AuctionObject) {
@@ -272,17 +273,38 @@ func rejectAuctionRequest(
 	ao.Response = response
 	ao.Errors = append(ao.Errors, rejectErr)
 
-	return sendAuctionResponse(w, hookExecutor, response, labels, ao)
+	return sendAuctionResponse(w, hookExecutor, response, request, account, labels, ao)
 }
 
 func sendAuctionResponse(
 	w http.ResponseWriter,
 	hookExecutor hookexecution.HookStageExecutor,
 	response *openrtb2.BidResponse,
+	request *openrtb2.BidRequest,
+	account *config.Account,
 	labels metrics.Labels,
 	ao analytics.AuctionObject,
 ) (metrics.Labels, analytics.AuctionObject) {
 	hookExecutor.ExecuteAuctionResponseStage(response)
+
+	if response != nil {
+		stageOutcomes := hookExecutor.GetOutcomes()
+		ao.HookExecutionOutcome = stageOutcomes
+
+		ext, warns, err := hookexecution.EnrichExtBidResponse(response.Ext, stageOutcomes, request, account)
+		if err != nil {
+			err = fmt.Errorf("Failed to enrich Bid Response with hook debug information: %s", err)
+			glog.Errorf(err.Error())
+			ao.Errors = append(ao.Errors, err)
+		} else {
+			response.Ext = ext
+		}
+
+		if len(warns) > 0 {
+			ao.Errors = append(ao.Errors, warns...)
+		}
+	}
+
 	// Fixes #231
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
