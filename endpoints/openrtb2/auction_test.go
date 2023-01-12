@@ -1099,7 +1099,7 @@ func TestStoredRequests(t *testing.T) {
 	for i, requestData := range testStoredRequests {
 		impInfo, errs := parseImpInfo([]byte(requestData))
 		assert.Len(t, errs, 0, "No errors should be returned")
-		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(context.Background(), json.RawMessage(requestData), impInfo)
+		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(context.Background(), json.RawMessage(requestData), impInfo, &metrics.Labels{})
 		assert.Len(t, errs, 0, "No errors should be returned")
 		newRequest, impExtInfoMap, errList := deps.processStoredRequests(json.RawMessage(requestData), impInfo, storedRequests, storedImps, storedBidRequestId, hasStoredBidRequest)
 
@@ -1970,7 +1970,7 @@ func TestStoredRequestGenerateUuid(t *testing.T) {
 		deps.cfg.GenerateRequestID = test.givenGenerateRequestID
 		impInfo, errs := parseImpInfo([]byte(test.givenRawData))
 		assert.Empty(t, errs, test.description)
-		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(context.Background(), json.RawMessage(test.givenRawData), impInfo)
+		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(context.Background(), json.RawMessage(test.givenRawData), impInfo, &metrics.Labels{})
 		assert.Empty(t, errs, test.description)
 		newRequest, _, errList := deps.processStoredRequests(json.RawMessage(test.givenRawData), impInfo, storedRequests, storedImps, storedBidRequestId, hasStoredBidRequest)
 		assert.Empty(t, errList, test.description)
@@ -4219,6 +4219,7 @@ func TestParseRequestStoredBidResponses(t *testing.T) {
 			}
 
 			req := httptest.NewRequest("POST", "/openrtb2/auction", strings.NewReader(test.givenRequestBody))
+
 			_, _, _, storedBidResponses, _, _, errL := deps.parseRequest(req, &metrics.Labels{})
 
 			if test.expectedErrorCount == 0 {

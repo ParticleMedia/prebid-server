@@ -188,6 +188,7 @@ type AuctionRequest struct {
 	PubID                 string
 	StoredImp             string
 	HookExecutor          hookexecution.StageExecutor
+	StoredImp             string
 }
 
 // BidderRequest holds the bidder specific request and all other
@@ -404,8 +405,9 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 					Adapter:   bidderName,
 					StoredImp: r.StoredImp,
 				}
-				var cpm = float64(topBidPerBidder.bid.Price * 1000)
-				e.me.RecordAdapterWinningBidReceived(topBidderLabel, topBidPerBidder.bidType, topBidPerBidder.bid.AdM != "")
+
+				var cpm = float64(topBidPerBidder.Bid.Price * 1000)
+				e.me.RecordAdapterWinningBidReceived(topBidderLabel, topBidPerBidder.BidType, topBidPerBidder.Bid.AdM != "")
 				e.me.RecordAdapterWinningPrice(topBidderLabel, cpm)
 			}
 		}
@@ -608,6 +610,7 @@ func (e *exchange) getAllBids(
 				if seatBid != nil {
 					for _, bid := range seatBid.Bids {
 						var cpm = float64(bid.Bid.Price * 1000)
+
 						e.me.RecordAdapterPrice(bidderRequest.BidderLabels, cpm)
 						e.me.RecordAdapterBidReceived(bidderRequest.BidderLabels, bid.BidType, bid.Bid.AdM != "")
 					}
@@ -1029,7 +1032,11 @@ func (e *exchange) makeExtBidResponse(adapterBids map[openrtb_ext.BidderName]*en
 		Errors:             make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
 		Warnings:           make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
 		ResponseTimeMillis: make(map[openrtb_ext.BidderName]int, len(adapterBids)),
+<<<<<<< HEAD
 		// RequestTimeoutMillis: r.BidRequestWrapper.BidRequest.TMax,
+=======
+		//RequestTimeoutMillis: r.BidRequestWrapper.BidRequest.TMax,
+>>>>>>> add core business metrics & add adapter label storedImp
 	}
 	if debugInfo {
 		bidResponseExt.Debug = &openrtb_ext.ExtResponseDebug{

@@ -229,6 +229,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		PubID:                      labels.PubID,
 		StoredImp:                  metrics.StoredImpUnknown,
 		HookExecutor:               deps.hookExecutor,
+		StoredImp:                  labels.StoredImp,
 	}
 
 	response, err := deps.ex.HoldAuction(ctx, auctionRequest, nil)
@@ -374,7 +375,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 		return nil, nil, nil, nil, nil, nil, errs
 	}
 
-	storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(ctx, requestJson, impInfo)
+	storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(ctx, requestJson, impInfo, labels)
 	if len(errs) > 0 {
 		return
 	}
@@ -415,7 +416,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 		if len(errs) > 0 {
 			return nil, nil, nil, nil, nil, nil, errs
 		}
-		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs = deps.getStoredRequests(ctx, requestJson, impInfo)
+		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs = deps.getStoredRequests(ctx, requestJson, impInfo, labels)
 		if len(errs) > 0 {
 			return
 		}
@@ -1803,7 +1804,7 @@ func getJsonSyntaxError(testJSON []byte) (bool, string) {
 	return false, ""
 }
 
-func (deps *endpointDeps) getStoredRequests(ctx context.Context, requestJson []byte, impInfo []ImpExtPrebidData) (string, bool, map[string]json.RawMessage, map[string]json.RawMessage, []error) {
+func (deps *endpointDeps) getStoredRequests(ctx context.Context, requestJson []byte, impInfo []ImpExtPrebidData, labels *metrics.Labels) (string, bool, map[string]json.RawMessage, map[string]json.RawMessage, []error) {
 	// Parse the Stored Request IDs from the BidRequest and Imps.
 	storedBidRequestId, hasStoredBidRequest, err := getStoredRequestId(requestJson)
 	if err != nil {
@@ -1831,6 +1832,10 @@ func (deps *endpointDeps) getStoredRequests(ctx context.Context, requestJson []b
 	storedRequests, storedImps, errs := deps.storedReqFetcher.FetchRequests(ctx, storedReqIds, impStoredReqIds)
 	if len(errs) != 0 {
 		return "", false, nil, nil, errs
+	}
+
+	if len(impStoredReqIds) > 0 {
+		labels.StoredImp = impStoredReqIds[0]
 	}
 
 	return storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs
