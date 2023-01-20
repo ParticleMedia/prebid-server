@@ -107,6 +107,9 @@ const (
 	syncerLabel          = "syncer"
 	versionLabel         = "version"
 	storedImpLabel       = "stored_imp"
+	osLabel              = "os"
+	hasIdfaLabel         = "has_idfa"
+	hasGeoLabel          = "has_geo"
 )
 
 const (
@@ -191,7 +194,7 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 	metrics.requests = newCounter(cfg, reg,
 		"requests",
 		"Count of total requests to Prebid Server labeled by type and status.",
-		[]string{requestTypeLabel, requestStatusLabel, storedImpLabel})
+		[]string{requestTypeLabel, requestStatusLabel, storedImpLabel, osLabel, hasIdfaLabel, hasGeoLabel})
 
 	metrics.debugRequests = newCounterWithoutLabels(cfg, reg,
 		"debug_requests",
@@ -530,6 +533,9 @@ func (m *Metrics) RecordRequest(labels metrics.Labels) {
 		requestTypeLabel:   string(labels.RType),
 		requestStatusLabel: string(labels.RequestStatus),
 		storedImpLabel:     string(labels.StoredImp),
+		osLabel:            string(labels.OS),
+		hasIdfaLabel:       strconv.FormatBool(labels.IdfaFlag == metrics.IdfaFlagYes),
+		hasGeoLabel:        strconv.FormatBool(labels.GeoFlag == metrics.GeoFlagYes),
 	}).Inc()
 
 	if labels.CookieFlag == metrics.CookieFlagNo {

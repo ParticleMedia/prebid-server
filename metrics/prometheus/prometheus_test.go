@@ -142,11 +142,15 @@ func TestRequestMetric(t *testing.T) {
 	requestType := metrics.ReqTypeORTB2Web
 	requestStatus := metrics.RequestStatusBlacklisted
 	storedImp := "testImpName"
+	idfaFlag := metrics.IdfaFlagNo
+	os := "test_os"
 
 	m.RecordRequest(metrics.Labels{
 		RType:         requestType,
 		RequestStatus: requestStatus,
 		StoredImp:     storedImp,
+		IdfaFlag:      idfaFlag,
+		OS:            os,
 	})
 
 	expectedCount := float64(1)
@@ -156,6 +160,9 @@ func TestRequestMetric(t *testing.T) {
 			requestTypeLabel:   string(requestType),
 			requestStatusLabel: string(requestStatus),
 			storedImpLabel:     storedImp,
+			hasIdfaLabel:       "false",
+			osLabel:            string(os),
+			hasGeoLabel:        "false",
 		})
 }
 

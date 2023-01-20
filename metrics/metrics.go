@@ -14,6 +14,9 @@ type Labels struct {
 	CookieFlag    CookieFlag
 	RequestStatus RequestStatus
 	StoredImp     string
+	OS            string
+	IdfaFlag      IdfaFlag
+	GeoFlag       GeoFlag
 }
 
 // AdapterLabels defines the labels that can be attached to the adapter metrics.
@@ -127,6 +130,12 @@ type RequestStatus string
 // AdapterBid : Whether or not the adapter returned bids
 type AdapterBid string
 
+// IdfaFlag : device idfa exists flag
+type IdfaFlag string
+
+// GeoFlag : device geo exists flag
+type GeoFlag string
+
 // AdapterError : Errors which may have occurred during the adapter's execution
 type AdapterError string
 
@@ -138,6 +147,9 @@ const PublisherUnknown = "unknown"
 
 // StoredImpUnknown: Defalut value for Labels.StoredImp
 const StoredImpUnknown = "unknown"
+
+// OSUnknown : Default value for Labels.OS
+const OSUnknown = "unknown"
 
 // The demand sources
 const (
@@ -225,6 +237,30 @@ func RequestStatuses() []RequestStatus {
 		RequestStatusBlacklisted,
 		RequestStatusQueueTimeout,
 		RequestStatusAccountConfigErr,
+	}
+}
+
+const (
+	IdfaFlagYes IdfaFlag = "has_idfa"
+	IdfaFlagNo  IdfaFlag = "no_idfa"
+)
+
+func IdfaTypes() []IdfaFlag {
+	return []IdfaFlag{
+		IdfaFlagYes,
+		IdfaFlagNo,
+	}
+}
+
+const (
+	GeoFlagYes GeoFlag = "has_geo"
+	GeoFlagNo  GeoFlag = "no_geo"
+)
+
+func GeoTypes() []GeoFlag {
+	return []GeoFlag{
+		GeoFlagYes,
+		GeoFlagNo,
 	}
 }
 

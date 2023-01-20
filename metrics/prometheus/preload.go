@@ -24,6 +24,7 @@ func preloadLabelValues(m *Metrics, syncerKeys []string) {
 		syncerSetsStatusValues    = syncerSetStatusesAsString()
 		sourceValues              = []string{sourceRequest}
 		storedImpValues           = []string{metrics.StoredImpUnknown}
+		osValues                  = []string{metrics.OSUnknown}
 	)
 
 	preloadLabelValuesForCounter(m.connectionsError, map[string][]string{
@@ -53,6 +54,9 @@ func preloadLabelValues(m *Metrics, syncerKeys []string) {
 		requestTypeLabel:   requestTypeValues,
 		requestStatusLabel: requestStatusValues,
 		storedImpLabel:     storedImpValues,
+		hasIdfaLabel:       boolValues,
+		osLabel:            osValues,
+		hasGeoLabel:        boolValues,
 	})
 
 	preloadLabelValuesForHistogram(m.requestsTimer, map[string][]string{

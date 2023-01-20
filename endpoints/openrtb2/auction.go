@@ -49,6 +49,7 @@ import (
 const storedRequestTimeoutMillis = 50
 const ampChannel = "amp"
 const appChannel = "app"
+const idfaDisabledVal = "0000-0000"
 
 var (
 	dntKey      string = http.CanonicalHeaderKey("DNT")
@@ -144,11 +145,28 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		CookieFlag:    metrics.CookieFlagUnknown,
 		RequestStatus: metrics.RequestStatusOK,
 		StoredImp:     metrics.StoredImpUnknown,
+		OS:            metrics.OSUnknown,
+		IdfaFlag:      metrics.IdfaFlagNo,
+		GeoFlag:       metrics.GeoFlagNo,
 	}
 
 	w.Header().Set("X-Prebid", version.BuildXPrebidHeader(version.Ver))
 
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r)
+
+	if req.Device != nil {
+		if req.Device.OS != "" {
+			labels.OS = req.Device.OS
+		}
+
+		if req.Device.IFA != "" && req.Device.IFA != idfaDisabledVal {
+			labels.IdfaFlag = metrics.IdfaFlagYes
+		}
+
+		if req.Device.Geo != nil && (req.Device.Geo.Country != "" || req.Device.Geo.Region != "") {
+			labels.GeoFlag = metrics.GeoFlagYes
+		}
+	}
 
 	adUnitName := "unknown"
 	if storedImp != nil {
