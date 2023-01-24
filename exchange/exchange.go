@@ -620,7 +620,7 @@ func (e *exchange) getAllBids(
 		}, chBids)
 		go bidderRunner(bidder, conversions)
 	}
-	var fledge *openrtb_ext.Fledge
+	var fledge *openrtb_ext.Fledge?
 
 	// Wait for the bidders to do their thing
 	for i := 0; i < len(bidderRequests); i++ {
@@ -1032,11 +1032,7 @@ func (e *exchange) makeExtBidResponse(adapterBids map[openrtb_ext.BidderName]*en
 		Errors:             make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
 		Warnings:           make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
 		ResponseTimeMillis: make(map[openrtb_ext.BidderName]int, len(adapterBids)),
-<<<<<<< HEAD
 		// RequestTimeoutMillis: r.BidRequestWrapper.BidRequest.TMax,
-=======
-		//RequestTimeoutMillis: r.BidRequestWrapper.BidRequest.TMax,
->>>>>>> add core business metrics & add adapter label storedImp
 	}
 	if debugInfo {
 		bidResponseExt.Debug = &openrtb_ext.ExtResponseDebug{
