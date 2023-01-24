@@ -979,10 +979,10 @@ func getPrimaryAdServer(adServerId int) (string, error) {
 // Extract all the data from the SeatBids and build the ExtBidResponse
 func (e *exchange) makeExtBidResponse(adapterBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid, adapterExtra map[openrtb_ext.BidderName]*seatResponseExtra, r AuctionRequest, debugInfo bool, passthrough json.RawMessage, errList []error) *openrtb_ext.ExtBidResponse {
 	bidResponseExt := &openrtb_ext.ExtBidResponse{
-		Errors:               make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
-		Warnings:             make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
-		ResponseTimeMillis:   make(map[openrtb_ext.BidderName]int, len(adapterBids)),
-		RequestTimeoutMillis: r.BidRequestWrapper.BidRequest.TMax,
+		Errors:             make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
+		Warnings:           make(map[openrtb_ext.BidderName][]openrtb_ext.ExtBidderMessage, len(adapterBids)),
+		ResponseTimeMillis: make(map[openrtb_ext.BidderName]int, len(adapterBids)),
+		// RequestTimeoutMillis: r.BidRequestWrapper.BidRequest.TMax,
 	}
 	if debugInfo {
 		bidResponseExt.Debug = &openrtb_ext.ExtResponseDebug{
