@@ -139,6 +139,8 @@ const PublisherUnknown = "unknown"
 // StoredImpUnknown: Defalut value for Labels.StoredImp
 const StoredImpUnknown = "unknown"
 
+const LogUnknown = "unknown"
+
 // The demand sources
 const (
 	DemandWeb     DemandSource = "web"

@@ -122,6 +122,18 @@ type endpointDeps struct {
 	storedRespFetcher         stored_requests.Fetcher
 }
 
+type LogIno struct {
+	Os      string
+	Idfa    string
+	Country string
+	City    string
+	Region  string
+	AdUnit  string
+	Fill    bool
+	Uid     string
+	Price   float64
+}
+
 func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// Prebid Server interprets request.tmax to be the maximum amount of time that a caller is willing
 	// to wait for bids. However, tmax may be defined in the Stored Request data.
@@ -150,18 +162,52 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r)
 
+	logMsg := LogIno{
+		Os:      metrics.LogUnknown,
+		Idfa:    metrics.LogUnknown,
+		Country: metrics.LogUnknown,
+		City:    metrics.LogUnknown,
+		Region:  metrics.LogUnknown,
+		AdUnit:  metrics.LogUnknown,
+		Fill:    false,
+		Uid:     metrics.LogUnknown,
+		Price:   -1,
+	}
+
 	adUnitName := "unknown"
 	if storedImp != nil {
 		if string(storedImp) != "" {
 			adUnitName = string(storedImp)
+			logMsg.AdUnit = adUnitName
 		}
 	}
 	labels.StoredImp = adUnitName
+
+	if req.Device != nil {
+		if req.Device.OS != "" {
+			logMsg.Os = req.Device.OS
+		}
+
+		if req.Device.IFA != "" {
+			logMsg.Idfa = req.Device.IFA
+		}
+
+		if req.Device.Geo != nil {
+			logMsg.Country = req.Device.Geo.Country
+			logMsg.City = req.Device.Geo.City
+			logMsg.Region = req.Device.Geo.Region
+		}
+	}
+
+	if req.User != nil {
+		logMsg.Uid = req.User.ID
+	}
 
 	defer func() {
 		deps.metricsEngine.RecordRequest(labels)
 		deps.metricsEngine.RecordRequestTime(labels, time.Since(start))
 		deps.analytics.LogAuctionObject(&ao)
+		writeLogInfo(logMsg)
 	}()
 
 	if errortypes.ContainsFatalError(errL) && writeError(errL, w, &labels) {
@@ -232,6 +278,16 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	ao.Request = req.BidRequest
 	ao.Response = response
 	ao.Account = account
+
+	if response != nil && response.SeatBid != nil {
+		for _, seatBid := range response.SeatBid {
+			for _, bid := range seatBid.Bid {
+				logMsg.Fill = true
+				logMsg.Price = bid.Price
+			}
+		}
+	}
+
 	if err != nil {
 		if errortypes.ReadCode(err) == errortypes.BadInputErrorCode {
 			writeError([]error{err}, w, &labels)
@@ -259,6 +315,14 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		labels.RequestStatus = metrics.RequestStatusNetworkErr
 		ao.Errors = append(ao.Errors, fmt.Errorf("/openrtb2/auction Failed to send response: %v", err))
 	}
+}
+
+func writeLogInfo(logMsg LogIno) {
+	out, err := json.Marshal(logMsg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(out))
 }
 
 // parseRequest turns the HTTP request into an OpenRTB request. This is guaranteed to return:
