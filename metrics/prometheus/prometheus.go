@@ -58,18 +58,21 @@ type Metrics struct {
 	adsCertSignTimer             prometheus.Histogram
 
 	// Adapter Metrics
-	adapterBids                *prometheus.CounterVec
-	adapterWinningBids         *prometheus.CounterVec
-	adapterErrors              *prometheus.CounterVec
-	adapterPanics              *prometheus.CounterVec
-	adapterPrices              *prometheus.HistogramVec
-	adapterWinningPrices       *prometheus.HistogramVec
-	adapterRequests            *prometheus.CounterVec
-	adapterRequestsTimer       *prometheus.HistogramVec
-	adapterReusedConnections   *prometheus.CounterVec
-	adapterCreatedConnections  *prometheus.CounterVec
-	adapterConnectionWaitTime  *prometheus.HistogramVec
-	adapterGDPRBlockedRequests *prometheus.CounterVec
+	adapterBids                 *prometheus.CounterVec
+	adapterWinningBids          *prometheus.CounterVec
+	adapterTotalDealCountWithCT *prometheus.CounterVec
+	adapterWinningDeals         *prometheus.CounterVec
+	adapterWinningDealsWithCT   *prometheus.CounterVec
+	adapterErrors               *prometheus.CounterVec
+	adapterPanics               *prometheus.CounterVec
+	adapterPrices               *prometheus.HistogramVec
+	adapterWinningPrices        *prometheus.HistogramVec
+	adapterRequests             *prometheus.CounterVec
+	adapterRequestsTimer        *prometheus.HistogramVec
+	adapterReusedConnections    *prometheus.CounterVec
+	adapterCreatedConnections   *prometheus.CounterVec
+	adapterConnectionWaitTime   *prometheus.HistogramVec
+	adapterGDPRBlockedRequests  *prometheus.CounterVec
 
 	// Syncer Metrics
 	syncerRequests *prometheus.CounterVec
@@ -344,6 +347,21 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 		"adapter_winning_bids",
 		"Count of winning bids labeled by adapter and markup delivery type (adm or nurl).",
 		[]string{adapterLabel, markupDeliveryLabel, storedImpLabel})
+
+	metrics.adapterTotalDealCountWithCT = newCounter(cfg, reg,
+		"adapter_total_deal_with_ct",
+		"Count of total deals set up in ssp with custome targeting labeled by adapter.",
+		[]string{adapterLabel, storedImpLabel})
+
+	metrics.adapterWinningDeals = newCounter(cfg, reg,
+		"adapter_winning_deals",
+		"Count of winning deals labeled by adapter.",
+		[]string{adapterLabel, storedImpLabel})
+
+	metrics.adapterWinningDealsWithCT = newCounter(cfg, reg,
+		"adapter_winning_deals_with_ct",
+		"Count of winning deals with custom targeting labeled by adapter.",
+		[]string{adapterLabel, storedImpLabel})
 
 	metrics.adapterErrors = newCounter(cfg, reg,
 		"adapter_errors",
@@ -716,6 +734,27 @@ func (m *Metrics) RecordAdapterWinningBidReceived(labels metrics.AdapterLabels, 
 		adapterLabel:        string(labels.Adapter),
 		markupDeliveryLabel: markupDelivery,
 		storedImpLabel:      labels.StoredImp,
+	}).Inc()
+}
+
+func (m *Metrics) RecordAdapterTotalDealCountWithCT(labels metrics.AdapterLabels) {
+	m.adapterTotalDealCountWithCT.With(prometheus.Labels{
+		adapterLabel:   string(labels.Adapter),
+		storedImpLabel: labels.StoredImp,
+	}).Inc()
+}
+
+func (m *Metrics) RecordAdapterWinningDeals(labels metrics.AdapterLabels) {
+	m.adapterWinningDeals.With(prometheus.Labels{
+		adapterLabel:   string(labels.Adapter),
+		storedImpLabel: labels.StoredImp,
+	}).Inc()
+}
+
+func (m *Metrics) RecordAdapterWinningDealsWithCT(labels metrics.AdapterLabels) {
+	m.adapterWinningDealsWithCT.With(prometheus.Labels{
+		adapterLabel:   string(labels.Adapter),
+		storedImpLabel: labels.StoredImp,
 	}).Inc()
 }
 

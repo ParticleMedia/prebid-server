@@ -163,6 +163,24 @@ func (me *MultiMetricsEngine) RecordAdapterWinningBidReceived(labels metrics.Ada
 	}
 }
 
+func (me *MultiMetricsEngine) RecordAdapterTotalDealCountWithCT(labels metrics.AdapterLabels) {
+	for _, thisME := range *me {
+		thisME.RecordAdapterTotalDealCountWithCT(labels)
+	}
+}
+
+func (me *MultiMetricsEngine) RecordAdapterWinningDeals(labels metrics.AdapterLabels) {
+	for _, thisME := range *me {
+		thisME.RecordAdapterWinningDeals(labels)
+	}
+}
+
+func (me *MultiMetricsEngine) RecordAdapterWinningDealsWithCT(labels metrics.AdapterLabels) {
+	for _, thisME := range *me {
+		thisME.RecordAdapterWinningDealsWithCT(labels)
+	}
+}
+
 // RecordAdapterPrice across all engines
 func (me *MultiMetricsEngine) RecordAdapterPrice(labels metrics.AdapterLabels, cpm float64) {
 	for _, thisME := range *me {
@@ -359,6 +377,15 @@ func (me *NilMetricsEngine) RecordAdapterPrice(labels metrics.AdapterLabels, cpm
 
 // RecordAdapterWinningPrice as a noop
 func (me *NilMetricsEngine) RecordAdapterWinningPrice(labels metrics.AdapterLabels, cpm float64) {
+}
+
+func (me *NilMetricsEngine) RecordAdapterTotalDealCountWithCT(labels metrics.AdapterLabels) {
+}
+
+func (me *NilMetricsEngine) RecordAdapterWinningDeals(labels metrics.AdapterLabels) {
+}
+
+func (me *NilMetricsEngine) RecordAdapterWinningDealsWithCT(labels metrics.AdapterLabels) {
 }
 
 // RecordAdapterTime as a noop

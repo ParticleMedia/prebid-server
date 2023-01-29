@@ -71,7 +71,14 @@ func serve(cfg *config.Configuration) error {
 	currencyConverterTickerTask := task.NewTickerTask(fetchingInterval, currencyConverter)
 	currencyConverterTickerTask.Start()
 
-	r, err := router.New(cfg, currencyConverter)
+	dealFetcher := task.NewDealFetcher(&http.Client{}, cfg.BidderInfos)
+	if cfg.DealApiInfo.Enabled {
+		dealFetchingInteval := time.Duration(cfg.DealApiInfo.FetchIntervalSeconds) * time.Second
+		dealFetcherTickerTask := task.NewTickerTask(dealFetchingInteval, dealFetcher)
+		dealFetcherTickerTask.Start()
+	}
+
+	r, err := router.New(cfg, currencyConverter, dealFetcher)
 	if err != nil {
 		return err
 	}

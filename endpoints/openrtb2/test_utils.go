@@ -35,6 +35,7 @@ import (
 	"github.com/prebid/prebid-server/stored_requests"
 	"github.com/prebid/prebid-server/stored_requests/backends/empty_fetcher"
 	"github.com/prebid/prebid-server/util/iputil"
+	"github.com/prebid/prebid-server/util/task"
 	"github.com/prebid/prebid-server/util/uuidutil"
 )
 
@@ -1207,6 +1208,8 @@ func buildTestExchange(testCfg *testConfigValues, adapterMap map[openrtb_ext.Bid
 	mockCurrencyConverter := currency.NewRateConverter(mockCurrencyRatesServer.Client(), mockCurrencyRatesServer.URL, time.Second)
 	mockCurrencyConverter.Run()
 
+	mockDealFetcher := task.NewDealFetcher(&http.Client{}, cfg.BidderInfos)
+
 	gdprPermsBuilder := fakePermissionsBuilder{
 		permissions: &fakePermissions{},
 	}.Builder
@@ -1225,6 +1228,7 @@ func buildTestExchange(testCfg *testConfigValues, adapterMap map[openrtb_ext.Bid
 		mockCurrencyConverter,
 		mockFetcher,
 		&adscert.NilSigner{},
+		mockDealFetcher,
 	)
 
 	testExchange = &exchangeTestWrapper{

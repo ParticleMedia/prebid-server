@@ -79,21 +79,24 @@ type Metrics struct {
 
 // AdapterMetrics houses the metrics for a particular adapter
 type AdapterMetrics struct {
-	NoCookieMeter            metrics.Meter
-	ErrorMeters              map[AdapterError]metrics.Meter
-	NoBidMeter               metrics.Meter
-	GotBidsMeter             metrics.Meter
-	RequestTimer             metrics.Timer
-	PriceHistogram           metrics.Histogram
-	WinningPriceHistogram    metrics.Histogram
-	BidsReceivedMeter        metrics.Meter
-	WinningBidsReceivedMeter metrics.Meter
-	PanicMeter               metrics.Meter
-	MarkupMetrics            map[openrtb_ext.BidType]*MarkupDeliveryMetrics
-	ConnCreated              metrics.Counter
-	ConnReused               metrics.Counter
-	ConnWaitTime             metrics.Timer
-	GDPRRequestBlocked       metrics.Meter
+	NoCookieMeter               metrics.Meter
+	ErrorMeters                 map[AdapterError]metrics.Meter
+	NoBidMeter                  metrics.Meter
+	GotBidsMeter                metrics.Meter
+	RequestTimer                metrics.Timer
+	PriceHistogram              metrics.Histogram
+	WinningPriceHistogram       metrics.Histogram
+	BidsReceivedMeter           metrics.Meter
+	WinningBidsReceivedMeter    metrics.Meter
+	adapterTotalDealCountWithCT metrics.Meter
+	adapterWinningDeals         metrics.Meter
+	adapterWinningDealsWithCT   metrics.Meter
+	PanicMeter                  metrics.Meter
+	MarkupMetrics               map[openrtb_ext.BidType]*MarkupDeliveryMetrics
+	ConnCreated                 metrics.Counter
+	ConnReused                  metrics.Counter
+	ConnWaitTime                metrics.Timer
+	GDPRRequestBlocked          metrics.Meter
 }
 
 type MarkupDeliveryMetrics struct {
@@ -320,17 +323,20 @@ func NewMetrics(registry metrics.Registry, exchanges []openrtb_ext.BidderName, d
 func makeBlankAdapterMetrics(disabledMetrics config.DisabledMetrics) *AdapterMetrics {
 	blankMeter := &metrics.NilMeter{}
 	newAdapter := &AdapterMetrics{
-		NoCookieMeter:            blankMeter,
-		ErrorMeters:              make(map[AdapterError]metrics.Meter),
-		NoBidMeter:               blankMeter,
-		GotBidsMeter:             blankMeter,
-		RequestTimer:             &metrics.NilTimer{},
-		PriceHistogram:           &metrics.NilHistogram{},
-		WinningPriceHistogram:    &metrics.NilHistogram{},
-		BidsReceivedMeter:        blankMeter,
-		WinningBidsReceivedMeter: blankMeter,
-		PanicMeter:               blankMeter,
-		MarkupMetrics:            makeBlankBidMarkupMetrics(),
+		NoCookieMeter:               blankMeter,
+		ErrorMeters:                 make(map[AdapterError]metrics.Meter),
+		NoBidMeter:                  blankMeter,
+		GotBidsMeter:                blankMeter,
+		RequestTimer:                &metrics.NilTimer{},
+		PriceHistogram:              &metrics.NilHistogram{},
+		WinningPriceHistogram:       &metrics.NilHistogram{},
+		BidsReceivedMeter:           blankMeter,
+		WinningBidsReceivedMeter:    blankMeter,
+		adapterTotalDealCountWithCT: blankMeter,
+		adapterWinningDeals:         blankMeter,
+		adapterWinningDealsWithCT:   blankMeter,
+		PanicMeter:                  blankMeter,
+		MarkupMetrics:               makeBlankBidMarkupMetrics(),
 	}
 	if !disabledMetrics.AdapterConnectionMetrics {
 		newAdapter.ConnCreated = metrics.NilCounter{}
@@ -369,6 +375,10 @@ func registerAdapterMetrics(registry metrics.Registry, adapterOrAccount string, 
 	am.RequestTimer = metrics.GetOrRegisterTimer(fmt.Sprintf("%[1]s.%[2]s.request_time", adapterOrAccount, exchange), registry)
 	am.PriceHistogram = metrics.GetOrRegisterHistogram(fmt.Sprintf("%[1]s.%[2]s.prices", adapterOrAccount, exchange), registry, metrics.NewExpDecaySample(1028, 0.015))
 	am.WinningPriceHistogram = metrics.GetOrRegisterHistogram(fmt.Sprintf("%[1]s.%[2]s.prices", adapterOrAccount, exchange), registry, metrics.NewExpDecaySample(1028, 0.015))
+	am.WinningBidsReceivedMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.winning_bids_received", adapterOrAccount, exchange), registry)
+	am.adapterTotalDealCountWithCT = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.total_deal_with_ct", adapterOrAccount, exchange), registry)
+	am.adapterWinningDeals = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.winning_deals", adapterOrAccount, exchange), registry)
+	am.adapterWinningDealsWithCT = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.winning_deals_with_ct", adapterOrAccount, exchange), registry)
 	am.MarkupMetrics = map[openrtb_ext.BidType]*MarkupDeliveryMetrics{
 		openrtb_ext.BidTypeBanner: makeDeliveryMetrics(registry, adapterOrAccount+"."+exchange, openrtb_ext.BidTypeBanner),
 		openrtb_ext.BidTypeVideo:  makeDeliveryMetrics(registry, adapterOrAccount+"."+exchange, openrtb_ext.BidTypeVideo),
@@ -383,7 +393,6 @@ func registerAdapterMetrics(registry metrics.Registry, adapterOrAccount string, 
 	}
 	if adapterOrAccount != "adapter" {
 		am.BidsReceivedMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.bids_received", adapterOrAccount, exchange), registry)
-		am.WinningBidsReceivedMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.winning_bids_received", adapterOrAccount, exchange), registry)
 	}
 	am.PanicMeter = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.requests.panic", adapterOrAccount, exchange), registry)
 	am.GDPRRequestBlocked = metrics.GetOrRegisterMeter(fmt.Sprintf("%[1]s.%[2]s.gdpr_request_blocked", adapterOrAccount, exchange), registry)
@@ -654,6 +663,51 @@ func (me *Metrics) RecordAdapterWinningBidReceived(labels AdapterLabels, bidType
 		}
 	} else {
 		glog.Errorf("bid/adm metrics map entry does not exist for type %s. This is a bug, and should be reported.", bidType)
+	}
+}
+
+func (me *Metrics) RecordAdapterTotalDealCountWithCT(labels AdapterLabels) {
+	am, ok := me.AdapterMetrics[labels.Adapter]
+	if !ok {
+		glog.Errorf("Trying to run adapter bid metrics on %s: adapter metrics not found", string(labels.Adapter))
+		return
+	}
+
+	// Adapter metrics
+	am.adapterTotalDealCountWithCT.Mark(1)
+	// Account-Adapter metrics
+	if aam, ok := me.getAccountMetrics(labels.PubID).adapterMetrics[labels.Adapter]; ok {
+		aam.adapterTotalDealCountWithCT.Mark(1)
+	}
+}
+
+func (me *Metrics) RecordAdapterWinningDeals(labels AdapterLabels) {
+	am, ok := me.AdapterMetrics[labels.Adapter]
+	if !ok {
+		glog.Errorf("Trying to run adapter bid metrics on %s: adapter metrics not found", string(labels.Adapter))
+		return
+	}
+
+	// Adapter metrics
+	am.adapterWinningDeals.Mark(1)
+	// Account-Adapter metrics
+	if aam, ok := me.getAccountMetrics(labels.PubID).adapterMetrics[labels.Adapter]; ok {
+		aam.adapterWinningDeals.Mark(1)
+	}
+}
+
+func (me *Metrics) RecordAdapterWinningDealsWithCT(labels AdapterLabels) {
+	am, ok := me.AdapterMetrics[labels.Adapter]
+	if !ok {
+		glog.Errorf("Trying to run adapter bid metrics on %s: adapter metrics not found", string(labels.Adapter))
+		return
+	}
+
+	// Adapter metrics
+	am.adapterWinningDealsWithCT.Mark(1)
+	// Account-Adapter metrics
+	if aam, ok := me.getAccountMetrics(labels.PubID).adapterMetrics[labels.Adapter]; ok {
+		aam.adapterWinningDealsWithCT.Mark(1)
 	}
 }
 

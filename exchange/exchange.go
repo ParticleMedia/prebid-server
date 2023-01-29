@@ -28,6 +28,7 @@ import (
 	"github.com/prebid/prebid-server/stored_responses"
 	"github.com/prebid/prebid-server/usersync"
 	"github.com/prebid/prebid-server/util/maputil"
+	"github.com/prebid/prebid-server/util/task"
 
 	"github.com/buger/jsonparser"
 	"github.com/gofrs/uuid"
@@ -70,6 +71,7 @@ type exchange struct {
 	hostSChainNode    *openrtb2.SupplyChainNode
 	adsCertSigner     adscert.Signer
 	server            config.Server
+	dealFetcher       *task.DealFetcher
 }
 
 // Container to pass out response ext data from the GetAllBids goroutines back into the main thread
@@ -116,7 +118,7 @@ func (randomDeduplicateBidBooleanGenerator) Generate() bool {
 	return rand.Intn(100) < 50
 }
 
-func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid_cache_client.Client, cfg *config.Configuration, syncersByBidder map[string]usersync.Syncer, metricsEngine metrics.MetricsEngine, infos config.BidderInfos, gdprPermsBuilder gdpr.PermissionsBuilder, tcf2CfgBuilder gdpr.TCF2ConfigBuilder, currencyConverter *currency.RateConverter, categoriesFetcher stored_requests.CategoryFetcher, adsCertSigner adscert.Signer) Exchange {
+func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid_cache_client.Client, cfg *config.Configuration, syncersByBidder map[string]usersync.Syncer, metricsEngine metrics.MetricsEngine, infos config.BidderInfos, gdprPermsBuilder gdpr.PermissionsBuilder, tcf2CfgBuilder gdpr.TCF2ConfigBuilder, currencyConverter *currency.RateConverter, categoriesFetcher stored_requests.CategoryFetcher, adsCertSigner adscert.Signer, dealFetcher *task.DealFetcher) Exchange {
 	bidderToSyncerKey := map[string]string{}
 	for bidder, syncer := range syncersByBidder {
 		bidderToSyncerKey[bidder] = syncer.Key()
@@ -149,6 +151,7 @@ func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid
 		hostSChainNode: cfg.HostSChainNode,
 		adsCertSigner:  adsCertSigner,
 		server:         config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter},
+		dealFetcher:    dealFetcher,
 	}
 }
 
@@ -391,6 +394,14 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 					topBidderLabel := metrics.AdapterLabels{
 						Adapter:   bidderName,
 						StoredImp: r.StoredImp,
+					}
+					if dealId := topBidPerBidder.bid.DealID; len(dealId) > 0 {
+						dealInfo := e.dealFetcher.GetDealInfo(string(bidderName), dealId)
+						e.me.RecordAdapterWinningDeals(topBidderLabel)
+						if dealInfo != nil {
+							bidResponseExt.Prebid.CustomeTargeting, err = json.Marshal(dealInfo.CustomTargeting)
+							e.me.RecordAdapterWinningDealsWithCT(topBidderLabel)
+						}
 					}
 
 					var cpm = float64(topBidPerBidder.bid.Price * 1000)

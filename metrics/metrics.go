@@ -417,6 +417,9 @@ type MetricsEngine interface {
 	// Since the legacy endpoints don't have a bid type, it can only count bids from OpenRTB and AMP.
 	RecordAdapterBidReceived(labels AdapterLabels, bidType openrtb_ext.BidType, hasAdm bool)
 	RecordAdapterWinningBidReceived(labels AdapterLabels, bidType openrtb_ext.BidType, hasAdm bool)
+	RecordAdapterTotalDealCountWithCT(labels AdapterLabels)
+	RecordAdapterWinningDeals(labels AdapterLabels)
+	RecordAdapterWinningDealsWithCT(labels AdapterLabels)
 	RecordAdapterPrice(labels AdapterLabels, cpm float64)
 	RecordAdapterWinningPrice(labels AdapterLabels, cpm float64)
 	RecordAdapterTime(labels AdapterLabels, length time.Duration)

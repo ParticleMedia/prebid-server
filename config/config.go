@@ -99,6 +99,14 @@ type Configuration struct {
 	// BidderInfos supports adapter overrides in extra configs like pbs.json, pbs.yaml, etc.
 	// Refers to main.go `configFileName` constant
 	BidderInfos BidderInfos `mapstructure:"adapters"`
+	DealApiInfo ApiInfo     `mapstructure:"deal_api"`
+}
+
+type ApiInfo struct {
+	Name                 string `yaml:"name" mapstructure:"name"`
+	Enabled              bool   `yaml:"enabled" mapstructure:"enabled"`
+	GlobalEndPoint       string `yaml:"global_endpoint" mapstructure:"global_endpoint"`
+	FetchIntervalSeconds int    `yaml:"fetch_interval_seconds" mapstructure:"fetch_interval_seconds"`
 }
 
 const MIN_COOKIE_SIZE_BYTES = 500
@@ -134,6 +142,7 @@ func (cfg *Configuration) validate(v *viper.Viper) []error {
 	}
 	errs = cfg.Experiment.validate(errs)
 	errs = cfg.BidderInfos.validate(errs)
+	errs = cfg.DealApiInfo.validate(errs)
 	return errs
 }
 
@@ -148,6 +157,14 @@ func (cfg *AuctionTimeouts) validate(errs []error) []error {
 	if cfg.Max < cfg.Default {
 		errs = append(errs, fmt.Errorf("auction_timeouts_ms.max cannot be less than auction_timeouts_ms.default. max=%d, default=%d", cfg.Max, cfg.Default))
 	}
+	return errs
+}
+
+func (info *ApiInfo) validate(errs []error) []error {
+	if info.Enabled && info.FetchIntervalSeconds <= 0 {
+		return append(errs, errors.New(fmt.Sprintf("Deal data fetch interval is invalid")))
+	}
+
 	return errs
 }
 

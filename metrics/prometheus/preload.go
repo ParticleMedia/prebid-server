@@ -136,6 +136,21 @@ func preloadLabelValues(m *Metrics, syncerKeys []string) {
 		storedImpLabel:      storedImpValues,
 	})
 
+	preloadLabelValuesForCounter(m.adapterTotalDealCountWithCT, map[string][]string{
+		adapterLabel:   adapterValues,
+		storedImpLabel: storedImpValues,
+	})
+
+	preloadLabelValuesForCounter(m.adapterWinningDeals, map[string][]string{
+		adapterLabel:   adapterValues,
+		storedImpLabel: storedImpValues,
+	})
+
+	preloadLabelValuesForCounter(m.adapterWinningDealsWithCT, map[string][]string{
+		adapterLabel:   adapterValues,
+		storedImpLabel: storedImpValues,
+	})
+
 	preloadLabelValuesForCounter(m.adapterErrors, map[string][]string{
 		adapterLabel:      adapterValues,
 		adapterErrorLabel: adapterErrorValues,

@@ -81,6 +81,18 @@ func (me *MetricsEngineMock) RecordAdapterWinningBidReceived(labels AdapterLabel
 	me.Called(labels, bidType, hasAdm)
 }
 
+func (me *MetricsEngineMock) RecordAdapterTotalDealCountWithCT(labels AdapterLabels) {
+	me.Called(labels)
+}
+
+func (me *MetricsEngineMock) RecordAdapterWinningDeals(labels AdapterLabels) {
+	me.Called(labels)
+}
+
+func (me *MetricsEngineMock) RecordAdapterWinningDealsWithCT(labels AdapterLabels) {
+	me.Called(labels)
+}
+
 // RecordAdapterPrice mock
 func (me *MetricsEngineMock) RecordAdapterPrice(labels AdapterLabels, cpm float64) {
 	me.Called(labels, cpm)

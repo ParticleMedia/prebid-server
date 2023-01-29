@@ -3,15 +3,16 @@ package config
 import (
 	"errors"
 	"fmt"
-	validator "github.com/asaskevich/govalidator"
-	"github.com/golang/glog"
-	"github.com/prebid/prebid-server/macros"
-	"github.com/prebid/prebid-server/util/sliceutil"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	validator "github.com/asaskevich/govalidator"
+	"github.com/golang/glog"
+	"github.com/prebid/prebid-server/macros"
+	"github.com/prebid/prebid-server/util/sliceutil"
 
 	"github.com/prebid/prebid-server/openrtb_ext"
 	"gopkg.in/yaml.v3"
@@ -24,6 +25,7 @@ type BidderInfos map[string]BidderInfo
 type BidderInfo struct {
 	Disabled         bool   `yaml:"disabled" mapstructure:"disabled"`
 	Endpoint         string `yaml:"endpoint" mapstructure:"endpoint"`
+	DealEndpoint     string `yaml:"deal_endpoint" mapstructure:"deal_endpoint"`
 	ExtraAdapterInfo string `yaml:"extra_info" mapstructure:"extra_info"`
 
 	Maintainer              *MaintainerInfo   `yaml:"maintainer" mapstructure:"maintainer"`
@@ -390,6 +392,11 @@ func applyBidderInfoConfigOverrides(configBidderInfos BidderInfos, fsBidderInfos
 			if bidderInfo.Endpoint == "" && len(fsBidderCfg.Endpoint) > 0 {
 				bidderInfo.Endpoint = fsBidderCfg.Endpoint
 			}
+
+			if bidderInfo.DealEndpoint == "" && len(fsBidderCfg.DealEndpoint) > 0 {
+				bidderInfo.DealEndpoint = fsBidderCfg.DealEndpoint
+			}
+
 			if bidderInfo.ExtraAdapterInfo == "" && len(fsBidderCfg.ExtraAdapterInfo) > 0 {
 				bidderInfo.ExtraAdapterInfo = fsBidderCfg.ExtraAdapterInfo
 			}
