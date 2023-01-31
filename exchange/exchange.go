@@ -186,7 +186,6 @@ type AuctionRequest struct {
 	StoredBidResponses    stored_responses.ImpBidderStoredResp
 	BidderImpReplaceImpID stored_responses.BidderImpReplaceImpID
 	PubID                 string
-	StoredImp             string
 	HookExecutor          hookexecution.StageExecutor
 	StoredImp             string
 }
@@ -620,7 +619,7 @@ func (e *exchange) getAllBids(
 		}, chBids)
 		go bidderRunner(bidder, conversions)
 	}
-	var fledge *openrtb_ext.Fledge?
+	var fledge *openrtb_ext.Fledge
 
 	// Wait for the bidders to do their thing
 	for i := 0; i < len(bidderRequests); i++ {
