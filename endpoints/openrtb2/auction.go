@@ -132,6 +132,8 @@ type LogIno struct {
 	Fill    bool
 	Uid     string
 	Price   float64
+	Lat     float64
+	Lon     float64
 }
 
 func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -172,6 +174,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		Fill:    false,
 		Uid:     metrics.LogUnknown,
 		Price:   -1,
+		Lat:     0,
+		Lon:     0,
 	}
 
 	adUnitName := "unknown"
@@ -196,6 +200,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 			logMsg.Country = req.Device.Geo.Country
 			logMsg.City = req.Device.Geo.City
 			logMsg.Region = req.Device.Geo.Region
+			logMsg.Lat = req.Device.Geo.Lat
+			logMsg.Lon = req.Device.Geo.Lon
 		}
 	}
 
