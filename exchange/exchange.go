@@ -384,15 +384,20 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 	}
 
 	if auc != nil && auc.winningBidsByBidder != nil {
-		for _, topBidsPerImp := range auc.winningBidsByBidder {
+		for impId, topBidsPerImp := range auc.winningBidsByBidder {
+			overallWinner := auc.winningBids[impId]
 			for bidderName, topBidPerBidder := range topBidsPerImp {
-				topBidderLabel := metrics.AdapterLabels{
-					Adapter:   bidderName,
-					StoredImp: r.StoredImp,
+				if overallWinner == topBidPerBidder {
+					topBidderLabel := metrics.AdapterLabels{
+						Adapter:   bidderName,
+						StoredImp: r.StoredImp,
+					}
+
+					var cpm = float64(topBidPerBidder.bid.Price * 1000)
+					e.me.RecordAdapterWinningBidReceived(topBidderLabel, topBidPerBidder.bidType, topBidPerBidder.bid.AdM != "")
+					e.me.RecordAdapterWinningPrice(topBidderLabel, cpm)
 				}
-				var cpm = float64(topBidPerBidder.bid.Price * 1000)
-				e.me.RecordAdapterWinningBidReceived(topBidderLabel, topBidPerBidder.bidType, topBidPerBidder.bid.AdM != "")
-				e.me.RecordAdapterWinningPrice(topBidderLabel, cpm)
+
 			}
 		}
 	}
