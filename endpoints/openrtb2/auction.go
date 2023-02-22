@@ -123,17 +123,18 @@ type endpointDeps struct {
 }
 
 type LogIno struct {
-	Os      string
-	Idfa    string
-	Country string
-	City    string
-	Region  string
-	AdUnit  string
-	Fill    bool
-	Uid     string
-	Price   float64
-	Lat     float64
-	Lon     float64
+	Os         string
+	Idfa       string
+	Country    string
+	City       string
+	Region     string
+	AdUnit     string
+	Fill       bool
+	Uid        string
+	Price      float64
+	Lat        float64
+	Lon        float64
+	AppVersion string
 }
 
 func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -165,17 +166,18 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r)
 
 	logMsg := LogIno{
-		Os:      metrics.LogUnknown,
-		Idfa:    metrics.LogUnknown,
-		Country: metrics.LogUnknown,
-		City:    metrics.LogUnknown,
-		Region:  metrics.LogUnknown,
-		AdUnit:  metrics.LogUnknown,
-		Fill:    false,
-		Uid:     metrics.LogUnknown,
-		Price:   -1,
-		Lat:     0,
-		Lon:     0,
+		Os:         metrics.LogUnknown,
+		Idfa:       metrics.LogUnknown,
+		Country:    metrics.LogUnknown,
+		City:       metrics.LogUnknown,
+		Region:     metrics.LogUnknown,
+		AdUnit:     metrics.LogUnknown,
+		Fill:       false,
+		Uid:        metrics.LogUnknown,
+		Price:      -1,
+		Lat:        0,
+		Lon:        0,
+		AppVersion: metrics.LogUnknown,
 	}
 
 	adUnitName := "unknown"
@@ -202,6 +204,12 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 			logMsg.Region = req.Device.Geo.Region
 			logMsg.Lat = req.Device.Geo.Lat
 			logMsg.Lon = req.Device.Geo.Lon
+		}
+	}
+
+	if req.App != nil {
+		if req.App.Ver != "" {
+			logMsg.AppVersion = req.App.Ver
 		}
 	}
 
