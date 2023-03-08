@@ -42,6 +42,7 @@ import (
 	"github.com/prebid/prebid-server/usersync"
 	"github.com/prebid/prebid-server/util/httputil"
 	"github.com/prebid/prebid-server/util/iputil"
+	"github.com/prebid/prebid-server/util/task"
 	"github.com/prebid/prebid-server/util/uuidutil"
 	"github.com/prebid/prebid-server/version"
 )
@@ -70,6 +71,7 @@ func NewEndpoint(
 	defReqJSON []byte,
 	bidderMap map[string]openrtb_ext.BidderName,
 	storedRespFetcher stored_requests.Fetcher,
+	ab *task.AB,
 ) (httprouter.Handle, error) {
 	if ex == nil || validator == nil || requestsById == nil || accounts == nil || cfg == nil || met == nil {
 		return nil, errors.New("NewEndpoint requires non-nil arguments.")
@@ -99,7 +101,8 @@ func NewEndpoint(
 		nil,
 		nil,
 		ipValidator,
-		storedRespFetcher}).Auction), nil
+		storedRespFetcher,
+		ab}).Auction), nil
 }
 
 type endpointDeps struct {
@@ -120,6 +123,7 @@ type endpointDeps struct {
 	debugLogRegexp            *regexp.Regexp
 	privateNetworkIPValidator iputil.IPValidator
 	storedRespFetcher         stored_requests.Fetcher
+	ab                        *task.AB
 }
 
 type LogIno struct {
@@ -135,6 +139,7 @@ type LogIno struct {
 	Lat        float64
 	Lon        float64
 	AppVersion string
+<<<<<<< HEAD
 	ReqId      string
 	SkadnSize  int
 	HasBuyerId bool
@@ -146,6 +151,9 @@ type SkadnExt struct {
 
 type SkadnData struct {
 	SkadnList []string `json:"skadnetids"`
+=======
+	AbBuckets  []string
+>>>>>>> support ab
 }
 
 func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -170,11 +178,10 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		CookieFlag:    metrics.CookieFlagUnknown,
 		RequestStatus: metrics.RequestStatusOK,
 		StoredImp:     metrics.StoredImpUnknown,
+		AbBuckets:     []string{metrics.AbBucketUnknown},
 	}
 
 	w.Header().Set("X-Prebid", version.BuildXPrebidHeader(version.Ver))
-
-	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r)
 
 	logMsg := LogIno{
 		Os:         metrics.LogUnknown,
@@ -192,6 +199,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		SkadnSize:  0,
 		ReqId:      metrics.LogUnknown,
 		HasBuyerId: false,
+		AbBuckets:  []string{metrics.AbBucketUnknown},
 	}
 
 	if len(req.Imp) > 0 {
@@ -202,6 +210,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 			logMsg.SkadnSize = len(skadn.Skadn.SkadnList)
 		}
 	}
+
+	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r, &labels, &logMsg)
 
 	adUnitName := "unknown"
 	if storedImp != nil {
@@ -316,6 +326,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		BidderImpReplaceImpID:      bidderImpReplaceImp,
 		PubID:                      labels.PubID,
 		StoredImp:                  adUnitName,
+		AbBucketList:               labels.AbBuckets,
 	}
 
 	response, err := deps.ex.HoldAuction(ctx, auctionRequest, nil)
@@ -379,7 +390,7 @@ func writeLogInfo(logMsg LogIno) {
 // possible, it will return errors with messages that suggest improvements.
 //
 // If the errors list has at least one element, then no guarantees are made about the returned request.
-func (deps *endpointDeps) parseRequest(httpRequest *http.Request) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, storedImp []byte, errs []error) {
+func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metrics.Labels, logMsg *LogIno) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, storedImp []byte, errs []error) {
 	req = &openrtb_ext.RequestWrapper{}
 	req.BidRequest = &openrtb2.BidRequest{}
 	errs = nil
@@ -412,7 +423,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request) (req *openrtb_
 	}
 
 	// Fetch the Stored Request data and merge it into the HTTP request.
-	if requestJson, impExtInfoMap, storedImp, errs = deps.processStoredRequests(ctx, requestJson, impInfo); len(errs) > 0 {
+	if requestJson, impExtInfoMap, storedImp, errs = deps.processStoredRequests(ctx, requestJson, impInfo, labels, logMsg); len(errs) > 0 {
 		return
 	}
 
@@ -1732,7 +1743,7 @@ func getJsonSyntaxError(testJSON []byte) (bool, string) {
 	return false, ""
 }
 
-func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson []byte, impInfo []ImpExtPrebidData) ([]byte, map[string]exchange.ImpExtInfo, []byte, []error) {
+func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson []byte, impInfo []ImpExtPrebidData, labels *metrics.Labels, logMsg *LogIno) ([]byte, map[string]exchange.ImpExtInfo, []byte, []error) {
 	// Parse the Stored Request IDs from the BidRequest and Imps.
 	storedBidRequestId, hasStoredBidRequest, err := getStoredRequestId(requestJson)
 	if err != nil {
@@ -1876,6 +1887,41 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 		resolvedRequest, err = jsonparser.Set(resolvedRequest, newImpJson, "imp")
 		if err != nil {
 			return nil, nil, nil, []error{err}
+		}
+	}
+
+	if deps.ab != nil {
+		req := &openrtb2.BidRequest{}
+		if err := json.Unmarshal(resolvedRequest, req); err != nil {
+			return nil, nil, nil, []error{err}
+		}
+
+		if req.Device != nil && req.App != nil {
+			err, bucketList := deps.ab.GetBucket(req.User.ID, req.Device.OS, req.App.Ver)
+			if err != nil {
+				return nil, nil, nil, []error{err}
+			}
+			labels.AbBuckets = nil
+			logMsg.AbBuckets = nil
+			logMsg.AbBuckets = append(logMsg.AbBuckets, bucketList...)
+
+			storedABs, errs := deps.storedReqFetcher.FetchABs(ctx, bucketList)
+			if len(errs) != 0 {
+				// ab buckets for this user are not found on prebid server -> [OK]
+				// return nil, nil, nil, errs
+			}
+
+			for _, bucketName := range bucketList {
+				// only use configed experiments on server
+				val, ok := storedABs[bucketName]
+				if ok {
+					resolvedRequest, err = jsonpatch.MergePatch(resolvedRequest, val)
+					labels.AbBuckets = append(labels.AbBuckets, bucketName)
+					if err != nil {
+						return nil, nil, nil, []error{err}
+					}
+				}
+			}
 		}
 	}
 

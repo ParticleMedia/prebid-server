@@ -182,6 +182,7 @@ type AuctionRequest struct {
 	BidderImpReplaceImpID stored_responses.BidderImpReplaceImpID
 	PubID                 string
 	StoredImp             string
+	AbBucketList          []string
 }
 
 // BidderRequest holds the bidder specific request and all other
@@ -263,6 +264,7 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 
 	for i := range bidderRequests {
 		bidderRequests[i].BidderLabels.StoredImp = r.StoredImp
+		bidderRequests[i].BidderLabels.AbBuckets = r.AbBucketList
 	}
 
 	e.me.RecordRequestPrivacy(privacyLabels)

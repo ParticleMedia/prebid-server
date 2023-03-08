@@ -14,6 +14,7 @@ type Labels struct {
 	CookieFlag    CookieFlag
 	RequestStatus RequestStatus
 	StoredImp     string
+	AbBuckets     []string
 }
 
 // AdapterLabels defines the labels that can be attached to the adapter metrics.
@@ -26,6 +27,7 @@ type AdapterLabels struct {
 	AdapterBids   AdapterBid
 	AdapterErrors map[AdapterError]struct{}
 	StoredImp     string
+	AbBuckets     []string
 }
 
 // ImpLabels defines metric labels describing the impression type.
@@ -138,6 +140,8 @@ const PublisherUnknown = "unknown"
 
 // StoredImpUnknown: Defalut value for Labels.StoredImp
 const StoredImpUnknown = "unknown"
+
+const AbBucketUnknown = "unknown"
 
 const LogUnknown = "unknown"
 

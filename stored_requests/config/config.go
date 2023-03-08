@@ -188,6 +188,7 @@ func newCache(cfg *config.StoredRequests) stored_requests.Cache {
 		Imps:      &nil_cache.NilCache{},
 		Responses: &nil_cache.NilCache{},
 		Accounts:  &nil_cache.NilCache{},
+		Abs:       &nil_cache.NilCache{},
 	}
 	switch {
 	case cfg.InMemoryCache.Type == "none":
@@ -198,6 +199,7 @@ func newCache(cfg *config.StoredRequests) stored_requests.Cache {
 		cache.Requests = memory.NewCache(cfg.InMemoryCache.RequestCacheSize, cfg.InMemoryCache.TTL, "Requests")
 		cache.Imps = memory.NewCache(cfg.InMemoryCache.ImpCacheSize, cfg.InMemoryCache.TTL, "Imps")
 		cache.Responses = memory.NewCache(cfg.InMemoryCache.RespCacheSize, cfg.InMemoryCache.TTL, "Responses")
+		cache.Abs = memory.NewCache(cfg.InMemoryCache.RespCacheSize, cfg.InMemoryCache.TTL, "Abs")
 	}
 	return cache
 }

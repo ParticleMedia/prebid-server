@@ -15,6 +15,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/julienschmidt/httprouter"
 	"github.com/prebid/openrtb/v17/openrtb2"
+	"github.com/prebid/prebid-server/util/task"
 	"github.com/prebid/prebid-server/util/uuidutil"
 	jsonpatch "gopkg.in/evanphx/json-patch.v4"
 
@@ -58,6 +59,7 @@ func NewAmpEndpoint(
 	defReqJSON []byte,
 	bidderMap map[string]openrtb_ext.BidderName,
 	storedRespFetcher stored_requests.Fetcher,
+	ab *task.AB,
 ) (httprouter.Handle, error) {
 
 	if ex == nil || validator == nil || requestsById == nil || accounts == nil || cfg == nil || met == nil {
@@ -88,7 +90,8 @@ func NewAmpEndpoint(
 		nil,
 		nil,
 		ipValidator,
-		storedRespFetcher}).AmpAuction), nil
+		storedRespFetcher,
+		ab}).AmpAuction), nil
 
 }
 

@@ -33,6 +33,12 @@ func (fetcher *eagerFetcher) FetchRequests(ctx context.Context, requestIDs []str
 	return storedRequests, storedImpressions, errs
 }
 
+func (fetcher *eagerFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	bucketData = fetcher.FileSystem.Directories["stored_abs"].Files
+	errs = appendErrors("AB", bucketList, bucketData, nil)
+	return
+}
+
 func (fetcher *eagerFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
 	return nil, nil
 }
