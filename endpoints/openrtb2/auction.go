@@ -135,6 +135,17 @@ type LogIno struct {
 	Lat        float64
 	Lon        float64
 	AppVersion string
+	ReqId      string
+	SkadnSize  int
+	HasBuyerId bool
+}
+
+type SkadnExt struct {
+	Skadn SkadnData `json:"skadn"`
+}
+
+type SkadnData struct {
+	SkadnList []string `json:"skadnetids"`
 }
 
 func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -178,6 +189,18 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		Lat:        0,
 		Lon:        0,
 		AppVersion: metrics.LogUnknown,
+		SkadnSize:  0,
+		ReqId:      metrics.LogUnknown,
+		HasBuyerId: false,
+	}
+
+	if len(req.Imp) > 0 {
+		logMsg.ReqId = req.ID
+		skadn := &SkadnExt{}
+		err := json.Unmarshal(req.Imp[0].Ext, skadn)
+		if err == nil {
+			logMsg.SkadnSize = len(skadn.Skadn.SkadnList)
+		}
 	}
 
 	adUnitName := "unknown"
@@ -215,6 +238,9 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 
 	if req.User != nil {
 		logMsg.Uid = req.User.ID
+		if req.User.BuyerUID != "" {
+			logMsg.HasBuyerId = true
+		}
 	}
 
 	defer func() {
