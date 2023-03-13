@@ -192,6 +192,10 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	if req.Device != nil {
 		if req.Device.OS != "" {
 			logMsg.Os = req.Device.OS
+			// hardcode ios bundle
+			if req.Device.OS == "iOS" {
+				req.App.Bundle = "1132762804"
+			}
 		}
 
 		if req.Device.IFA != "" {
