@@ -1,18 +1,16 @@
 package task
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync/atomic"
 
-	"github.com/prebid/prebid-server/errortypes"
+	"github.com/ParticleMedia/ab-go-sdk"
 	"github.com/prebid/prebid-server/util/timeutil"
 )
 
-const ab_url = "http://ab-api.ha.nb.com:8220/ab/newsbreak/user"
+const ab_url = "http://ab-api.ha.nb.com:8220"
 
 type AbResponse struct {
 	Abkv map[string]string `json:"exp"`
@@ -27,6 +25,12 @@ type AB struct {
 func NewAB(
 	httpClient httpClient,
 ) *AB {
+	ab.Init(&ab.ABConfig{
+		App:          "msp-prebid-server",
+		Url:          ab_url,
+		Layers:       []string{"ad_android", "ad_ios"},
+		EnableCohort: false, // if you don't use cohort feature, please set to false
+	})
 	return &AB{
 		httpClient:  httpClient,
 		lastUpdated: atomic.Value{},
@@ -38,49 +42,30 @@ type httpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-func (ab *AB) GetBucket(uid string, os string, cv string) (error, []string) {
-	// all bucket is only used for metrics now, it can also be set in the future
-	result := []string{"all"}
-	request, err := http.NewRequest("GET", ab_url+"/"+uid, nil)
-	if err != nil {
-		return err, result
-	}
+func (abUtl *AB) GetBucket(uid string, os string, cv string) (error, []string) {
+	result := []string{}
 	os = strings.ToLower(os)
 	cv = strings.Replace(cv, ".", "", -1)
 	if len(cv) < 6 {
 		cv = cv + strings.Repeat("0", 6-len(cv))
 	}
-	q := request.URL.Query()
-	q.Add("tag", fmt.Sprintf("{\"platform\":\"%s\", \"cv\":\"%s\"}", os, cv))
-	request.URL.RawQuery = q.Encode()
+	uidInt64, _ := strconv.ParseUint(uid, 10, 64)
+	response := ab.AB(
+		ab.NewABContext(
+			uid,
+		).WithUserid(
+			uint32(uidInt64),
+		).WithConditions(map[string]interface{}{
+			"platform": os,
+			"cv":       cv,
+		}),
+	)
 
-	response, err := ab.httpClient.Do(request)
-	if err != nil {
-		return err, result
+	for k, v := range response.Config {
+		result = append(result, strings.Replace(k+"_"+v, ".", "_", -1))
 	}
 
-	if response.StatusCode >= 400 {
-		message := fmt.Sprintf("The ab api request failed with status code %d", response.StatusCode)
-		return &errortypes.BadServerResponse{Message: message}, nil
-	}
-
-	defer response.Body.Close()
-
-	bytesJSON, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err, result
-	}
-
-	abResponse := &AbResponse{}
-
-	err = json.Unmarshal(bytesJSON, abResponse)
-	if err != nil {
-		return err, result
-	}
-
-	for k, v := range abResponse.Abkv {
-		result = append(result, k+"_"+v)
-	}
-
+	// all bucket is only used for metrics now, it can also be set in the future
+	result = append(result, "all")
 	return nil, result
 }

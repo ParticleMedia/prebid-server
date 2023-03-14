@@ -111,7 +111,7 @@ type Router struct {
 	Shutdown        func()
 }
 
-func New(cfg *config.Configuration, rateConvertor *currency.RateConverter) (r *Router, err error) {
+func New(cfg *config.Configuration, rateConvertor *currency.RateConverter, ab *task.AB) (r *Router, err error) {
 	const schemaDirectory = "./static/bidder-params"
 
 	r = &Router{
@@ -151,8 +151,6 @@ func New(cfg *config.Configuration, rateConvertor *currency.RateConverter) (r *R
 	if err := checkSupportedUserSyncEndpoints(cfg.BidderInfos); err != nil {
 		return nil, err
 	}
-
-	ab := task.NewAB(generalHttpClient)
 
 	syncersByBidder, errs := usersync.BuildSyncers(cfg, cfg.BidderInfos)
 	if len(errs) > 0 {

@@ -71,7 +71,8 @@ func serve(cfg *config.Configuration) error {
 	currencyConverterTickerTask := task.NewTickerTask(fetchingInterval, currencyConverter)
 	currencyConverterTickerTask.Start()
 
-	r, err := router.New(cfg, currencyConverter)
+	ab := task.NewAB(&http.Client{})
+	r, err := router.New(cfg, currencyConverter, ab)
 	if err != nil {
 		return err
 	}

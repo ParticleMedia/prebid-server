@@ -139,10 +139,10 @@ type LogIno struct {
 	Lat        float64
 	Lon        float64
 	AppVersion string
-<<<<<<< HEAD
 	ReqId      string
 	SkadnSize  int
 	HasBuyerId bool
+	AbBuckets  []string
 }
 
 type SkadnExt struct {
@@ -151,9 +151,6 @@ type SkadnExt struct {
 
 type SkadnData struct {
 	SkadnList []string `json:"skadnetids"`
-=======
-	AbBuckets  []string
->>>>>>> support ab
 }
 
 func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -202,6 +199,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		AbBuckets:  []string{metrics.AbBucketUnknown},
 	}
 
+	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r, &labels, &logMsg)
+
 	if len(req.Imp) > 0 {
 		logMsg.ReqId = req.ID
 		skadn := &SkadnExt{}
@@ -210,8 +209,6 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 			logMsg.SkadnSize = len(skadn.Skadn.SkadnList)
 		}
 	}
-
-	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r, &labels, &logMsg)
 
 	adUnitName := "unknown"
 	if storedImp != nil {
@@ -1903,20 +1900,19 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 			}
 			labels.AbBuckets = nil
 			logMsg.AbBuckets = nil
-			logMsg.AbBuckets = append(logMsg.AbBuckets, bucketList...)
 
-			storedABs, errs := deps.storedReqFetcher.FetchABs(ctx, bucketList)
-			if len(errs) != 0 {
-				// ab buckets for this user are not found on prebid server -> [OK]
-				// return nil, nil, nil, errs
-			}
+			storedABs, _ := deps.storedReqFetcher.FetchABs(ctx, bucketList)
 
 			for _, bucketName := range bucketList {
 				// only use configed experiments on server
 				val, ok := storedABs[bucketName]
 				if ok {
+					if len(labels.AbBuckets) > 0 && bucketName == "all" {
+						continue
+					}
 					resolvedRequest, err = jsonpatch.MergePatch(resolvedRequest, val)
 					labels.AbBuckets = append(labels.AbBuckets, bucketName)
+					logMsg.AbBuckets = append(logMsg.AbBuckets, bucketName)
 					if err != nil {
 						return nil, nil, nil, []error{err}
 					}
