@@ -1,5 +1,12 @@
 # Makefile
 
+GIT_BRANCH=$(strip $(shell git symbolic-ref --short HEAD))
+
+pr:
+	@echo "Creating pull request..."
+	@git push --set-upstream origin $(GIT_BRANCH)
+	@hub pull-request
+
 all: deps test build
 
 .PHONY: deps test build image
@@ -25,3 +32,7 @@ build: test
 # image will build a docker image
 image:
 	docker build -t prebid-server .
+
+
+run:
+	@./prebid-server -logtostderr=1
