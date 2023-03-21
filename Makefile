@@ -1,6 +1,7 @@
 # Makefile
-
 GIT_BRANCH=$(strip $(shell git symbolic-ref --short HEAD))
+AVRO_OUTPUT_DIR=./logging/model
+AVRO_SCHEMA_DIR=./logging/schema
 
 pr:
 	@echo "Creating pull request..."
@@ -26,13 +27,22 @@ else
 endif
 
 # build will ensure all of our tests pass and then build the go binary
-build: test
-	go build -mod=vendor ./...
+build:
+	@go build -mod=vendor
 
 # image will build a docker image
 image:
-	docker build -t prebid-server .
+	@docker build -t prebid-server .
 
 
 run:
 	@./prebid-server -logtostderr=1
+
+avro:
+	-rm -rf $(AVRO_OUTPUT_DIR)
+	@mkdir $(AVRO_OUTPUT_DIR)
+	@gogen-avro --containers=false \
+				--sources-comment=false \
+				--short-unions=false \
+				--package=model \
+				$(AVRO_OUTPUT_DIR) $(AVRO_SCHEMA_DIR)/*.avsc
