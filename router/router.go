@@ -18,6 +18,7 @@ import (
 	infoEndpoints "github.com/prebid/prebid-server/endpoints/info"
 	"github.com/prebid/prebid-server/endpoints/openrtb2"
 	"github.com/prebid/prebid-server/errortypes"
+	"github.com/prebid/prebid-server/etl"
 	"github.com/prebid/prebid-server/exchange"
 	"github.com/prebid/prebid-server/experiment/adscert"
 	"github.com/prebid/prebid-server/gdpr"
@@ -170,6 +171,8 @@ func New(cfg *config.Configuration, rateConvertor *currency.RateConverter) (r *R
 	shutdown, fetcher, ampFetcher, accounts, categoriesFetcher, videoFetcher, storedRespFetcher := storedRequestsConf.NewStoredRequests(cfg, r.MetricsEngine, generalHttpClient, r.Router)
 	// todo(zachbadgett): better shutdown
 	r.Shutdown = shutdown
+
+	etl.InitKafka(cfg.Etl)
 
 	pbsAnalytics := analyticsConf.NewPBSAnalytics(&cfg.Analytics)
 
