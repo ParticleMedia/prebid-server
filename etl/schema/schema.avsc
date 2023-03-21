@@ -1,8 +1,8 @@
 {
   "type": "record",
-  "name": "msp_server_log",
-  "doc": "The logging schema for requests and responses on MSP server.",
-  "namespace": "com.newsbreak.msp.logging",
+  "name": "msp_openrtb2_auction",
+  "doc": "The logging schema for endpoint /openrtb2/auction on MSP server",
+  "namespace": "com.newsbreak.msp.etl",
   "fields": [
     {
       "name": "user_id",

@@ -1,7 +1,7 @@
 # Makefile
 GIT_BRANCH=$(strip $(shell git symbolic-ref --short HEAD))
-AVRO_OUTPUT_DIR=./logging/model
-AVRO_SCHEMA_DIR=./logging/schema
+AVRO_OUTPUT_DIR=./etl/model
+AVRO_SCHEMA_DIR=./etl/schema
 
 pr:
 	@echo "Creating pull request..."
