@@ -353,7 +353,15 @@ func writeLogInfo(logMsg LogIno) {
 // possible, it will return errors with messages that suggest improvements.
 //
 // If the errors list has at least one element, then no guarantees are made about the returned request.
-func (deps *endpointDeps) parseRequest(httpRequest *http.Request) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, storedImp []byte, errs []error) {
+func (deps *endpointDeps) parseRequest(httpRequest *http.Request) (
+	req *openrtb_ext.RequestWrapper,
+	impExtInfoMap map[string]exchange.ImpExtInfo,
+	storedAuctionResponses stored_responses.ImpsWithBidResponses,
+	storedBidResponses stored_responses.ImpBidderStoredResp,
+	bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID,
+	storedImp []byte,
+	errs []error) {
+
 	req = &openrtb_ext.RequestWrapper{}
 	req.BidRequest = &openrtb2.BidRequest{}
 	errs = nil
