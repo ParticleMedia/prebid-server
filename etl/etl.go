@@ -43,9 +43,6 @@ func RecordAuctionData(moa model.Msp_openrtb2_auction) {
 	moa.Serialize(&buf)
 	msg, _ := addSchema(moaSchema, buf.Bytes())
 
-	out, _ := json.Marshal(moa)
-	fmt.Println("** MSP SERVER LOG **", string(out))
-
 	produce(msg)
 }
 
@@ -73,4 +70,9 @@ func produce(msg []byte) {
 		// Only validation errors would be reported in this case.
 		log.Fatal("failed to write messages:", err)
 	}
+}
+
+func print(moa model.Msp_openrtb2_auction) {
+	out, _ := json.Marshal(moa)
+	fmt.Println("** MSP SERVER LOG **", string(out))
 }

@@ -79,11 +79,8 @@
               "type": "string"
             },
             {
-              "name": "request_context",
-              "type": {
-                "type": "map",
-                "values": "string"
-              }
+              "name": "bidder_request",
+              "type": "string"
             },
             {
               "name": "code",
