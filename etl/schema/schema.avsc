@@ -36,13 +36,6 @@
       "type": "string"
     },
     {
-      "name": "custom_targeting",
-      "type": {
-        "type": "map",
-        "values": "string"
-      }
-    },
-    {
       "name": "response_time",
       "type": "long"
     },
