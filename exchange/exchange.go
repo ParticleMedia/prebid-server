@@ -1321,9 +1321,10 @@ func addResponseToLog(log *model.Msp_openrtb2_auction, rep *openrtb2.BidResponse
 }
 
 func addWinnerToLog(log *model.Msp_openrtb2_auction, winnerBid *pbsOrtbBid, bidderName string) {
-	log.Winner_bid = float64(winnerBid.bid.Price * 1000)
+	log.Winner_bid = winnerBid.bid.Price
 	log.Winner_bidder = bidderName
 	log.Winnder_advertiser = winnerBid.bidMeta.AdvertiserName
+	log.Winnder_adomain = winnerBid.bid.ADomain
 }
 
 func addBiddingDetailsToLog(
@@ -1345,8 +1346,9 @@ func addBiddingDetailsToLog(
 		if seatBid, ok := adapterBids[bidderName]; ok {
 			for _, bid := range seatBid.bids {
 				b := model.Bid{
-					Price:           bid.bid.Price * 1000,
+					Price:           bid.bid.Price,
 					Advertiser_name: bid.bidMeta.AdvertiserName,
+					Adomain:         bid.bid.ADomain,
 				}
 				bidderCtx.Bids = append(bidderCtx.Bids, b)
 			}

@@ -39,6 +39,8 @@ func CloseKafka() {
 }
 
 func RecordAuctionData(moa model.Msp_openrtb2_auction) {
+	// print(moa)
+
 	var buf bytes.Buffer
 	moa.Serialize(&buf)
 	msg, _ := addSchema(moaSchema, buf.Bytes())

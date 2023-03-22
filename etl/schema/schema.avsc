@@ -63,6 +63,13 @@
       "type": "string"
     },
     {
+      "name": "winnder_adomain",
+      "type": {
+        "type": "array",
+        "items": "string"
+      }
+    },
+    {
       "name": "bidder_context_list",
       "type": {
         "type": "array",
@@ -109,6 +116,13 @@
                     {
                       "name": "advertiser_name",
                       "type": "string"
+                    },
+                    {
+                      "name": "adomain",
+                      "type": {
+                        "type": "array",
+                        "items": "string"
+                      }
                     }
                   ]
                 }
