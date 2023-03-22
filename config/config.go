@@ -629,8 +629,9 @@ func (cfg *TimeoutNotification) validate(errs []error) []error {
 }
 
 type ETL struct {
-	KafkaHost  string `mapstructure:"kafka_host"`
-	KafkaTopic string `mapstructure:"kafka_topic"`
+	KafkaHost         string `mapstructure:"kafka_host"`
+	KafkaTopic        string `mapstructure:"kafka_topic"`
+	AvroSchemaAuction int    `mapstructure:"avro_schema_auction"`
 }
 
 // New uses viper to get our server configurations.

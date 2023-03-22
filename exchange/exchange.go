@@ -72,6 +72,7 @@ type exchange struct {
 	hostSChainNode    *openrtb2.SupplyChainNode
 	adsCertSigner     adscert.Signer
 	server            config.Server
+	etlDataProducer   etl.DataProducer
 }
 
 // Container to pass out response ext data from the GetAllBids goroutines back into the main thread
@@ -118,7 +119,20 @@ func (randomDeduplicateBidBooleanGenerator) Generate() bool {
 	return rand.Intn(100) < 50
 }
 
-func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid_cache_client.Client, cfg *config.Configuration, syncersByBidder map[string]usersync.Syncer, metricsEngine metrics.MetricsEngine, infos config.BidderInfos, gdprPermsBuilder gdpr.PermissionsBuilder, tcf2CfgBuilder gdpr.TCF2ConfigBuilder, currencyConverter *currency.RateConverter, categoriesFetcher stored_requests.CategoryFetcher, adsCertSigner adscert.Signer) Exchange {
+func NewExchange(
+	adapters map[openrtb_ext.BidderName]AdaptedBidder,
+	cache prebid_cache_client.Client,
+	cfg *config.Configuration,
+	syncersByBidder map[string]usersync.Syncer,
+	metricsEngine metrics.MetricsEngine,
+	infos config.BidderInfos,
+	gdprPermsBuilder gdpr.PermissionsBuilder,
+	tcf2CfgBuilder gdpr.TCF2ConfigBuilder,
+	currencyConverter *currency.RateConverter,
+	categoriesFetcher stored_requests.CategoryFetcher,
+	adsCertSigner adscert.Signer,
+	etlDataProducer etl.DataProducer) Exchange {
+
 	bidderToSyncerKey := map[string]string{}
 	for bidder, syncer := range syncersByBidder {
 		bidderToSyncerKey[bidder] = syncer.Key()
@@ -147,10 +161,11 @@ func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid
 			GDPR: cfg.GDPR,
 			LMT:  cfg.LMT,
 		},
-		bidIDGenerator: &bidIDGenerator{cfg.GenerateBidID},
-		hostSChainNode: cfg.HostSChainNode,
-		adsCertSigner:  adsCertSigner,
-		server:         config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter},
+		bidIDGenerator:  &bidIDGenerator{cfg.GenerateBidID},
+		hostSChainNode:  cfg.HostSChainNode,
+		adsCertSigner:   adsCertSigner,
+		server:          config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter},
+		etlDataProducer: etlDataProducer,
 	}
 }
 
@@ -430,7 +445,7 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 	addBiddingDetailsToLog(moa, adapterBids, adapterExtra, bidResponseExt)
 	addResponseToLog(moa, response, err)
 
-	etl.RecordAuctionData(*moa)
+	e.etlDataProducer.ProduceOpenrtb2Auction(*moa)
 
 	return response, err
 }

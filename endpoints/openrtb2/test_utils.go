@@ -25,6 +25,7 @@ import (
 	"github.com/prebid/prebid-server/config"
 	"github.com/prebid/prebid-server/currency"
 	"github.com/prebid/prebid-server/errortypes"
+	"github.com/prebid/prebid-server/etl/model"
 	"github.com/prebid/prebid-server/exchange"
 	"github.com/prebid/prebid-server/experiment/adscert"
 	"github.com/prebid/prebid-server/gdpr"
@@ -1225,6 +1226,7 @@ func buildTestExchange(testCfg *testConfigValues, adapterMap map[openrtb_ext.Bid
 		mockCurrencyConverter,
 		mockFetcher,
 		&adscert.NilSigner{},
+		&fakeEtlDataProducer{},
 	)
 
 	testExchange = &exchangeTestWrapper{
@@ -1425,4 +1427,11 @@ func (p *fakePermissions) AuctionActivitiesAllowed(ctx context.Context, bidderCo
 	return gdpr.AuctionPermissions{
 		AllowBidRequest: true,
 	}, nil
+}
+
+type fakeEtlDataProducer struct {
+}
+
+func (e *fakeEtlDataProducer) ProduceOpenrtb2Auction(moa model.Msp_openrtb2_auction) {
+
 }
