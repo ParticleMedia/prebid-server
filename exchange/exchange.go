@@ -1309,12 +1309,11 @@ func isAdsCertEnabled(experiment *openrtb_ext.Experiment, info config.BidderInfo
 }
 
 func addReqToLog(req AuctionRequest) *model.Msp_openrtb2_auction {
-	exps := []string{}
 
 	moa := &model.Msp_openrtb2_auction{
 		Uuid:         req.BidRequestWrapper.ID,
 		Placement_id: req.StoredImp,
-		Exps:         exps,
+		Exps:         req.AbBucketList,
 		Request_time: req.StartTime.Unix(),
 	}
 
