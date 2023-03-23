@@ -17,6 +17,10 @@
       "type": "string"
     },
     {
+      "name": "ver",
+      "type": "string"
+    },
+    {
       "name": "placement_id",
       "type": "string"
     },

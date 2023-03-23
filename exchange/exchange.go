@@ -1316,6 +1316,10 @@ func addReqToLog(req AuctionRequest) *model.Msp_openrtb2_auction {
 		Request_time: req.StartTime.Unix(),
 	}
 
+	if req.BidRequestWrapper.App != nil {
+		moa.Ver = req.BidRequestWrapper.App.Ver
+	}
+
 	if req.BidRequestWrapper.User != nil {
 		moa.User_id = req.BidRequestWrapper.User.ID
 	}
