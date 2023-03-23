@@ -1310,13 +1310,18 @@ func addReqToLog(req AuctionRequest) *model.Msp_openrtb2_auction {
 	exps := []string{}
 
 	moa := &model.Msp_openrtb2_auction{
-		User_id:          req.BidRequestWrapper.User.ID,
-		Uuid:             req.BidRequestWrapper.ID,
-		Platform:         req.BidRequestWrapper.Device.OS,
-		Placement_id:     req.StoredImp,
-		Exps:             exps,
-		Request_time:     req.StartTime.Unix(),
-		Custom_targeting: map[string]string{},
+		Uuid:         req.BidRequestWrapper.ID,
+		Placement_id: req.StoredImp,
+		Exps:         exps,
+		Request_time: req.StartTime.Unix(),
+	}
+
+	if req.BidRequestWrapper.User != nil {
+		moa.User_id = req.BidRequestWrapper.User.ID
+	}
+
+	if req.BidRequestWrapper.Device != nil {
+		moa.Platform = req.BidRequestWrapper.Device.OS
 	}
 
 	resolvedBidReq, err := json.Marshal(req.BidRequestWrapper.BidRequest)
@@ -1336,10 +1341,15 @@ func addResponseToLog(log *model.Msp_openrtb2_auction, rep *openrtb2.BidResponse
 }
 
 func addWinnerToLog(log *model.Msp_openrtb2_auction, winnerBid *pbsOrtbBid, bidderName string) {
-	log.Winner_bid = winnerBid.bid.Price
 	log.Winner_bidder = bidderName
-	log.Winnder_advertiser = winnerBid.bidMeta.AdvertiserName
-	log.Winnder_adomain = winnerBid.bid.ADomain
+	if winnerBid.bid != nil {
+		log.Winner_bid = winnerBid.bid.Price
+		log.Winnder_adomain = winnerBid.bid.ADomain
+	}
+
+	if winnerBid.bidMeta != nil {
+		log.Winnder_advertiser = winnerBid.bidMeta.AdvertiserName
+	}
 }
 
 func addBiddingDetailsToLog(
@@ -1360,10 +1370,15 @@ func addBiddingDetailsToLog(
 
 		if seatBid, ok := adapterBids[bidderName]; ok {
 			for _, bid := range seatBid.bids {
-				b := model.Bid{
-					Price:           bid.bid.Price,
-					Advertiser_name: bid.bidMeta.AdvertiserName,
-					Adomain:         bid.bid.ADomain,
+				b := model.Bid{}
+
+				if bid.bid != nil {
+					b.Price = bid.bid.Price
+					b.Adomain = bid.bid.ADomain
+				}
+
+				if bid.bidMeta != nil {
+					b.Advertiser_name = bid.bidMeta.AdvertiserName
 				}
 				bidderCtx.Bids = append(bidderCtx.Bids, b)
 			}
