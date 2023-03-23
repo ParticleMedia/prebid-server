@@ -33,6 +33,7 @@ import (
 	"github.com/prebid/prebid-server/stored_requests/backends/empty_fetcher"
 	"github.com/prebid/prebid-server/usersync"
 	"github.com/prebid/prebid-server/util/iputil"
+	"github.com/prebid/prebid-server/util/task"
 	"github.com/prebid/prebid-server/util/uuidutil"
 	"github.com/prebid/prebid-server/version"
 )
@@ -53,6 +54,7 @@ func NewVideoEndpoint(
 	defReqJSON []byte,
 	bidderMap map[string]openrtb_ext.BidderName,
 	cache prebid_cache_client.Client,
+	ab *task.AB,
 ) (httprouter.Handle, error) {
 
 	if ex == nil || validator == nil || requestsById == nil || accounts == nil || cfg == nil || met == nil {
@@ -85,7 +87,8 @@ func NewVideoEndpoint(
 		cache,
 		videoEndpointRegexp,
 		ipValidator,
-		empty_fetcher.EmptyFetcher{}}).VideoAuctionEndpoint), nil
+		empty_fetcher.EmptyFetcher{},
+		ab}).VideoAuctionEndpoint), nil
 }
 
 /*

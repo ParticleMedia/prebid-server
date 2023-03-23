@@ -96,6 +96,10 @@ func (fetcher *HttpFetcher) FetchRequests(ctx context.Context, requestIDs []stri
 	return
 }
 
+func (f *HttpFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 func (fetcher *HttpFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
 	return nil, nil
 }

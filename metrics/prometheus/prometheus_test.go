@@ -2,6 +2,7 @@ package prometheusmetrics
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -142,11 +143,13 @@ func TestRequestMetric(t *testing.T) {
 	requestType := metrics.ReqTypeORTB2Web
 	requestStatus := metrics.RequestStatusBlacklisted
 	storedImp := "testImpName"
+	abBucket := []string{"unknown"}
 
 	m.RecordRequest(metrics.Labels{
 		RType:         requestType,
 		RequestStatus: requestStatus,
 		StoredImp:     storedImp,
+		AbBuckets:     abBucket,
 	})
 
 	expectedCount := float64(1)
@@ -156,6 +159,7 @@ func TestRequestMetric(t *testing.T) {
 			requestTypeLabel:   string(requestType),
 			requestStatusLabel: string(requestStatus),
 			storedImpLabel:     storedImp,
+			abLabel:            "unknown",
 		})
 }
 
@@ -409,11 +413,13 @@ func TestImpressionsMetric(t *testing.T) {
 func TestRequestTimeMetric(t *testing.T) {
 	requestType := metrics.ReqTypeORTB2Web
 	storedImp := "testImpName"
+	bucketName := "unknown"
 	performTest := func(m *Metrics, requestStatus metrics.RequestStatus, timeInMs float64) {
 		m.RecordRequestTime(metrics.Labels{
 			RType:         requestType,
 			RequestStatus: requestStatus,
 			StoredImp:     storedImp,
+			AbBuckets:     []string{bucketName},
 		}, time.Duration(timeInMs)*time.Millisecond)
 	}
 
@@ -445,8 +451,11 @@ func TestRequestTimeMetric(t *testing.T) {
 		m := createMetricsForTesting()
 
 		test.testCase(m)
-
-		result := getHistogramFromHistogramVecByTwoKeys(m.requestsTimer, requestTypeLabel, string(requestType), storedImpLabel, storedImp)
+		result := getHistogramFromHistogramMap(m.requestsTimer, map[string]string{
+			requestTypeLabel: string(requestType),
+			storedImpLabel:   storedImp,
+			abLabel:          bucketName,
+		})
 		assertHistogram(t, test.description, result, test.expectedCount, test.expectedSum)
 	}
 }
@@ -656,10 +665,12 @@ func TestRecordStoredDataError(t *testing.T) {
 func TestAdapterBidReceivedMetric(t *testing.T) {
 	adapterName := "anyName"
 	storedImpName := "testImpName"
+	abBucketName := "unknown"
 	performTest := func(m *Metrics, hasAdm bool) {
 		labels := metrics.AdapterLabels{
 			Adapter:   openrtb_ext.BidderName(adapterName),
 			StoredImp: storedImpName,
+			AbBuckets: []string{abBucketName},
 		}
 		bidType := openrtb_ext.BidTypeBanner
 		m.RecordAdapterBidReceived(labels, bidType, hasAdm)
@@ -700,6 +711,7 @@ func TestAdapterBidReceivedMetric(t *testing.T) {
 				adapterLabel:        adapterName,
 				markupDeliveryLabel: markupDeliveryAdm,
 				storedImpLabel:      storedImpName,
+				abLabel:             abBucketName,
 			})
 		assertCounterVecValue(t, test.description, "adapterBids[nurl]", m.adapterBids,
 			test.expectedNurlCount,
@@ -707,6 +719,7 @@ func TestAdapterBidReceivedMetric(t *testing.T) {
 				adapterLabel:        adapterName,
 				markupDeliveryLabel: markupDeliveryNurl,
 				storedImpLabel:      storedImpName,
+				abLabel:             abBucketName,
 			})
 	}
 }
@@ -714,10 +727,12 @@ func TestAdapterBidReceivedMetric(t *testing.T) {
 func TestRecordAdapterPriceMetric(t *testing.T) {
 	m := createMetricsForTesting()
 	adapterName := "anyName"
+	bucketName := "unknown"
 	cpm := float64(42)
 
 	m.RecordAdapterPrice(metrics.AdapterLabels{
-		Adapter: openrtb_ext.BidderName(adapterName),
+		Adapter:   openrtb_ext.BidderName(adapterName),
+		AbBuckets: []string{bucketName},
 	}, cpm)
 
 	expectedCount := uint64(1)
@@ -728,11 +743,13 @@ func TestRecordAdapterPriceMetric(t *testing.T) {
 
 func TestAdapterRequestMetrics(t *testing.T) {
 	adapterName := "anyName"
+	bucketName := "unknown"
 	performTest := func(m *Metrics, cookieFlag metrics.CookieFlag, adapterBids metrics.AdapterBid) {
 		labels := metrics.AdapterLabels{
 			Adapter:     openrtb_ext.BidderName(adapterName),
 			CookieFlag:  cookieFlag,
 			AdapterBids: adapterBids,
+			AbBuckets:   []string{bucketName},
 		}
 		m.RecordAdapterRequest(labels)
 	}
@@ -1612,6 +1629,20 @@ func getHistogramFromHistogramVecByTwoKeys(histogram *prometheus.HistogramVec, l
 					result = *m.GetHistogram()
 				}
 			}
+		}
+	})
+	return result
+}
+
+func getHistogramFromHistogramMap(histogram *prometheus.HistogramVec, labels map[string]string) dto.Histogram {
+	var result dto.Histogram
+	processMetrics(histogram, func(m dto.Metric) {
+		metricsMap := map[string]string{}
+		for _, label := range m.Label {
+			metricsMap[label.GetName()] = label.GetValue()
+		}
+		if reflect.DeepEqual(metricsMap, labels) {
+			result = *m.GetHistogram()
 		}
 	})
 	return result

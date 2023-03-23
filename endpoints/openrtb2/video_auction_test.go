@@ -1236,6 +1236,7 @@ func mockDepsWithMetrics(t *testing.T, ex *mockExchangeVideo) (*endpointDeps, *m
 		nil,
 		hardcodedResponseIPValidator{response: true},
 		empty_fetcher.EmptyFetcher{},
+		nil,
 	}
 	return deps, metrics, mockModule
 }
@@ -1280,6 +1281,7 @@ func mockDeps(t *testing.T, ex *mockExchangeVideo) *endpointDeps {
 		regexp.MustCompile(`[<>]`),
 		hardcodedResponseIPValidator{response: true},
 		empty_fetcher.EmptyFetcher{},
+		nil,
 	}
 }
 
@@ -1302,6 +1304,7 @@ func mockDepsAppendBidderNames(t *testing.T, ex *mockExchangeAppendBidderNames) 
 		regexp.MustCompile(`[<>]`),
 		hardcodedResponseIPValidator{response: true},
 		empty_fetcher.EmptyFetcher{},
+		nil,
 	}
 
 	return deps
@@ -1326,6 +1329,7 @@ func mockDepsNoBids(t *testing.T, ex *mockExchangeVideoNoBids) *endpointDeps {
 		regexp.MustCompile(`[<>]`),
 		hardcodedResponseIPValidator{response: true},
 		empty_fetcher.EmptyFetcher{},
+		nil,
 	}
 
 	return edep
@@ -1354,6 +1358,10 @@ func (cf mockVideoStoredReqFetcher) FetchRequests(ctx context.Context, requestID
 }
 
 func (cf mockVideoStoredReqFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
+func (cf mockVideoStoredReqFetcher) FetchABs(ctx context.Context, bucketList []string) (data map[string]json.RawMessage, errs []error) {
 	return nil, nil
 }
 

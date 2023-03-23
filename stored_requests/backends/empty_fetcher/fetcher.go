@@ -39,3 +39,14 @@ func (fetcher EmptyFetcher) FetchAccount(ctx context.Context, accountID string) 
 func (fetcher EmptyFetcher) FetchCategories(ctx context.Context, primaryAdServer, publisherId, iabCategory string) (string, error) {
 	return "", nil
 }
+
+func (fetcher EmptyFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	errs = make([]error, 0, len(bucketList))
+	for _, id := range bucketList {
+		errs = append(errs, stored_requests.NotFoundError{
+			ID:       id,
+			DataType: "Abs",
+		})
+	}
+	return
+}
