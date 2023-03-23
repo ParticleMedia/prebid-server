@@ -107,6 +107,7 @@ const (
 	syncerLabel          = "syncer"
 	versionLabel         = "version"
 	storedImpLabel       = "stored_imp"
+	abLabel              = "ab_bucket"
 )
 
 const (
@@ -191,7 +192,7 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 	metrics.requests = newCounter(cfg, reg,
 		"requests",
 		"Count of total requests to Prebid Server labeled by type and status.",
-		[]string{requestTypeLabel, requestStatusLabel, storedImpLabel})
+		[]string{requestTypeLabel, requestStatusLabel, storedImpLabel, abLabel})
 
 	metrics.debugRequests = newCounterWithoutLabels(cfg, reg,
 		"debug_requests",
@@ -200,7 +201,7 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 	metrics.requestsTimer = newHistogramVec(cfg, reg,
 		"request_time_seconds",
 		"Seconds to resolve successful Prebid Server requests labeled by type.",
-		[]string{requestTypeLabel, storedImpLabel},
+		[]string{requestTypeLabel, storedImpLabel, abLabel},
 		standardTimeBuckets)
 
 	metrics.requestsWithoutCookie = newCounter(cfg, reg,
@@ -338,12 +339,12 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 	metrics.adapterBids = newCounter(cfg, reg,
 		"adapter_bids",
 		"Count of bids labeled by adapter and markup delivery type (adm or nurl).",
-		[]string{adapterLabel, markupDeliveryLabel, storedImpLabel})
+		[]string{adapterLabel, markupDeliveryLabel, storedImpLabel, abLabel})
 
 	metrics.adapterWinningBids = newCounter(cfg, reg,
 		"adapter_winning_bids",
 		"Count of winning bids labeled by adapter and markup delivery type (adm or nurl).",
-		[]string{adapterLabel, markupDeliveryLabel, storedImpLabel})
+		[]string{adapterLabel, markupDeliveryLabel, storedImpLabel, abLabel})
 
 	metrics.adapterErrors = newCounter(cfg, reg,
 		"adapter_errors",
@@ -358,19 +359,19 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 	metrics.adapterPrices = newHistogramVec(cfg, reg,
 		"adapter_prices",
 		"Monetary value of the bids labeled by adapter.",
-		[]string{adapterLabel, storedImpLabel},
+		[]string{adapterLabel, storedImpLabel, abLabel},
 		priceBuckets)
 
 	metrics.adapterWinningPrices = newHistogramVec(cfg, reg,
 		"adapter_winning_prices",
 		"Monetary value of the bids labeled by adapter.",
-		[]string{adapterLabel, storedImpLabel},
+		[]string{adapterLabel, storedImpLabel, abLabel},
 		priceBuckets)
 
 	metrics.adapterRequests = newCounter(cfg, reg,
 		"adapter_requests",
 		"Count of requests labeled by adapter, if has a cookie, and if it resulted in bids.",
-		[]string{adapterLabel, cookieLabel, hasBidsLabel, storedImpLabel})
+		[]string{adapterLabel, cookieLabel, hasBidsLabel, storedImpLabel, abLabel})
 
 	if !metrics.metricsDisabled.AdapterConnectionMetrics {
 		metrics.adapterCreatedConnections = newCounter(cfg, reg,
@@ -526,11 +527,14 @@ func (m *Metrics) RecordConnectionClose(success bool) {
 }
 
 func (m *Metrics) RecordRequest(labels metrics.Labels) {
-	m.requests.With(prometheus.Labels{
-		requestTypeLabel:   string(labels.RType),
-		requestStatusLabel: string(labels.RequestStatus),
-		storedImpLabel:     string(labels.StoredImp),
-	}).Inc()
+	for _, bucket := range labels.AbBuckets {
+		m.requests.With(prometheus.Labels{
+			requestTypeLabel:   string(labels.RType),
+			requestStatusLabel: string(labels.RequestStatus),
+			storedImpLabel:     string(labels.StoredImp),
+			abLabel:            bucket,
+		}).Inc()
+	}
 
 	if labels.CookieFlag == metrics.CookieFlagNo {
 		m.requestsWithoutCookie.With(prometheus.Labels{
@@ -576,10 +580,13 @@ func (m *Metrics) RecordImps(labels metrics.ImpLabels) {
 
 func (m *Metrics) RecordRequestTime(labels metrics.Labels, length time.Duration) {
 	if labels.RequestStatus == metrics.RequestStatusOK {
-		m.requestsTimer.With(prometheus.Labels{
-			requestTypeLabel: string(labels.RType),
-			storedImpLabel:   string(labels.StoredImp),
-		}).Observe(length.Seconds())
+		for _, bucket := range labels.AbBuckets {
+			m.requestsTimer.With(prometheus.Labels{
+				requestTypeLabel: string(labels.RType),
+				storedImpLabel:   string(labels.StoredImp),
+				abLabel:          bucket,
+			}).Observe(length.Seconds())
+		}
 	}
 }
 
@@ -642,12 +649,15 @@ func (m *Metrics) RecordStoredDataError(labels metrics.StoredDataLabels) {
 }
 
 func (m *Metrics) RecordAdapterRequest(labels metrics.AdapterLabels) {
-	m.adapterRequests.With(prometheus.Labels{
-		adapterLabel:   string(labels.Adapter),
-		cookieLabel:    string(labels.CookieFlag),
-		storedImpLabel: labels.StoredImp,
-		hasBidsLabel:   strconv.FormatBool(labels.AdapterBids == metrics.AdapterBidPresent),
-	}).Inc()
+	for _, bucket := range labels.AbBuckets {
+		m.adapterRequests.With(prometheus.Labels{
+			adapterLabel:   string(labels.Adapter),
+			cookieLabel:    string(labels.CookieFlag),
+			storedImpLabel: labels.StoredImp,
+			hasBidsLabel:   strconv.FormatBool(labels.AdapterBids == metrics.AdapterBidPresent),
+			abLabel:        bucket,
+		}).Inc()
+	}
 
 	for err := range labels.AdapterErrors {
 		m.adapterErrors.With(prometheus.Labels{
@@ -699,11 +709,14 @@ func (m *Metrics) RecordAdapterBidReceived(labels metrics.AdapterLabels, bidType
 		markupDelivery = markupDeliveryAdm
 	}
 
-	m.adapterBids.With(prometheus.Labels{
-		adapterLabel:        string(labels.Adapter),
-		markupDeliveryLabel: markupDelivery,
-		storedImpLabel:      labels.StoredImp,
-	}).Inc()
+	for _, bucket := range labels.AbBuckets {
+		m.adapterBids.With(prometheus.Labels{
+			adapterLabel:        string(labels.Adapter),
+			markupDeliveryLabel: markupDelivery,
+			storedImpLabel:      labels.StoredImp,
+			abLabel:             bucket,
+		}).Inc()
+	}
 }
 
 func (m *Metrics) RecordAdapterWinningBidReceived(labels metrics.AdapterLabels, bidType openrtb_ext.BidType, hasAdm bool) {
@@ -712,25 +725,35 @@ func (m *Metrics) RecordAdapterWinningBidReceived(labels metrics.AdapterLabels, 
 		markupDelivery = markupDeliveryAdm
 	}
 
-	m.adapterWinningBids.With(prometheus.Labels{
-		adapterLabel:        string(labels.Adapter),
-		markupDeliveryLabel: markupDelivery,
-		storedImpLabel:      labels.StoredImp,
-	}).Inc()
+	for _, bucket := range labels.AbBuckets {
+		m.adapterWinningBids.With(prometheus.Labels{
+			adapterLabel:        string(labels.Adapter),
+			markupDeliveryLabel: markupDelivery,
+			storedImpLabel:      labels.StoredImp,
+			abLabel:             bucket,
+		}).Inc()
+	}
 }
 
 func (m *Metrics) RecordAdapterPrice(labels metrics.AdapterLabels, cpm float64) {
-	m.adapterPrices.With(prometheus.Labels{
-		adapterLabel:   string(labels.Adapter),
-		storedImpLabel: labels.StoredImp,
-	}).Observe(cpm)
+	for _, bucket := range labels.AbBuckets {
+		m.adapterPrices.With(prometheus.Labels{
+			adapterLabel:   string(labels.Adapter),
+			storedImpLabel: labels.StoredImp,
+			abLabel:        bucket,
+		}).Observe(cpm)
+	}
+
 }
 
 func (m *Metrics) RecordAdapterWinningPrice(labels metrics.AdapterLabels, cpm float64) {
-	m.adapterWinningPrices.With(prometheus.Labels{
-		adapterLabel:   string(labels.Adapter),
-		storedImpLabel: labels.StoredImp,
-	}).Observe(cpm)
+	for _, bucket := range labels.AbBuckets {
+		m.adapterWinningPrices.With(prometheus.Labels{
+			adapterLabel:   string(labels.Adapter),
+			storedImpLabel: labels.StoredImp,
+			abLabel:        bucket,
+		}).Observe(cpm)
+	}
 }
 
 func (m *Metrics) RecordAdapterTime(labels metrics.AdapterLabels, length time.Duration) {

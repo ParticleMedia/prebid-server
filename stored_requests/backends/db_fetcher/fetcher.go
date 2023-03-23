@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+
 	"github.com/lib/pq"
 
 	"github.com/golang/glog"
@@ -32,6 +33,10 @@ type dbFetcher struct {
 	db                 *sql.DB
 	queryMaker         func(numReqs int, numImps int) (query string)
 	responseQueryMaker func(numIds int) (query string)
+}
+
+func (f *dbFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
 }
 
 func (fetcher *dbFetcher) FetchRequests(ctx context.Context, requestIDs []string, impIDs []string) (map[string]json.RawMessage, map[string]json.RawMessage, []error) {

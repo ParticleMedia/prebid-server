@@ -36,6 +36,10 @@ func (mf MultiFetcher) FetchRequests(ctx context.Context, requestIDs []string, i
 	return
 }
 
+func (mf MultiFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 func (mf MultiFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
 	return nil, nil
 }

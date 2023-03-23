@@ -24,6 +24,7 @@ type Fetcher interface {
 	// The returned objects can only be read from. They may not be written to.
 	FetchRequests(ctx context.Context, requestIDs []string, impIDs []string) (requestData map[string]json.RawMessage, impData map[string]json.RawMessage, errs []error)
 	FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error)
+	FetchABs(ctx context.Context, bucketList []string) (data map[string]json.RawMessage, errs []error)
 }
 
 type AccountFetcher interface {
@@ -68,6 +69,7 @@ type Cache struct {
 	Imps      CacheJSON
 	Responses CacheJSON
 	Accounts  CacheJSON
+	Abs       CacheJSON
 }
 type CacheJSON interface {
 	// Get works much like Fetcher.FetchRequests, with a few exceptions:
@@ -161,6 +163,22 @@ func WithCache(fetcher AllFetcher, cache Cache, metricsEngine metrics.MetricsEng
 		fetcher:       fetcher,
 		metricsEngine: metricsEngine,
 	}
+}
+
+func (f *fetcherWithCache) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	bucketData = f.cache.Abs.Get(ctx, bucketList)
+	leftoverABs := findLeftovers(bucketList, bucketData)
+
+	if len(leftoverABs) > 0 {
+		fetcherABData, fetcherErrs := f.fetcher.FetchABs(ctx, leftoverABs)
+		errs = fetcherErrs
+
+		f.cache.Abs.Save(ctx, fetcherABData)
+
+		bucketData = mergeData(bucketData, fetcherABData)
+	}
+
+	return
 }
 
 func (f *fetcherWithCache) FetchRequests(ctx context.Context, requestIDs []string, impIDs []string) (requestData map[string]json.RawMessage, impData map[string]json.RawMessage, errs []error) {

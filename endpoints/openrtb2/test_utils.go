@@ -35,6 +35,7 @@ import (
 	"github.com/prebid/prebid-server/stored_requests"
 	"github.com/prebid/prebid-server/stored_requests/backends/empty_fetcher"
 	"github.com/prebid/prebid-server/util/iputil"
+	"github.com/prebid/prebid-server/util/task"
 	"github.com/prebid/prebid-server/util/uuidutil"
 )
 
@@ -838,6 +839,10 @@ func (cf mockStoredReqFetcher) FetchResponses(ctx context.Context, ids []string)
 	return nil, nil
 }
 
+func (cf *mockStoredReqFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 // mockExchange implements the Exchange interface
 type mockExchange struct {
 	lastRequest *openrtb2.BidRequest
@@ -1292,7 +1297,7 @@ func buildTestEndpoint(test testCase, cfg *config.Configuration) (httprouter.Han
 		},
 	}
 
-	var endpointBuilder func(uuidutil.UUIDGenerator, exchange.Exchange, openrtb_ext.BidderParamValidator, stored_requests.Fetcher, stored_requests.AccountFetcher, *config.Configuration, metrics.MetricsEngine, analytics.PBSAnalyticsModule, map[string]string, []byte, map[string]openrtb_ext.BidderName, stored_requests.Fetcher) (httprouter.Handle, error)
+	var endpointBuilder func(uuidutil.UUIDGenerator, exchange.Exchange, openrtb_ext.BidderParamValidator, stored_requests.Fetcher, stored_requests.AccountFetcher, *config.Configuration, metrics.MetricsEngine, analytics.PBSAnalyticsModule, map[string]string, []byte, map[string]openrtb_ext.BidderName, stored_requests.Fetcher, *task.AB) (httprouter.Handle, error)
 
 	switch test.endpointType {
 	case AMP_ENDPOINT:
@@ -1314,6 +1319,7 @@ func buildTestEndpoint(test testCase, cfg *config.Configuration) (httprouter.Han
 		[]byte(test.Config.AliasJSON),
 		bidderMap,
 		storedResponseFetcher,
+		nil,
 	)
 
 	return endpoint, testExchange.(*exchangeTestWrapper), mockBidServersArray, mockCurrencyRatesServer, err
@@ -1345,6 +1351,10 @@ func (cf *mockAmpStoredReqFetcher) FetchRequests(ctx context.Context, requestIDs
 	return cf.data, nil, nil
 }
 
+func (cf *mockAmpStoredReqFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 func (cf *mockAmpStoredReqFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
 	return nil, nil
 }
@@ -1355,6 +1365,10 @@ type mockAmpStoredResponseFetcher struct {
 
 func (cf *mockAmpStoredResponseFetcher) FetchRequests(ctx context.Context, requestIDs []string, impIDs []string) (requestData map[string]json.RawMessage, impData map[string]json.RawMessage, errs []error) {
 	return nil, nil, nil
+}
+
+func (cf *mockAmpStoredResponseFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
 }
 
 func (cf *mockAmpStoredResponseFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {

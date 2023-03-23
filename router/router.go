@@ -30,6 +30,7 @@ import (
 	"github.com/prebid/prebid-server/server/ssl"
 	storedRequestsConf "github.com/prebid/prebid-server/stored_requests/config"
 	"github.com/prebid/prebid-server/usersync"
+	"github.com/prebid/prebid-server/util/task"
 	"github.com/prebid/prebid-server/util/uuidutil"
 	"github.com/prebid/prebid-server/version"
 
@@ -110,7 +111,7 @@ type Router struct {
 	Shutdown        func()
 }
 
-func New(cfg *config.Configuration, rateConvertor *currency.RateConverter) (r *Router, err error) {
+func New(cfg *config.Configuration, rateConvertor *currency.RateConverter, ab *task.AB) (r *Router, err error) {
 	const schemaDirectory = "./static/bidder-params"
 
 	r = &Router{
@@ -205,17 +206,17 @@ func New(cfg *config.Configuration, rateConvertor *currency.RateConverter) (r *R
 
 	theExchange := exchange.NewExchange(adapters, cacheClient, cfg, syncersByBidder, r.MetricsEngine, cfg.BidderInfos, gdprPermsBuilder, tcf2CfgBuilder, rateConvertor, categoriesFetcher, adsCertSigner)
 	var uuidGenerator uuidutil.UUIDRandomGenerator
-	openrtbEndpoint, err := openrtb2.NewEndpoint(uuidGenerator, theExchange, paramsValidator, fetcher, accounts, cfg, r.MetricsEngine, pbsAnalytics, disabledBidders, defReqJSON, activeBidders, storedRespFetcher)
+	openrtbEndpoint, err := openrtb2.NewEndpoint(uuidGenerator, theExchange, paramsValidator, fetcher, accounts, cfg, r.MetricsEngine, pbsAnalytics, disabledBidders, defReqJSON, activeBidders, storedRespFetcher, ab)
 	if err != nil {
 		glog.Fatalf("Failed to create the openrtb2 endpoint handler. %v", err)
 	}
 
-	ampEndpoint, err := openrtb2.NewAmpEndpoint(uuidGenerator, theExchange, paramsValidator, ampFetcher, accounts, cfg, r.MetricsEngine, pbsAnalytics, disabledBidders, defReqJSON, activeBidders, storedRespFetcher)
+	ampEndpoint, err := openrtb2.NewAmpEndpoint(uuidGenerator, theExchange, paramsValidator, ampFetcher, accounts, cfg, r.MetricsEngine, pbsAnalytics, disabledBidders, defReqJSON, activeBidders, storedRespFetcher, ab)
 	if err != nil {
 		glog.Fatalf("Failed to create the amp endpoint handler. %v", err)
 	}
 
-	videoEndpoint, err := openrtb2.NewVideoEndpoint(uuidGenerator, theExchange, paramsValidator, fetcher, videoFetcher, accounts, cfg, r.MetricsEngine, pbsAnalytics, disabledBidders, defReqJSON, activeBidders, cacheClient)
+	videoEndpoint, err := openrtb2.NewVideoEndpoint(uuidGenerator, theExchange, paramsValidator, fetcher, videoFetcher, accounts, cfg, r.MetricsEngine, pbsAnalytics, disabledBidders, defReqJSON, activeBidders, cacheClient, ab)
 	if err != nil {
 		glog.Fatalf("Failed to create the video endpoint handler. %v", err)
 	}

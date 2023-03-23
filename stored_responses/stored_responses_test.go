@@ -653,6 +653,10 @@ func (cf *mockStoredBidResponseFetcher) FetchRequests(ctx context.Context, reque
 	return nil, nil, nil
 }
 
+func (cf *mockStoredBidResponseFetcher) FetchABs(ctx context.Context, bucketList []string) (bucketData map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 func (cf *mockStoredBidResponseFetcher) FetchResponses(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
 	return cf.data, nil
 }
