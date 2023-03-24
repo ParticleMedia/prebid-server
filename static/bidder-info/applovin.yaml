@@ -1,0 +1,15 @@
+endpoint: "https://s2s.applovin.com/ad"
+disabled: true
+maintainer:
+  email: "support@applovin.com"
+capabilities:
+  app:
+    mediaTypes:
+      - banner
+      - video
+      - native
+  site:
+    mediaTypes:
+      - banner
+      - video
+      - native
