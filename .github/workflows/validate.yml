@@ -19,12 +19,20 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.go-version }}
+    
+    - name: Install GoGen Avro
+      run: |
+        go install github.com/actgardner/gogen-avro/v10/cmd/...@latest
 
     - name: Checkout Code
       uses: actions/checkout@v2
       with:
         # Resolves to empty string for push events and falls back to HEAD.
         ref: ${{ github.event.pull_request.head.sha }}
+    
+    - name: Gen Code
+      run: |
+        make avro
 
     - name: Validate
       run: |

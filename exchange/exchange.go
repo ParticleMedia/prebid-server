@@ -18,6 +18,8 @@ import (
 	"github.com/prebid/prebid-server/config"
 	"github.com/prebid/prebid-server/currency"
 	"github.com/prebid/prebid-server/errortypes"
+	"github.com/prebid/prebid-server/etl"
+	"github.com/prebid/prebid-server/etl/model"
 	"github.com/prebid/prebid-server/experiment/adscert"
 	"github.com/prebid/prebid-server/firstpartydata"
 	"github.com/prebid/prebid-server/gdpr"
@@ -70,6 +72,7 @@ type exchange struct {
 	hostSChainNode    *openrtb2.SupplyChainNode
 	adsCertSigner     adscert.Signer
 	server            config.Server
+	etlDataProducer   etl.DataProducer
 }
 
 // Container to pass out response ext data from the GetAllBids goroutines back into the main thread
@@ -116,7 +119,20 @@ func (randomDeduplicateBidBooleanGenerator) Generate() bool {
 	return rand.Intn(100) < 50
 }
 
-func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid_cache_client.Client, cfg *config.Configuration, syncersByBidder map[string]usersync.Syncer, metricsEngine metrics.MetricsEngine, infos config.BidderInfos, gdprPermsBuilder gdpr.PermissionsBuilder, tcf2CfgBuilder gdpr.TCF2ConfigBuilder, currencyConverter *currency.RateConverter, categoriesFetcher stored_requests.CategoryFetcher, adsCertSigner adscert.Signer) Exchange {
+func NewExchange(
+	adapters map[openrtb_ext.BidderName]AdaptedBidder,
+	cache prebid_cache_client.Client,
+	cfg *config.Configuration,
+	syncersByBidder map[string]usersync.Syncer,
+	metricsEngine metrics.MetricsEngine,
+	infos config.BidderInfos,
+	gdprPermsBuilder gdpr.PermissionsBuilder,
+	tcf2CfgBuilder gdpr.TCF2ConfigBuilder,
+	currencyConverter *currency.RateConverter,
+	categoriesFetcher stored_requests.CategoryFetcher,
+	adsCertSigner adscert.Signer,
+	etlDataProducer etl.DataProducer) Exchange {
+
 	bidderToSyncerKey := map[string]string{}
 	for bidder, syncer := range syncersByBidder {
 		bidderToSyncerKey[bidder] = syncer.Key()
@@ -145,10 +161,11 @@ func NewExchange(adapters map[openrtb_ext.BidderName]AdaptedBidder, cache prebid
 			GDPR: cfg.GDPR,
 			LMT:  cfg.LMT,
 		},
-		bidIDGenerator: &bidIDGenerator{cfg.GenerateBidID},
-		hostSChainNode: cfg.HostSChainNode,
-		adsCertSigner:  adsCertSigner,
-		server:         config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter},
+		bidIDGenerator:  &bidIDGenerator{cfg.GenerateBidID},
+		hostSChainNode:  cfg.HostSChainNode,
+		adsCertSigner:   adsCertSigner,
+		server:          config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter},
+		etlDataProducer: etlDataProducer,
 	}
 }
 
@@ -197,6 +214,9 @@ type BidderRequest struct {
 }
 
 func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *DebugLog) (*openrtb2.BidResponse, error) {
+
+	moa := addReqToLog(r)
+
 	var errs []error
 	// rebuild/resync the request in the request wrapper.
 	if err := r.BidRequestWrapper.RebuildRequest(); err != nil {
@@ -398,8 +418,9 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 					var cpm = float64(topBidPerBidder.bid.Price * 1000)
 					e.me.RecordAdapterWinningBidReceived(topBidderLabel, topBidPerBidder.bidType, topBidPerBidder.bid.AdM != "")
 					e.me.RecordAdapterWinningPrice(topBidderLabel, cpm)
-				}
 
+					addWinnerToLog(moa, overallWinner, bidderName.String())
+				}
 			}
 		}
 	}
@@ -421,7 +442,14 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 	}
 
 	// Build the response
-	return e.buildBidResponse(ctx, liveAdapters, adapterBids, r.BidRequestWrapper.BidRequest, adapterExtra, auc, bidResponseExt, cacheInstructions.returnCreative, r.ImpExtInfoMap, errs)
+	response, err := e.buildBidResponse(ctx, liveAdapters, adapterBids, r.BidRequestWrapper.BidRequest, adapterExtra, auc, bidResponseExt, cacheInstructions.returnCreative, r.ImpExtInfoMap, errs)
+
+	addBiddingDetailsToLog(moa, adapterBids, adapterExtra, bidResponseExt)
+	addResponseToLog(moa, response, err)
+
+	e.etlDataProducer.ProduceOpenrtb2Auction(*moa)
+
+	return response, err
 }
 
 func (e *exchange) parseGDPRDefaultValue(bidRequest *openrtb2.BidRequest) gdpr.Signal {
@@ -719,7 +747,18 @@ func errsToBidderWarnings(errs []error) []openrtb_ext.ExtBidderMessage {
 }
 
 // This piece takes all the bids supplied by the adapters and crafts an openRTB response to send back to the requester
-func (e *exchange) buildBidResponse(ctx context.Context, liveAdapters []openrtb_ext.BidderName, adapterSeatBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid, bidRequest *openrtb2.BidRequest, adapterExtra map[openrtb_ext.BidderName]*seatResponseExtra, auc *auction, bidResponseExt *openrtb_ext.ExtBidResponse, returnCreative bool, impExtInfoMap map[string]ImpExtInfo, errList []error) (*openrtb2.BidResponse, error) {
+func (e *exchange) buildBidResponse(
+	ctx context.Context,
+	liveAdapters []openrtb_ext.BidderName,
+	adapterSeatBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid,
+	bidRequest *openrtb2.BidRequest,
+	adapterExtra map[openrtb_ext.BidderName]*seatResponseExtra,
+	auc *auction,
+	bidResponseExt *openrtb_ext.ExtBidResponse,
+	returnCreative bool,
+	impExtInfoMap map[string]ImpExtInfo,
+	errList []error) (*openrtb2.BidResponse, error) {
+
 	bidResponse := new(openrtb2.BidResponse)
 	var err error
 
@@ -1267,4 +1306,96 @@ func isAdsCertEnabled(experiment *openrtb_ext.Experiment, info config.BidderInfo
 	requestAdsCertEnabled := experiment != nil && experiment.AdsCert != nil && experiment.AdsCert.Enabled
 	bidderAdsCertEnabled := info.Experiment.AdsCert.Enabled
 	return requestAdsCertEnabled && bidderAdsCertEnabled
+}
+
+func addReqToLog(req AuctionRequest) *model.Msp_openrtb2_auction {
+
+	moa := &model.Msp_openrtb2_auction{
+		Uuid:         req.BidRequestWrapper.ID,
+		Placement_id: req.StoredImp,
+		Exps:         req.AbBucketList,
+		Request_time: req.StartTime.Unix(),
+	}
+
+	if req.BidRequestWrapper.App != nil {
+		moa.Ver = req.BidRequestWrapper.App.Ver
+	}
+
+	if req.BidRequestWrapper.User != nil {
+		moa.User_id = req.BidRequestWrapper.User.ID
+	}
+
+	if req.BidRequestWrapper.Device != nil {
+		moa.Platform = req.BidRequestWrapper.Device.OS
+	}
+
+	resolvedBidReq, err := json.Marshal(req.BidRequestWrapper.BidRequest)
+	if err == nil {
+		moa.Resolved_request = string(resolvedBidReq)
+	}
+
+	return moa
+}
+
+func addResponseToLog(log *model.Msp_openrtb2_auction, rep *openrtb2.BidResponse, err error) {
+	log.Response_time = time.Now().Unix()
+
+	if err != nil {
+		log.Error = err.Error()
+	}
+}
+
+func addWinnerToLog(log *model.Msp_openrtb2_auction, winnerBid *pbsOrtbBid, bidderName string) {
+	log.Winner_bidder = bidderName
+	if winnerBid.bid != nil {
+		log.Winner_bid = winnerBid.bid.Price
+		log.Winner_adomain = winnerBid.bid.ADomain
+		log.Winner_cid = winnerBid.bid.CID
+		log.Winner_crid = winnerBid.bid.CrID
+		log.Winner_adid = winnerBid.bid.AdID
+	}
+
+	if winnerBid.bidMeta != nil {
+		log.Winner_advertiser = winnerBid.bidMeta.AdvertiserName
+	}
+}
+
+func addBiddingDetailsToLog(
+	log *model.Msp_openrtb2_auction,
+	adapterBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid,
+	adapterExtra map[openrtb_ext.BidderName]*seatResponseExtra,
+	bidResponseExt *openrtb_ext.ExtBidResponse) {
+
+	for bidderName, seatResponseExtra := range adapterExtra {
+		bidderCtx := model.NewBidder_context()
+		bidderCtx.Bidder_name = bidderName.String()
+		bidderCtx.Response_time_millis = int64(seatResponseExtra.ResponseTimeMillis)
+
+		if len(seatResponseExtra.Errors) > 0 {
+			bidderCtx.Code = int32(seatResponseExtra.Errors[0].Code)
+			bidderCtx.Error = seatResponseExtra.Errors[0].Message
+		}
+
+		if seatBid, ok := adapterBids[bidderName]; ok {
+			for _, bid := range seatBid.bids {
+				b := model.Bid{}
+
+				if bid.bid != nil {
+					b.Price = bid.bid.Price
+					b.Adomain = bid.bid.ADomain
+					b.Cid = bid.bid.CID
+					b.Crid = bid.bid.CrID
+					b.Adid = bid.bid.AdID
+				}
+
+				if bid.bidMeta != nil {
+					b.Advertiser_name = bid.bidMeta.AdvertiserName
+				}
+				bidderCtx.Bids = append(bidderCtx.Bids, b)
+			}
+
+		}
+
+		log.Bidder_context_list = append(log.Bidder_context_list, bidderCtx)
+	}
 }

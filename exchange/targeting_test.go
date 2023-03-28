@@ -103,6 +103,7 @@ func runTargetingAuction(t *testing.T, mockBids map[openrtb_ext.BidderName][]*op
 		gdprDefaultValue:  gdpr.SignalYes,
 		categoriesFetcher: categoriesFetcher,
 		bidIDGenerator:    &mockBidIDGenerator{false, false},
+		etlDataProducer:   &fakeEtlDataProducer{},
 	}
 
 	imps := buildImps(t, mockBids)

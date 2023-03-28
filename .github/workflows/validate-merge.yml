@@ -14,8 +14,16 @@ jobs:
       with:
         go-version: 1.19.2
 
+    - name: Install GoGen Avro
+      run: |
+        go install github.com/actgardner/gogen-avro/v10/cmd/...@latest
+
     - name: Checkout Merged Branch
       uses: actions/checkout@v2
+
+    - name: Gen Code
+      run: |
+        make avro
 
     - name: Validate
       run: |

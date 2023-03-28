@@ -99,6 +99,8 @@ type Configuration struct {
 	// BidderInfos supports adapter overrides in extra configs like pbs.json, pbs.yaml, etc.
 	// Refers to main.go `configFileName` constant
 	BidderInfos BidderInfos `mapstructure:"adapters"`
+
+	Etl ETL `mapstructure:"etl"`
 }
 
 const MIN_COOKIE_SIZE_BYTES = 500
@@ -624,6 +626,12 @@ func (cfg *TimeoutNotification) validate(errs []error) []error {
 		errs = append(errs, fmt.Errorf("debug.timeout_notification.sampling_rate must be positive and not greater than 1.0. Got %f", cfg.SamplingRate))
 	}
 	return errs
+}
+
+type ETL struct {
+	KafkaHost         string `mapstructure:"kafka_host"`
+	KafkaTopic        string `mapstructure:"kafka_topic"`
+	AvroSchemaAuction int    `mapstructure:"avro_schema_auction"`
 }
 
 // New uses viper to get our server configurations.

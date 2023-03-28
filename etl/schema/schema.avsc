@@ -1,0 +1,157 @@
+{
+  "type": "record",
+  "name": "msp_openrtb2_auction",
+  "doc": "The logging schema for endpoint /openrtb2/auction on MSP server",
+  "namespace": "com.newsbreak.msp.etl",
+  "fields": [
+    {
+      "name": "user_id",
+      "type": "string"
+    },
+    {
+      "name": "uuid",
+      "type": "string"
+    },
+    {
+      "name": "platform",
+      "type": "string"
+    },
+    {
+      "name": "ver",
+      "type": "string"
+    },
+    {
+      "name": "placement_id",
+      "type": "string"
+    },
+    {
+      "name": "exps",
+      "type": {
+        "type": "array",
+        "items": "string"
+      }
+    },
+    {
+      "name": "request_time",
+      "type": "long"
+    },
+    {
+      "name": "resolved_request",
+      "type": "string"
+    },
+    {
+      "name": "response_time",
+      "type": "long"
+    },
+    {
+      "name": "error",
+      "type": "string"
+    },
+    {
+      "name": "winner_bid",
+      "type": "double"
+    },
+    {
+      "name": "winner_bidder",
+      "type": "string"
+    },
+    {
+      "name": "winner_advertiser",
+      "type": "string"
+    },
+    {
+      "name": "winner_adomain",
+      "type": {
+        "type": "array",
+        "items": "string"
+      }
+    },
+    {
+      "name": "winner_cid",
+      "type": "string"
+    },
+    {
+      "name": "winner_crid",
+      "type": "string"
+    },
+    {
+      "name": "winner_adid",
+      "type": "string"
+    },
+    {
+      "name": "bidder_context_list",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "bidder_context",
+          "type": "record",
+          "fields": [
+            {
+              "name": "bidder_name",
+              "type": "string"
+            },
+            {
+              "name": "placement_id",
+              "type": "string"
+            },
+            {
+              "name": "bidder_request",
+              "type": "string"
+            },
+            {
+              "name": "code",
+              "type": "int"
+            },
+            {
+              "name": "error",
+              "type": "string"
+            },
+            {
+              "name": "response_time_millis",
+              "type": "long"
+            },
+            {
+              "name": "bids",
+              "type": {
+                "type": "array",
+                "items": {
+                  "name": "bid",
+                  "type": "record",
+                  "fields":[
+                    {
+                      "name": "price",
+                      "type": "double"
+                    },
+                    {
+                      "name": "advertiser_name",
+                      "type": "string"
+                    },
+                    {
+                      "name": "adomain",
+                      "type": {
+                        "type": "array",
+                        "items": "string"
+                      }
+                    },
+                    {
+                      "name": "cid",
+                      "type": "string"
+                    },
+                    {
+                      "name": "crid",
+                      "type": "string"
+                    },
+                    {
+                      "name": "adid",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
