@@ -56,15 +56,27 @@
       "type": "string"
     },
     {
-      "name": "winnder_advertiser",
+      "name": "winner_advertiser",
       "type": "string"
     },
     {
-      "name": "winnder_adomain",
+      "name": "winner_adomain",
       "type": {
         "type": "array",
         "items": "string"
       }
+    },
+    {
+      "name": "winner_cid",
+      "type": "string"
+    },
+    {
+      "name": "winner_crid",
+      "type": "string"
+    },
+    {
+      "name": "winner_adid",
+      "type": "string"
     },
     {
       "name": "bidder_context_list",
@@ -120,6 +132,18 @@
                         "type": "array",
                         "items": "string"
                       }
+                    },
+                    {
+                      "name": "cid",
+                      "type": "string"
+                    },
+                    {
+                      "name": "crid",
+                      "type": "string"
+                    },
+                    {
+                      "name": "adid",
+                      "type": "string"
                     }
                   ]
                 }

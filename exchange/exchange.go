@@ -1349,11 +1349,14 @@ func addWinnerToLog(log *model.Msp_openrtb2_auction, winnerBid *pbsOrtbBid, bidd
 	log.Winner_bidder = bidderName
 	if winnerBid.bid != nil {
 		log.Winner_bid = winnerBid.bid.Price
-		log.Winnder_adomain = winnerBid.bid.ADomain
+		log.Winner_adomain = winnerBid.bid.ADomain
+		log.Winner_cid = winnerBid.bid.CID
+		log.Winner_crid = winnerBid.bid.CrID
+		log.Winner_adid = winnerBid.bid.AdID
 	}
 
 	if winnerBid.bidMeta != nil {
-		log.Winnder_advertiser = winnerBid.bidMeta.AdvertiserName
+		log.Winner_advertiser = winnerBid.bidMeta.AdvertiserName
 	}
 }
 
@@ -1380,6 +1383,9 @@ func addBiddingDetailsToLog(
 				if bid.bid != nil {
 					b.Price = bid.bid.Price
 					b.Adomain = bid.bid.ADomain
+					b.Cid = bid.bid.CID
+					b.Crid = bid.bid.CrID
+					b.Adid = bid.bid.AdID
 				}
 
 				if bid.bidMeta != nil {
