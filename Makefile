@@ -27,7 +27,7 @@ else
 endif
 
 # build will ensure all of our tests pass and then build the go binary
-build:
+build: avro
 	@go build -mod=vendor
 
 # image will build a docker image
@@ -39,6 +39,7 @@ run:
 	@./prebid-server -logtostderr=1
 
 avro:
+	@echo "Generating code for Avro schema"
 	-rm -rf $(AVRO_OUTPUT_DIR)
 	@mkdir $(AVRO_OUTPUT_DIR)
 	@gogen-avro --containers=false \
@@ -46,3 +47,4 @@ avro:
 				--short-unions=false \
 				--package=model \
 				$(AVRO_OUTPUT_DIR) $(AVRO_SCHEMA_DIR)/*.avsc
+	@echo "Done generating code."
