@@ -21,9 +21,9 @@ ENV CGO_ENABLED 0
 RUN mkdir -p /app/prebid-server/
 WORKDIR /app/prebid-server/
 COPY ./ ./
+RUN make avro
 RUN go mod tidy
 RUN go mod vendor
-RUN make avro
 ARG TEST="true"
 RUN if [ "$TEST" != "false" ]; then ./validate.sh ; fi
 RUN go build -mod=vendor -ldflags "-X github.com/prebid/prebid-server/version.Ver=`git describe --tags | sed 's/^v//'` -X github.com/prebid/prebid-server/version.Rev=`git rev-parse HEAD`" .
