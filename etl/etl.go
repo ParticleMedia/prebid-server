@@ -26,6 +26,8 @@ type KafkaDataProducer struct {
 }
 
 func NewKafkaDataProducer(cfg config.ETL) *KafkaDataProducer {
+	log.Println("ETL Kafka Host: ", cfg.KafkaHost)
+	log.Println("ETL Kafka Topic: ", cfg.KafkaTopic)
 	return &KafkaDataProducer{
 		auctionAvroSchema: cfg.AvroSchemaAuction,
 		kafkaWriter: &kafka.Writer{
