@@ -36,6 +36,8 @@ import (
 	"github.com/golang/glog"
 	"github.com/prebid/openrtb/v17/openrtb2"
 	"github.com/prebid/openrtb/v17/openrtb3"
+
+	"golang.org/x/exp/slices"
 )
 
 type extCacheInstructions struct {
@@ -447,7 +449,9 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 	addBiddingDetailsToLog(moa, adapterBids, adapterExtra)
 	addResponseToLog(moa, response, err)
 
-	e.etlDataProducer.ProduceOpenrtb2Auction(*moa)
+	if slices.Contains(r.AbBucketList, "etl-exp") {
+		e.etlDataProducer.ProduceOpenrtb2Auction(*moa)
+	}
 
 	return response, err
 }
