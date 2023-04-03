@@ -28,7 +28,7 @@ func NewAB(
 	ab.Init(&ab.ABConfig{
 		App:          "msp-prebid-server",
 		Url:          ab_url,
-		Layers:       []string{"ad_android", "ad_ios"},
+		Layers:       []string{"ad_android", "ad_ios", "ad"},
 		EnableCohort: false, // if you don't use cohort feature, please set to false
 	})
 	return &AB{

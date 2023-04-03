@@ -324,6 +324,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		PubID:                      labels.PubID,
 		StoredImp:                  adUnitName,
 		AbBucketList:               labels.AbBuckets,
+		UserBucketList:             logMsg.AbBuckets,
 	}
 
 	response, err := deps.ex.HoldAuction(ctx, auctionRequest, nil)
@@ -1900,6 +1901,7 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 			}
 			labels.AbBuckets = nil
 			logMsg.AbBuckets = nil
+			logMsg.AbBuckets = bucketList[:len(bucketList)-1]
 
 			storedABs, _ := deps.storedReqFetcher.FetchABs(ctx, bucketList)
 
@@ -1912,7 +1914,6 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 					}
 					resolvedRequest, err = jsonpatch.MergePatch(resolvedRequest, val)
 					labels.AbBuckets = append(labels.AbBuckets, bucketName)
-					logMsg.AbBuckets = append(logMsg.AbBuckets, bucketName)
 					if err != nil {
 						return nil, nil, nil, []error{err}
 					}
