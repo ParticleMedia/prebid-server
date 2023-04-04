@@ -202,6 +202,7 @@ type AuctionRequest struct {
 	PubID                 string
 	StoredImp             string
 	AbBucketList          []string
+	UserBucketList        []string
 }
 
 // BidderRequest holds the bidder specific request and all other
@@ -415,6 +416,7 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 					topBidderLabel := metrics.AdapterLabels{
 						Adapter:   bidderName,
 						StoredImp: r.StoredImp,
+						AbBuckets: r.AbBucketList,
 					}
 
 					var cpm = float64(topBidPerBidder.bid.Price * 1000)
@@ -1317,7 +1319,7 @@ func addReqToLog(req AuctionRequest) *model.Msp_openrtb2_auction {
 	moa := &model.Msp_openrtb2_auction{
 		Uuid:         req.BidRequestWrapper.ID,
 		Placement_id: req.StoredImp,
-		Exps:         req.AbBucketList,
+		Exps:         req.UserBucketList,
 		Request_time: req.StartTime.Unix(),
 	}
 

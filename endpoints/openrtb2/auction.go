@@ -143,6 +143,8 @@ type LogIno struct {
 	SkadnSize  int
 	HasBuyerId bool
 	AbBuckets  []string
+	Seat       string
+	Adomain    []string
 }
 
 type SkadnExt struct {
@@ -197,6 +199,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		ReqId:      metrics.LogUnknown,
 		HasBuyerId: false,
 		AbBuckets:  []string{metrics.AbBucketUnknown},
+		Seat:       metrics.LogUnknown,
+		Adomain:    []string{metrics.LogUnknown},
 	}
 
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r, &labels, &logMsg)
@@ -324,6 +328,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		PubID:                      labels.PubID,
 		StoredImp:                  adUnitName,
 		AbBucketList:               labels.AbBuckets,
+		UserBucketList:             logMsg.AbBuckets,
 	}
 
 	response, err := deps.ex.HoldAuction(ctx, auctionRequest, nil)
@@ -334,8 +339,23 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	if response != nil && response.SeatBid != nil {
 		for _, seatBid := range response.SeatBid {
 			for _, bid := range seatBid.Bid {
-				logMsg.Fill = true
-				logMsg.Price = bid.Price
+				bidExt := &openrtb_ext.ExtBid{}
+				if len(bid.Ext) > 0 {
+					err := json.Unmarshal(bid.Ext, &bidExt)
+					if err == nil {
+						if _, ok := bidExt.Prebid.Targeting[string(openrtb_ext.HbpbConstantKey)]; ok {
+							logMsg.Fill = true
+							logMsg.Price = bid.Price
+							logMsg.Seat = seatBid.Seat
+							if len(bid.ADomain) > 0 {
+								logMsg.Adomain = nil
+								logMsg.Adomain = append(logMsg.Adomain, bid.ADomain...)
+							}
+							break
+						}
+					}
+				}
+
 			}
 		}
 	}
@@ -1900,6 +1920,7 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 			}
 			labels.AbBuckets = nil
 			logMsg.AbBuckets = nil
+			logMsg.AbBuckets = bucketList[:len(bucketList)-1]
 
 			storedABs, _ := deps.storedReqFetcher.FetchABs(ctx, bucketList)
 
@@ -1912,7 +1933,6 @@ func (deps *endpointDeps) processStoredRequests(ctx context.Context, requestJson
 					}
 					resolvedRequest, err = jsonpatch.MergePatch(resolvedRequest, val)
 					labels.AbBuckets = append(labels.AbBuckets, bucketName)
-					logMsg.AbBuckets = append(logMsg.AbBuckets, bucketName)
 					if err != nil {
 						return nil, nil, nil, []error{err}
 					}
