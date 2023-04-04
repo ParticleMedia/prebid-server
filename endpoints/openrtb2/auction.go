@@ -143,6 +143,8 @@ type LogIno struct {
 	SkadnSize  int
 	HasBuyerId bool
 	AbBuckets  []string
+	Seat       string
+	Adomain    []string
 }
 
 type SkadnExt struct {
@@ -197,6 +199,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		ReqId:      metrics.LogUnknown,
 		HasBuyerId: false,
 		AbBuckets:  []string{metrics.AbBucketUnknown},
+		Seat:       metrics.LogUnknown,
+		Adomain:    []string{metrics.LogUnknown},
 	}
 
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, storedImp, errL := deps.parseRequest(r, &labels, &logMsg)
@@ -335,8 +339,23 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	if response != nil && response.SeatBid != nil {
 		for _, seatBid := range response.SeatBid {
 			for _, bid := range seatBid.Bid {
-				logMsg.Fill = true
-				logMsg.Price = bid.Price
+				bidExt := &openrtb_ext.ExtBid{}
+				if len(bid.Ext) > 0 {
+					err := json.Unmarshal(bid.Ext, &bidExt)
+					if err == nil {
+						if _, ok := bidExt.Prebid.Targeting[string(openrtb_ext.HbpbConstantKey)]; ok {
+							logMsg.Fill = true
+							logMsg.Price = bid.Price
+							logMsg.Seat = seatBid.Seat
+							if len(bid.ADomain) > 0 {
+								logMsg.Adomain = nil
+								logMsg.Adomain = append(logMsg.Adomain, bid.ADomain...)
+							}
+							break
+						}
+					}
+				}
+
 			}
 		}
 	}
