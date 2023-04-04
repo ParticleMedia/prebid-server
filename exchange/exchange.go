@@ -414,6 +414,7 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 					topBidderLabel := metrics.AdapterLabels{
 						Adapter:   bidderName,
 						StoredImp: r.StoredImp,
+						AbBuckets: r.AbBucketList,
 					}
 
 					var cpm = float64(topBidPerBidder.bid.Price * 1000)
