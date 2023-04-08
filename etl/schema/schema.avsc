@@ -91,14 +91,6 @@
               "type": "string"
             },
             {
-              "name": "placement_id",
-              "type": "string"
-            },
-            {
-              "name": "bidder_request",
-              "type": "string"
-            },
-            {
               "name": "code",
               "type": "int"
             },

@@ -446,7 +446,7 @@ func (e *exchange) HoldAuction(ctx context.Context, r AuctionRequest, debugLog *
 	// Build the response
 	response, err := e.buildBidResponse(ctx, liveAdapters, adapterBids, r.BidRequestWrapper.BidRequest, adapterExtra, auc, bidResponseExt, cacheInstructions.returnCreative, r.ImpExtInfoMap, errs)
 
-	addBiddingDetailsToLog(moa, adapterBids, adapterExtra, bidResponseExt)
+	addBiddingDetailsToLog(moa, adapterBids, adapterExtra)
 	addResponseToLog(moa, response, err)
 
 	e.etlDataProducer.ProduceOpenrtb2Auction(*moa)
@@ -1365,8 +1365,7 @@ func addWinnerToLog(log *model.Msp_openrtb2_auction, winnerBid *pbsOrtbBid, bidd
 func addBiddingDetailsToLog(
 	log *model.Msp_openrtb2_auction,
 	adapterBids map[openrtb_ext.BidderName]*pbsOrtbSeatBid,
-	adapterExtra map[openrtb_ext.BidderName]*seatResponseExtra,
-	bidResponseExt *openrtb_ext.ExtBidResponse) {
+	adapterExtra map[openrtb_ext.BidderName]*seatResponseExtra) {
 
 	for bidderName, seatResponseExtra := range adapterExtra {
 		bidderCtx := model.NewBidder_context()
