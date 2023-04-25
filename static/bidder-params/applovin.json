@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Applovin Adapter Params",
+    "description": "A schema which validates params accepted by the Applovin adapter",
+    "type": "object",
+    "properties": {
+      "tagid": {
+        "type": "string",
+        "description": "Applovin token"
+      }
+    },
+    "required": ["tagid"]
+  }
+  
