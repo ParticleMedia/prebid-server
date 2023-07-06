@@ -385,13 +385,12 @@ func (e *exchange) HoldAuction(ctx context.Context, r *AuctionRequest, debugLog 
 		seatNonBidBuilder SeatNonBidBuilder = SeatNonBidBuilder{}
 	)
 
-	if len(r.StoredAuctionResponses) > 0 {
-		adapterBids, fledge, liveAdapters, err = buildStoredAuctionResponse(r.StoredAuctionResponses)
+	shouldMspBackfillBids := mspUpdateStoredAuctionResponse(r)
+	if len(r.StoredAuctionResponses) > 0 && !shouldMspBackfillBids {
+		adapterBids, fledge, liveAdapters, err, anyBidsReturned = mspApplyStoredAuctionResponse(r)
 		if err != nil {
 			return nil, err
 		}
-		anyBidsReturned = true
-
 	} else {
 		// List of bidders we have requests for.
 		liveAdapters = listBiddersWithRequests(bidderRequests)
