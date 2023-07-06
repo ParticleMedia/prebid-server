@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/prebid/openrtb/v19/openrtb2"
-	"github.com/prebid/prebid-server/openrtb_ext"
 )
 
 // ProcessedAuctionRequest hooks are invoked after the request is parsed
@@ -27,6 +26,5 @@ type ProcessedAuctionRequest interface {
 // ProcessedAuctionRequestPayload consists of the openrtb2.BidRequest object.
 // Hooks are allowed to modify openrtb2.BidRequest using mutations.
 type ProcessedAuctionRequestPayload struct {
-	BidRequest        *openrtb2.BidRequest
-	BidRequestWrapper *openrtb_ext.RequestWrapper
+	BidRequest *openrtb2.BidRequest
 }
