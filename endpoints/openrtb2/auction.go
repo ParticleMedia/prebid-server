@@ -2275,6 +2275,7 @@ func writeError(errs []error, w http.ResponseWriter, labels *metrics.Labels) boo
 		metricsStatus := metrics.RequestStatusBadInput
 		for _, err := range errs {
 			erVal := errortypes.ReadCode(err)
+			glog.Infoln("MSP Error", err.Error())
 			if erVal == errortypes.BlacklistedAppErrorCode || erVal == errortypes.BlacklistedAcctErrorCode {
 				httpStatus = http.StatusServiceUnavailable
 				metricsStatus = metrics.RequestStatusBlacklisted
