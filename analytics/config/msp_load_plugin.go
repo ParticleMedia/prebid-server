@@ -18,12 +18,18 @@ func mspGetCustomAnalyticsAdapters(cfg map[string]interface{}) []analytics.PBSAn
 	plugins := make([]analytics.PBSAnalyticsModule, 0)
 
 	for name, cfgData := range cfg {
-		plugin, err := loadPlugin(name, cfgData)
+		cfg, cfgJson := parsePluginConfig(name, cfgData)
+		if !cfg.Enabled {
+			glog.Infof("Skip loading analytics adapter %s as it is disabled.", name)
+			continue
+		}
+
+		plugin, err := loadPlugin(name, cfg, cfgJson)
 		if err != nil {
 			message := fmt.Sprintf("Failed to build analytics adapter %s, error: %+v\n", name, err)
 			panic(message)
 		} else {
-			glog.Infof("Loaded analytics adapter: %s\n", name)
+			glog.Infof("Loaded Analytics Adapter Plugin: %s\n", name)
 			plugins = append(plugins, plugin)
 		}
 	}
@@ -31,8 +37,7 @@ func mspGetCustomAnalyticsAdapters(cfg map[string]interface{}) []analytics.PBSAn
 	return plugins
 }
 
-func loadPlugin(name string, cfgData interface{}) (analytics.PBSAnalyticsModule, error) {
-	cfg, cfgJson := parsePluginConfig(name, cfgData)
+func loadPlugin(name string, cfg config.PluginConfig, cfgJson json.RawMessage) (analytics.PBSAnalyticsModule, error) {
 	if cfg.SoPath == "" {
 		message := fmt.Sprintf("The path to load analytics adapter %s is empty.\n", name)
 		panic(message)
