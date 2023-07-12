@@ -38,7 +38,7 @@ func NewPBSAnalytics(analytics *config.Analytics) analytics.PBSAnalyticsModule {
 		}
 	}
 
-	customAdapters := mspGetCustomAnalyticsAdapters(analytics.Custom)
+	customAdapters := mspLoadAnalyticsAdapterPlugins(analytics.Custom)
 	for _, adapter := range customAdapters {
 		modules = append(modules, adapter)
 	}

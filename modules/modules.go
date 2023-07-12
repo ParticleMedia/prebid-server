@@ -83,7 +83,7 @@ func (m *builder) Build(
 		}
 	}
 
-	modules = mspLoadModulesThroughPlugin(modules, cfg, deps)
+	modules = mspLoadModulePlugins(modules, cfg, deps)
 
 	collection, err := createModuleStageNamesCollection(modules)
 	if err != nil {
