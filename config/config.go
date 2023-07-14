@@ -454,6 +454,10 @@ type Analytics struct {
 	File     FileLogs      `mapstructure:"file"`
 	Agma     AgmaAnalytics `mapstructure:"agma"`
 	Pubstack Pubstack      `mapstructure:"pubstack"`
+
+	// Made by MSP. This field is for loading analytics adapter
+	// dynamically through Golang Plugin at runtime
+	Custom map[string]interface{} `mapstructure:"custom"`
 }
 
 type CurrencyConverter struct {
