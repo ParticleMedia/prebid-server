@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/golang/glog"
 	"github.com/prebid/prebid-server/adapters"
 	"github.com/prebid/prebid-server/config"
 	"github.com/prebid/prebid-server/errortypes"
@@ -255,6 +256,15 @@ func (a *IxAdapter) MakeBids(internalRequest *openrtb2.BidRequest, externalReque
 				BidType:  bidType,
 				BidVideo: bidExtVideo,
 			})
+		}
+	}
+
+	if len(bidderResponse.Bids) > 0 {
+		for _, typedBid := range bidderResponse.Bids {
+			if typedBid.Bid.Price > 0 {
+				glog.Infof("IX_RESPONSE: %s\n", string(response.Body))
+				break
+			}
 		}
 	}
 
