@@ -212,6 +212,7 @@ type AuctionRequest struct {
 	HookExecutor            hookexecution.StageExecutor
 	QueryParams             url.Values
 	BidderResponseStartTime time.Time
+	TmaxAdjustments         *TmaxAdjustmentsPreprocessed
 }
 
 // BidderRequest holds the bidder specific request and all other
@@ -369,7 +370,7 @@ func (e *exchange) HoldAuction(ctx context.Context, r *AuctionRequest, debugLog 
 		}
 
 		var extraRespInfo extraAuctionResponseInfo
-		adapterBids, adapterExtra, extraRespInfo = e.getAllBids(auctionCtx, bidderRequests, bidAdjustmentFactors, conversions, accountDebugAllow, r.GlobalPrivacyControlHeader, debugLog.DebugOverride, alternateBidderCodes, requestExtLegacy.Prebid.Experiment, r.HookExecutor, r.StartTime, bidAdjustmentRules)
+		adapterBids, adapterExtra, extraRespInfo = e.getAllBids(auctionCtx, bidderRequests, bidAdjustmentFactors, conversions, accountDebugAllow, r.GlobalPrivacyControlHeader, debugLog.DebugOverride, alternateBidderCodes, requestExtLegacy.Prebid.Experiment, r.HookExecutor, r.StartTime, bidAdjustmentRules, r.TmaxAdjustments)
 		fledge = extraRespInfo.fledge
 		anyBidsReturned = extraRespInfo.bidsFound
 		r.BidderResponseStartTime = extraRespInfo.bidderResponseStartTime
@@ -661,7 +662,8 @@ func (e *exchange) getAllBids(
 	experiment *openrtb_ext.Experiment,
 	hookExecutor hookexecution.StageExecutor,
 	pbsRequestStartTime time.Time,
-	bidAdjustmentRules map[string][]openrtb_ext.Adjustment) (
+	bidAdjustmentRules map[string][]openrtb_ext.Adjustment,
+	tmaxAdjustments *TmaxAdjustmentsPreprocessed) (
 	map[openrtb_ext.BidderName]*entities.PbsOrtbSeatBid,
 	map[openrtb_ext.BidderName]*seatResponseExtra,
 	extraAuctionResponseInfo) {
@@ -700,6 +702,7 @@ func (e *exchange) getAllBids(
 				headerDebugAllowed:  headerDebugAllowed,
 				addCallSignHeader:   isAdsCertEnabled(experiment, e.bidderInfo[string(bidderRequest.BidderName)]),
 				bidAdjustments:      bidAdjustments,
+				tmaxAdjustments:     tmaxAdjustments,
 			}
 			seatBids, extraBidderRespInfo, err := e.adapterMap[bidderRequest.BidderCoreName].requestBid(ctx, bidderRequest, conversions, &reqInfo, e.adsCertSigner, bidReqOptions, alternateBidderCodes, hookExecutor, bidAdjustmentRules)
 			brw.bidderResponseStartTime = extraBidderRespInfo.respProcessingStartTime
