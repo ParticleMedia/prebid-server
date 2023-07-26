@@ -1,0 +1,15 @@
+endpoint: "https://pubads.g.doubleclick.net/gampad/ads"
+disabled: true
+maintainer:
+  email: "support@google.com"
+capabilities:
+  app:
+    mediaTypes:
+      - banner
+      - video
+      - native
+  site:
+    mediaTypes:
+      - banner
+      - video
+      - native

@@ -85,6 +85,7 @@ import (
 	"github.com/prebid/prebid-server/adapters/gamma"
 	"github.com/prebid/prebid-server/adapters/gamoshi"
 	"github.com/prebid/prebid-server/adapters/globalsun"
+	"github.com/prebid/prebid-server/adapters/google"
 	"github.com/prebid/prebid-server/adapters/grid"
 	"github.com/prebid/prebid-server/adapters/gumgum"
 	"github.com/prebid/prebid-server/adapters/huaweiads"
@@ -322,6 +323,7 @@ func newAdapterBuilders() map[openrtb_ext.BidderName]adapters.Builder {
 		openrtb_ext.BidderPangle:            pangle.Builder,
 		openrtb_ext.BidderPGAM:              adtelligent.Builder,
 		openrtb_ext.BidderPubmatic:          pubmatic.Builder,
+		openrtb_ext.BidderGoogle:            google.Builder,
 		openrtb_ext.BidderPubnative:         pubnative.Builder,
 		openrtb_ext.BidderPulsepoint:        pulsepoint.Builder,
 		openrtb_ext.BidderPWBid:             pwbid.Builder,
