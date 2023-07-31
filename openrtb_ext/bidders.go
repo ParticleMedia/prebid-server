@@ -238,6 +238,7 @@ const (
 	BidderRubicon           BidderName = "rubicon"
 	BidderSeedingAlliance   BidderName = "seedingAlliance"
 	BidderSaLunaMedia       BidderName = "sa_lunamedia"
+	BidderScreencore        BidderName = "screencore"
 	BidderSharethrough      BidderName = "sharethrough"
 	BidderSilverMob         BidderName = "silvermob"
 	BidderSmaato            BidderName = "smaato"
@@ -451,6 +452,7 @@ func CoreBidderNames() []BidderName {
 		BidderRubicon,
 		BidderSeedingAlliance,
 		BidderSaLunaMedia,
+		BidderScreencore,
 		BidderSharethrough,
 		BidderSilverMob,
 		BidderSmaato,
