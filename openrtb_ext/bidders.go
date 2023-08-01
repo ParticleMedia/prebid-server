@@ -279,11 +279,14 @@ const (
 	BidderYieldone          BidderName = "yieldone"
 	BidderZeroClickFraud    BidderName = "zeroclickfraud"
 	BidderZetaGlobalSsp     BidderName = "zeta_global_ssp"
+
+	BidderMspGoogle  BidderName = "msp_google"
+	BidderMspInHouse BidderName = "msp_in_house"
 )
 
 // CoreBidderNames returns a slice of all core bidders.
 func CoreBidderNames() []BidderName {
-	return []BidderName{
+	core := []BidderName{
 		Bidder33Across,
 		BidderAax,
 		BidderAceex,
@@ -477,6 +480,15 @@ func CoreBidderNames() []BidderName {
 		BidderYieldone,
 		BidderZeroClickFraud,
 		BidderZetaGlobalSsp,
+	}
+
+	return append(core, mspBidderNames()...)
+}
+
+func mspBidderNames() []BidderName {
+	return []BidderName{
+		BidderMspGoogle,
+		BidderMspInHouse,
 	}
 }
 
