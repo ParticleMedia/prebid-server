@@ -45,6 +45,9 @@ type BidderInfo struct {
 	// EndpointCompression determines, if set, the type of compression the bid request will undergo before being sent to the corresponding bid server
 	EndpointCompression string       `yaml:"endpointCompression" mapstructure:"endpointCompression"`
 	OpenRTB             *OpenRTBInfo `yaml:"openrtb" mapstructure:"openrtb"`
+
+	// For MSP Plugin extension only.
+	MspSoPath string `mapstructure:"so_path,omitempty" json:"so_path,omitempty"`
 }
 
 type aliasNillableFields struct {
