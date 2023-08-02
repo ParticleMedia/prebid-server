@@ -36,21 +36,22 @@ type Configuration struct {
 	GarbageCollectorThreshold int `mapstructure:"garbage_collector_threshold"`
 	// StatusResponse is the string which will be returned by the /status endpoint when things are OK.
 	// If empty, it will return a 204 with no content.
-	StatusResponse    string          `mapstructure:"status_response"`
-	AuctionTimeouts   AuctionTimeouts `mapstructure:"auction_timeouts_ms"`
-	TmaxAdjustments   TmaxAdjustments `mapstructure:"tmax_adjustments"`
-	CacheURL          Cache           `mapstructure:"cache"`
-	ExtCacheURL       ExternalCache   `mapstructure:"external_cache"`
-	RecaptchaSecret   string          `mapstructure:"recaptcha_secret"`
-	HostCookie        HostCookie      `mapstructure:"host_cookie"`
-	Metrics           Metrics         `mapstructure:"metrics"`
-	StoredRequests    StoredRequests  `mapstructure:"stored_requests"`
-	StoredRequestsAMP StoredRequests  `mapstructure:"stored_amp_req"`
-	CategoryMapping   StoredRequests  `mapstructure:"category_mapping"`
-	VTrack            VTrack          `mapstructure:"vtrack"`
-	Event             Event           `mapstructure:"event"`
-	Accounts          StoredRequests  `mapstructure:"accounts"`
-	UserSync          UserSync        `mapstructure:"user_sync"`
+	StatusResponse    string           `mapstructure:"status_response"`
+	AuctionTimeouts   AuctionTimeouts  `mapstructure:"auction_timeouts_ms"`
+	TmaxAdjustments   TmaxAdjustments  `mapstructure:"tmax_adjustments"`
+	CacheURL          Cache            `mapstructure:"cache"`
+	ExtCacheURL       ExternalCache    `mapstructure:"external_cache"`
+	RecaptchaSecret   string           `mapstructure:"recaptcha_secret"`
+	HostCookie        HostCookie       `mapstructure:"host_cookie"`
+	Metrics           Metrics          `mapstructure:"metrics"`
+	MSPMetricsConfig  MSPMetricsConfig `mapstructure:"msp_metrics"`
+	StoredRequests    StoredRequests   `mapstructure:"stored_requests"`
+	StoredRequestsAMP StoredRequests   `mapstructure:"stored_amp_req"`
+	CategoryMapping   StoredRequests   `mapstructure:"category_mapping"`
+	VTrack            VTrack           `mapstructure:"vtrack"`
+	Event             Event            `mapstructure:"event"`
+	Accounts          StoredRequests   `mapstructure:"accounts"`
+	UserSync          UserSync         `mapstructure:"user_sync"`
 	// Note that StoredVideo refers to stored video requests, and has nothing to do with caching video creatives.
 	StoredVideo     StoredRequests `mapstructure:"stored_video_req"`
 	StoredResponses StoredRequests `mapstructure:"stored_responses"`
@@ -454,6 +455,10 @@ type Analytics struct {
 	File     FileLogs      `mapstructure:"file"`
 	Agma     AgmaAnalytics `mapstructure:"agma"`
 	Pubstack Pubstack      `mapstructure:"pubstack"`
+
+	// Made by MSP. This field is for loading analytics adapter
+	// dynamically through Golang Plugin at runtime
+	Custom map[string]interface{} `mapstructure:"custom"`
 }
 
 type CurrencyConverter struct {
@@ -548,6 +553,12 @@ type Metrics struct {
 	Influxdb   InfluxMetrics     `mapstructure:"influxdb"`
 	Prometheus PrometheusMetrics `mapstructure:"prometheus"`
 	Disabled   DisabledMetrics   `mapstructure:"disabled_metrics"`
+}
+
+type MSPMetricsConfig struct {
+	Enabled bool   `mapstructure:"enabled"`
+	Port    int    `mapstructure:"port"`
+	SoPath  string `mapstructure:"so_path"`
 }
 
 type DisabledMetrics struct {

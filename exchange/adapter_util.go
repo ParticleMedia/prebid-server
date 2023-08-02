@@ -12,7 +12,8 @@ import (
 
 func BuildAdapters(client *http.Client, cfg *config.Configuration, infos config.BidderInfos, me metrics.MetricsEngine) (map[openrtb_ext.BidderName]AdaptedBidder, map[openrtb_ext.BidderName]struct{}, []error) {
 	server := config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter}
-	bidders, singleFormatBidders, errs := buildBidders(infos, newAdapterBuilders(), server)
+	adapterBuilders := mspAddAdaptersFromPlugins(newAdapterBuilders(), infos)
+	bidders, singleFormatBidders, errs := buildBidders(infos, adapterBuilders, server)
 
 	if len(errs) > 0 {
 		return nil, nil, errs
@@ -91,6 +92,7 @@ func buildAdapterInfo(bidderInfo config.BidderInfo) config.Adapter {
 	adapter.PlatformID = bidderInfo.PlatformID
 	adapter.AppSecret = bidderInfo.AppSecret
 	adapter.XAPI = bidderInfo.XAPI
+	adapter.NovaScylla = bidderInfo.NovaScylla
 	return adapter
 }
 

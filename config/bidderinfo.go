@@ -45,6 +45,12 @@ type BidderInfo struct {
 	// EndpointCompression determines, if set, the type of compression the bid request will undergo before being sent to the corresponding bid server
 	EndpointCompression string       `yaml:"endpointCompression" mapstructure:"endpointCompression"`
 	OpenRTB             *OpenRTBInfo `yaml:"openrtb" mapstructure:"openrtb"`
+
+	// For MSP Plugin extension only.
+	MspSoPath string `mapstructure:"so_path,omitempty" json:"so_path,omitempty"`
+
+	// For Nova Adapter only
+	NovaScylla AdapterNovaScylla `yaml:"scylla" mapstructure:"scylla"`
 }
 
 type aliasNillableFields struct {
@@ -196,6 +202,13 @@ type SyncerEndpoint struct {
 	// UserMacro is available as a macro to the RedirectURL template. This value is specific to the bidder server
 	// and has no default.
 	UserMacro string `yaml:"userMacro" mapstructure:"user_macro"`
+}
+
+// AdapterNovaScylla specifies the the scylla config for Nova Adapter
+type AdapterNovaScylla struct {
+	Cluster  string `yaml:"cluster" mapstructure:"cluster"`
+	KeySpace string `yaml:"keyspace" mapstructure:"keyspace"`
+	TimeOut  int32  `yaml:"query_timeout" mapstructure:"query_timeout"`
 }
 
 func (bi BidderInfo) IsEnabled() bool {
@@ -607,6 +620,7 @@ func applyBidderInfoConfigOverrides(configBidderInfos nillableFieldBidderInfos, 
 		if !exists {
 			return nil, fmt.Errorf("error setting configuration for bidder %s: unknown bidder", bidderName)
 		}
+
 		fsBidderInfo, exists := fsBidderInfos[string(normalizedBidderName)]
 		if !exists {
 			return nil, fmt.Errorf("error finding configuration for bidder %s: unknown bidder", bidderName)
@@ -659,6 +673,19 @@ func applyBidderInfoConfigOverrides(configBidderInfos nillableFieldBidderInfos, 
 		if configBidderInfo.bidderInfo.EndpointCompression != "" {
 			mergedBidderInfo.EndpointCompression = configBidderInfo.bidderInfo.EndpointCompression
 		}
+		if configBidderInfo.bidderInfo.MspSoPath != "" {
+			mergedBidderInfo.MspSoPath = configBidderInfo.bidderInfo.MspSoPath
+		}
+		if configBidderInfo.bidderInfo.NovaScylla.Cluster != "" {
+			mergedBidderInfo.NovaScylla.Cluster = configBidderInfo.bidderInfo.NovaScylla.Cluster
+		}
+		if configBidderInfo.bidderInfo.NovaScylla.KeySpace != "" {
+			mergedBidderInfo.NovaScylla.KeySpace = configBidderInfo.bidderInfo.NovaScylla.KeySpace
+		}
+		if configBidderInfo.bidderInfo.NovaScylla.TimeOut != 0 {
+			mergedBidderInfo.NovaScylla.TimeOut = configBidderInfo.bidderInfo.NovaScylla.TimeOut
+		}
+
 		if configBidderInfo.bidderInfo.OpenRTB != nil {
 			mergedBidderInfo.OpenRTB = configBidderInfo.bidderInfo.OpenRTB
 		}
