@@ -44,6 +44,11 @@ func New(analytics *config.Analytics) analytics.Runner {
 		}
 	}
 
+	customAdapters := mspLoadAnalyticsAdapterPlugins(analytics.Custom)
+	for adapterName, adapter := range customAdapters {
+		modules[adapterName] = adapter
+	}
+
 	if analytics.Agma.Enabled {
 		agmaModule, err := agma.NewModule(
 			clients.GetDefaultHttpInstance(),

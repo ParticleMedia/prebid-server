@@ -16,6 +16,7 @@ import (
 	"github.com/prebid/prebid-server/v3/logger"
 	"github.com/prebid/prebid-server/v3/metrics"
 	metricsconfig "github.com/prebid/prebid-server/v3/metrics/config"
+	mspPlugin "github.com/prebid/prebid-server/v3/msp/plugin"
 )
 
 // Listen blocks forever, serving PBS requests on the given port. This will block forever, until the process is shut down.
@@ -27,6 +28,7 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 	stopAdmin := make(chan os.Signal)
 	stopMain := make(chan os.Signal)
 	stopPrometheus := make(chan os.Signal)
+	stopMsp := make(chan os.Signal)
 	stopChannels := []chan<- os.Signal{stopMain}
 	done := make(chan struct{})
 
@@ -65,6 +67,21 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 			return
 		}
 		go runServer(adminServer, "Admin", adminListener)
+	}
+
+	if cfg.MSPMetricsConfig.Enabled {
+		var (
+			mspListener net.Listener
+			mspServer   = newMSPServer(cfg)
+		)
+		stopChannels = append(stopChannels, stopMsp)
+		go shutdownAfterSignals(mspServer, stopMsp, done)
+		if mspListener, err = newTCPListener(mspServer.Addr, nil); err != nil {
+			logger.Errorf("Error listening for TCP connections on port %d: %v for MSP Metrics server", cfg.MSPMetricsConfig.Port, err)
+			return
+		}
+
+		go runServer(mspServer, "MSP Metrics", mspListener)
 	}
 
 	if cfg.Metrics.Prometheus.Port != 0 {
@@ -209,4 +226,20 @@ func shutdownAfterSignals(server *http.Server, stopper <-chan os.Signal, done ch
 
 func sendSignal(to chan<- os.Signal, sig os.Signal) {
 	to <- sig
+}
+
+func newMSPServer(cfg *config.Configuration) *http.Server {
+	mspBuilder, err := mspPlugin.LoadBuilderFromPath[MSPBuilder]("MSP Metrics", cfg.MSPMetricsConfig.SoPath)
+	if err != nil {
+		logger.Errorf("Failed to initialize MSP Metrics Builder")
+	}
+	mspServer, err := mspBuilder.Build(cfg)
+	if err != nil {
+		logger.Errorf("Failed to initialize MSP Metrics Server")
+	}
+	return mspServer
+}
+
+type MSPBuilder interface {
+	Build(*config.Configuration) (*http.Server, error)
 }

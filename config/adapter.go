@@ -12,4 +12,7 @@ type Adapter struct {
 
 	// nededed for Facebook
 	AppSecret string
+
+	// needed for Nova
+	NovaScylla AdapterNovaScylla
 }
