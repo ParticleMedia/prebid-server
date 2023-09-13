@@ -6,9 +6,6 @@ import (
 
 	"github.com/prebid/prebid-server/config"
 	"github.com/prebid/prebid-server/macros"
-	"github.com/prebid/prebid-server/privacy"
-	"github.com/prebid/prebid-server/privacy/ccpa"
-	"github.com/prebid/prebid-server/privacy/gdpr"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -636,45 +633,45 @@ func TestSyncerGetSync(t *testing.T) {
 	)
 
 	testCases := []struct {
-		description          string
-		givenSyncer          standardSyncer
-		givenSyncTypes       []SyncType
-		givenPrivacyPolicies privacy.Policies
-		expectedError        string
-		expectedSync         Sync
+		description    string
+		givenSyncer    standardSyncer
+		givenSyncTypes []SyncType
+		givenMacros    macros.UserSyncPrivacy
+		expectedError  string
+		expectedSync   Sync
 	}{
 		{
-			description:          "No Sync Types",
-			givenSyncer:          standardSyncer{iframe: iframeTemplate, redirect: redirectTemplate},
-			givenSyncTypes:       []SyncType{},
-			givenPrivacyPolicies: privacy.Policies{GDPR: gdpr.Policy{Signal: "A", Consent: "B"}, CCPA: ccpa.Policy{Consent: "C"}},
-			expectedError:        "no sync types provided",
+			description:    "No Sync Types",
+			givenSyncer:    standardSyncer{iframe: iframeTemplate, redirect: redirectTemplate},
+			givenSyncTypes: []SyncType{},
+			givenMacros:    macros.UserSyncPrivacy{GDPR: "A", GDPRConsent: "B", USPrivacy: "C"},
+			expectedError:  "no sync types provided",
 		},
 		{
-			description:          "IFrame",
-			givenSyncer:          standardSyncer{iframe: iframeTemplate, redirect: redirectTemplate},
-			givenSyncTypes:       []SyncType{SyncTypeIFrame},
-			givenPrivacyPolicies: privacy.Policies{GDPR: gdpr.Policy{Signal: "A", Consent: "B"}, CCPA: ccpa.Policy{Consent: "C"}},
-			expectedSync:         Sync{URL: "iframe,gdpr:A,gdprconsent:B,ccpa:C", Type: SyncTypeIFrame, SupportCORS: false},
+			description:    "IFrame",
+			givenSyncer:    standardSyncer{iframe: iframeTemplate, redirect: redirectTemplate},
+			givenSyncTypes: []SyncType{SyncTypeIFrame},
+			givenMacros:    macros.UserSyncPrivacy{GDPR: "A", GDPRConsent: "B", USPrivacy: "C"},
+			expectedSync:   Sync{URL: "iframe,gdpr:A,gdprconsent:B,ccpa:C", Type: SyncTypeIFrame, SupportCORS: false},
 		},
 		{
-			description:          "Redirect",
-			givenSyncer:          standardSyncer{iframe: iframeTemplate, redirect: redirectTemplate},
-			givenSyncTypes:       []SyncType{SyncTypeRedirect},
-			givenPrivacyPolicies: privacy.Policies{GDPR: gdpr.Policy{Signal: "A", Consent: "B"}, CCPA: ccpa.Policy{Consent: "C"}},
-			expectedSync:         Sync{URL: "redirect,gdpr:A,gdprconsent:B,ccpa:C", Type: SyncTypeRedirect, SupportCORS: false},
+			description:    "Redirect",
+			givenSyncer:    standardSyncer{iframe: iframeTemplate, redirect: redirectTemplate},
+			givenSyncTypes: []SyncType{SyncTypeRedirect},
+			givenMacros:    macros.UserSyncPrivacy{GDPR: "A", GDPRConsent: "B", USPrivacy: "C"},
+			expectedSync:   Sync{URL: "redirect,gdpr:A,gdprconsent:B,ccpa:C", Type: SyncTypeRedirect, SupportCORS: false},
 		},
 		{
-			description:          "Macro Error",
-			givenSyncer:          standardSyncer{iframe: malformedTemplate},
-			givenSyncTypes:       []SyncType{SyncTypeIFrame},
-			givenPrivacyPolicies: privacy.Policies{GDPR: gdpr.Policy{Signal: "A", Consent: "B"}, CCPA: ccpa.Policy{Consent: "C"}},
-			expectedError:        "template: test:1:20: executing \"test\" at <.DoesNotExist>: can't evaluate field DoesNotExist in type macros.UserSyncPrivacy",
+			description:    "Macro Error",
+			givenSyncer:    standardSyncer{iframe: malformedTemplate},
+			givenSyncTypes: []SyncType{SyncTypeIFrame},
+			givenMacros:    macros.UserSyncPrivacy{GDPR: "A", GDPRConsent: "B", USPrivacy: "C"},
+			expectedError:  "template: test:1:20: executing \"test\" at <.DoesNotExist>: can't evaluate field DoesNotExist in type macros.UserSyncPrivacy",
 		},
 	}
 
 	for _, test := range testCases {
-		result, err := test.givenSyncer.GetSync(test.givenSyncTypes, test.givenPrivacyPolicies)
+		result, err := test.givenSyncer.GetSync(test.givenSyncTypes, test.givenMacros)
 
 		if test.expectedError == "" {
 			assert.NoError(t, err, test.description+":err")
