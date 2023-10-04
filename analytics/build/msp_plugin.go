@@ -1,4 +1,4 @@
-package config
+package build
 
 import (
 	"encoding/json"
@@ -10,12 +10,11 @@ import (
 )
 
 type PluginBuilder interface {
-	Build(json.RawMessage) (analytics.PBSAnalyticsModule, error)
+	Build(json.RawMessage) (analytics.Module, error)
 }
 
-func mspLoadAnalyticsAdapterPlugins(cfg map[string]interface{}) []analytics.PBSAnalyticsModule {
-	plugins := make([]analytics.PBSAnalyticsModule, 0)
-
+func mspLoadAnalyticsAdapterPlugins(cfg map[string]interface{}) enabledAnalytics {
+	plugins := make(enabledAnalytics, 0)
 	for name, cfgData := range cfg {
 		builder, cfgJson, skip, err := mspPlugin.LoadBuilder[PluginBuilder](name, cfgData)
 
@@ -32,7 +31,7 @@ func mspLoadAnalyticsAdapterPlugins(cfg map[string]interface{}) []analytics.PBSA
 			panic(fmt.Sprintf("Failed to build Analytics Adapter plugin %s, error: %+v\n", name, err))
 		} else {
 			glog.Infof("Loaded Analytics Adapter plugin: %s\n", name)
-			plugins = append(plugins, plugin)
+			plugins[name] = plugin
 		}
 	}
 
