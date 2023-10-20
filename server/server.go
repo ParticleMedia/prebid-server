@@ -13,9 +13,9 @@ import (
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/golang/glog"
-	"github.com/prebid/prebid-server/config"
-	"github.com/prebid/prebid-server/metrics"
-	metricsconfig "github.com/prebid/prebid-server/metrics/config"
+	"github.com/prebid/prebid-server/v2/config"
+	"github.com/prebid/prebid-server/v2/metrics"
+	metricsconfig "github.com/prebid/prebid-server/v2/metrics/config"
 	mspPlugin "github.com/prebid/prebid-server/msp/plugin"
 )
 
