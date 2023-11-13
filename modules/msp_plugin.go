@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/golang/glog"
-	"github.com/prebid/prebid-server/config"
-	"github.com/prebid/prebid-server/modules/moduledeps"
-	mspPlugin "github.com/prebid/prebid-server/msp/plugin"
+	"github.com/prebid/prebid-server/v2/config"
+	"github.com/prebid/prebid-server/v2/modules/moduledeps"
+	mspPlugin "github.com/prebid/prebid-server/v2/msp/plugin"
 )
 
 type PluginBuilder interface {

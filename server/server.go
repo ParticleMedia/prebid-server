@@ -16,7 +16,7 @@ import (
 	"github.com/prebid/prebid-server/v2/config"
 	"github.com/prebid/prebid-server/v2/metrics"
 	metricsconfig "github.com/prebid/prebid-server/v2/metrics/config"
-	mspPlugin "github.com/prebid/prebid-server/msp/plugin"
+	mspPlugin "github.com/prebid/prebid-server/v2/msp/plugin"
 )
 
 // Listen blocks forever, serving PBS requests on the given port. This will block forever, until the process is shut down.

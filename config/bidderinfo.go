@@ -627,6 +627,9 @@ func applyBidderInfoConfigOverrides(configBidderInfos BidderInfos, fsBidderInfos
 			if bidderInfo.NovaScylla.TimeOut == 0 && fsBidderCfg.NovaScylla.TimeOut > 0 {
 				bidderInfo.NovaScylla.TimeOut = fsBidderCfg.NovaScylla.TimeOut
 			}
+			if bidderInfo.OpenRTB == nil && fsBidderCfg.OpenRTB != nil {
+				bidderInfo.OpenRTB = fsBidderCfg.OpenRTB
+			}
 
 			fsBidderInfos[string(normalizedBidderName)] = bidderInfo
 		} else {

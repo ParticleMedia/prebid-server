@@ -2,11 +2,11 @@ package exchange
 
 import (
 	"github.com/golang/glog"
-	"github.com/prebid/prebid-server/adapters"
-	"github.com/prebid/prebid-server/config"
-	"github.com/prebid/prebid-server/openrtb_ext"
+	"github.com/prebid/prebid-server/v2/adapters"
+	"github.com/prebid/prebid-server/v2/config"
+	"github.com/prebid/prebid-server/v2/openrtb_ext"
 
-	mspPlugin "github.com/prebid/prebid-server/msp/plugin"
+	mspPlugin "github.com/prebid/prebid-server/v2/msp/plugin"
 )
 
 type PluginBuilder interface {
