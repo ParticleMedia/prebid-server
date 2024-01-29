@@ -402,10 +402,8 @@ github.com/prebid/go-gdpr v1.12.0 h1:OrjQ7Uc+lCRYaOirQ48jjG/PBMvZsKNAaRTgzxN6iZ0
 github.com/prebid/go-gdpr v1.12.0/go.mod h1:mPZAdkRxn+iuSjaUuJAi9+0SppBOdM1PCzv/55UH3pY=
 github.com/prebid/go-gpp v0.1.1 h1:uTMJ+eHmKWL9WvDuxFT4LDoOeJW1yOsfWITqi49ZuY0=
 github.com/prebid/go-gpp v0.1.1/go.mod h1:b0TLoVln+HXFD9L9xeimxIH3FN8WDKPJ42auslxEkow=
-github.com/prebid/openrtb/v19 v19.0.0 h1:NA7okrg7KcvL5wEg6yI0mAyujpyfkC8XSQr3h5ocN88=
-github.com/prebid/openrtb/v19 v19.0.0/go.mod h1:jK+/g4Dh5vOnNl0Nh7isbZlub29aJYyrtoBkjmhzTIg=
-github.com/prebid/prebid-server v0.275.0 h1:kwWjDQhVdAmxZyx1aZ9WDI/zJEQTSLuO9XH94uftN2w=
-github.com/prebid/prebid-server v0.275.0/go.mod h1:6VfJ2nRZAfjirgh/Sfth55iJcyzKOC4yYxUzRWe46GU=
+github.com/prebid/openrtb/v20 v20.1.0 h1:Rb+Z3H3UxiqqnjgJK3R9Wt73ibrh7HPzG7ikBckQNqc=
+github.com/prebid/openrtb/v20 v20.1.0/go.mod h1:hLBrA/APkSrxs5MaW639l+y/EAHivDfRagO2TX/wbSc=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v1.0.0/go.mod h1:db9x61etRT2tGnBNRi70OPL5FsnadC4Ky3P0J6CfImo=
 github.com/prometheus/client_golang v1.4.0/go.mod h1:e9GMxYsXl05ICDXkRhurwBS4Q3OK1iX/F2sw+iXX5zU=
@@ -499,6 +497,7 @@ github.com/yudai/gojsondiff v1.0.0/go.mod h1:AY32+k2cwILAkW1fbgxQ5mUmMiZFgLIV+FB
 github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 h1:BHyfKlQyqbsFN5p3IfnEUduWvb9is428/nNb5L3U01M=
 github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82/go.mod h1:lgjkn3NuSvDfVJdfcVVdX+jpBxNmX4rDAzaS45IcYoM=
 github.com/yudai/pp v2.0.1+incompatible h1:Q4//iY4pNF6yPLZIigmvcl7k/bPgrcTPIFIcmawg5bI=
+github.com/yudai/pp v2.0.1+incompatible/go.mod h1:PuxR/8QJ7cyCkFp/aUDS+JY727OFEZkTdatxwunjIkc=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
