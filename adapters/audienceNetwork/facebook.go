@@ -148,8 +148,8 @@ func (a *adapter) modifyRequest(out *openrtb2.BidRequest) error {
 	// ID *BEFORE* we generate the auth ID since its a hash based on the request ID
 	out.ID = imp.ID
 
-	platformId := this.platformID
-	appSecret := this.appSecret
+	platformId := a.platformID
+	appSecret := a.appSecret
 	securityAppId := ""
 
 	var bidderExt adapters.ExtImpBidder
@@ -165,8 +165,8 @@ func (a *adapter) modifyRequest(out *openrtb2.BidRequest) error {
 	}
 
 	reqExt := facebookReqExt{
-		PlatformID:    a.platformID,
-		AuthID:        a.makeAuthID(out),
+		PlatformID:    platformId,
+		AuthID:        a.makeAuthID(out, appSecret),
 		SecurityAppID: securityAppId,
 	}
 
@@ -492,7 +492,7 @@ func (a *adapter) MakeTimeoutNotification(req *adapters.RequestData) (*adapters.
 		}
 	}
 
-	platformId := fa.platformID
+	platformId := a.platformID
 	requestPlatformId, err := jsonparser.GetString(req.Body, "ext", "platformid")
 	if err == nil {
 		platformId = requestPlatformId
