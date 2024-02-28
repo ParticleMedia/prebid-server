@@ -3,6 +3,7 @@ package openrtb_ext
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/prebid/openrtb/v19/openrtb2"
 	"github.com/prebid/prebid-server/util/maputil"
@@ -78,6 +79,10 @@ func (rw *RequestWrapper) GetImp() []*ImpWrapper {
 	// so this is an optimization for tests with (appropriately) incomplete requests.
 	if rw.Imp != nil {
 		rw.impWrappers = make([]*ImpWrapper, len(rw.Imp))
+		if len(rw.Imp) == 0 {
+			debugStr, _ := json.Marshal(rw)
+			fmt.Println("MSP error request wrapper:", string(debugStr))
+		}
 		for i := range rw.Imp {
 			rw.impWrappers[i] = &ImpWrapper{Imp: &rw.Imp[i]}
 		}
