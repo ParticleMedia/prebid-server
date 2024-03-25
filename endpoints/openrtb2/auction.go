@@ -2424,7 +2424,7 @@ func writeError(errs []error, w http.ResponseWriter, labels *metrics.Labels) boo
 		labels.RequestStatus = metricsStatus
 		for _, err := range errs {
 			glog.Errorln("MSP Error", err.Error())
-			w.Write([]byte(fmt.Sprintf("Invalid request: %s\n", err.Error())))
+			fmt.Fprintf(w, "Invalid request: %s\n", err.Error())
 		}
 		rc = true
 	}
