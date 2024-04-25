@@ -163,6 +163,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderPubnative,
 	BidderPulsepoint,
 	BidderPWBid,
+	BidderReadpeak,
 	BidderRelevantDigital,
 	BidderRevcontent,
 	BidderRichaudience,
@@ -450,6 +451,7 @@ const (
 	BidderPubnative         BidderName = "pubnative"
 	BidderPulsepoint        BidderName = "pulsepoint"
 	BidderPWBid             BidderName = "pwbid"
+	BidderReadpeak          BidderName = "readpeak"
 	BidderRelevantDigital   BidderName = "relevantdigital"
 	BidderRevcontent        BidderName = "revcontent"
 	BidderRichaudience      BidderName = "richaudience"
