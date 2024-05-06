@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,7 +23,6 @@ import (
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	jsoniter.RegisterExtension(&jsonutil.RawMessageExtension{})
 }
 
@@ -92,7 +90,9 @@ func serve(cfg *config.Configuration) error {
 	}
 
 	corsRouter := router.SupportCORS(r)
-	server.Listen(cfg, router.NoCache{Handler: corsRouter}, router.Admin(currencyConverter, fetchingInterval), r.MetricsEngine)
+	if err := server.Listen(cfg, router.NoCache{Handler: corsRouter}, router.Admin(currencyConverter, fetchingInterval), r.MetricsEngine); err != nil {
+		glog.Fatalf("prebid-server returned an error: %v", err)
+	}
 
 	r.Shutdown()
 	return nil
