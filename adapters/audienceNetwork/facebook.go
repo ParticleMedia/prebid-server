@@ -38,8 +38,15 @@ type facebookAdMarkup struct {
 }
 
 type facebookReqExt struct {
-	PlatformID string `json:"platformid"`
-	AuthID     string `json:"authentication_id"`
+	PlatformID    string `json:"platformid"`
+	AuthID        string `json:"authentication_id"`
+	SecurityAppID string `json:"security_app_id,omitempty"`
+}
+
+type ExtImpFB struct {
+	AppSecret     string `json:"app_secret"`
+	PlatformID    string `json:"platform_id"`
+	SecurityAppID string `json:"security_app_id"`
 }
 
 func (a *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
@@ -118,7 +125,8 @@ func (a *adapter) buildRequests(request *openrtb2.BidRequest) ([]*adapters.Reque
 
 // The authentication ID is a sha256 hmac hash encoded as a hex string, based on
 // the app secret and the ID of the bid request
-func (a *adapter) makeAuthID(req *openrtb2.BidRequest) string {
+
+func (a *adapter) makeAuthID(req *openrtb2.BidRequest, appSecret string) string {
 	h := hmac.New(sha256.New, []byte(a.appSecret))
 	h.Write([]byte(req.ID))
 
@@ -141,9 +149,26 @@ func (a *adapter) modifyRequest(out *openrtb2.BidRequest) error {
 	// ID *BEFORE* we generate the auth ID since its a hash based on the request ID
 	out.ID = imp.ID
 
+	platformId := a.platformID
+	appSecret := a.appSecret
+	securityAppId := ""
+
+	var bidderExt adapters.ExtImpBidder
+	err = json.Unmarshal(imp.Ext, &bidderExt)
+	if err == nil {
+		var impressionExt ExtImpFB
+		err = json.Unmarshal(bidderExt.Bidder, &impressionExt)
+		if err == nil && len(impressionExt.PlatformID) > 0 && len(impressionExt.AppSecret) > 0 && len(impressionExt.SecurityAppID) > 0 {
+			platformId = impressionExt.PlatformID
+			appSecret = impressionExt.AppSecret
+			securityAppId = impressionExt.SecurityAppID
+		}
+	}
+
 	reqExt := facebookReqExt{
-		PlatformID: a.platformID,
-		AuthID:     a.makeAuthID(out),
+		PlatformID:    platformId,
+		AuthID:        a.makeAuthID(out, appSecret),
+		SecurityAppID: securityAppId,
 	}
 
 	if out.Ext, err = json.Marshal(reqExt); err != nil {
@@ -468,7 +493,13 @@ func (a *adapter) MakeTimeoutNotification(req *adapters.RequestData) (*adapters.
 		}
 	}
 
-	uri := fmt.Sprintf("https://www.facebook.com/audiencenetwork/nurl/?partner=%s&app=%s&auction=%s&ortb_loss_code=2", a.platformID, pubID, rID)
+	platformId := a.platformID
+	requestPlatformId, err := jsonparser.GetString(req.Body, "ext", "platformid")
+	if err == nil {
+		platformId = requestPlatformId
+	}
+
+	uri := fmt.Sprintf("https://www.facebook.com/audiencenetwork/nurl/?partner=%s&app=%s&auction=%s&ortb_loss_code=2", platformId, pubID, rID)
 	timeoutReq := adapters.RequestData{
 		Method:  "GET",
 		Uri:     uri,
