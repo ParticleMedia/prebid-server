@@ -441,7 +441,6 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	req.BidRequest = &openrtb2.BidRequest{}
 
 	requestJson = HandleEntrypointHookMirror(requestJson)
-	fmt.Println(string(requestJson))
 
 	requestJson, rejectErr := hookExecutor.ExecuteEntrypointStage(httpRequest, requestJson)
 	if rejectErr != nil {
