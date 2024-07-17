@@ -440,6 +440,9 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	req = &openrtb_ext.RequestWrapper{}
 	req.BidRequest = &openrtb2.BidRequest{}
 
+	requestJson = HandleEntrypointHookMirror(requestJson)
+	fmt.Println(string(requestJson))
+
 	requestJson, rejectErr := hookExecutor.ExecuteEntrypointStage(httpRequest, requestJson)
 	if rejectErr != nil {
 		errs = []error{rejectErr}
@@ -2463,5 +2466,76 @@ func recordResponsePreparationMetrics(mbti map[openrtb_ext.BidderName]adapters.M
 			duration += makeBidsDuration
 		}
 		me.RecordOverheadTime(metrics.MakeAuctionResponse, duration)
+	}
+}
+
+func HandleEntrypointHookMirror(requestJson []byte) []byte {
+
+	var data map[string]interface{}
+	if err := json.Unmarshal(requestJson, &data); err != nil {
+		return requestJson
+	}
+
+	serveTestAds := isTestAdServingEnabled(data)
+	if serveTestAds {
+		updateRequestToDebugProfile(data)
+		modifiedBody, err := json.Marshal(data)
+		if err != nil {
+			return requestJson
+		}
+		return modifiedBody
+	}
+
+	return requestJson
+}
+
+func isTestAdServingEnabled(data map[string]interface{}) bool {
+
+	if imps, ok := data["imp"].([]interface{}); ok && len(imps) > 0 {
+		imp := imps[0].(map[string]interface{})
+		if ext, ok := imp["ext"].(map[string]interface{}); ok {
+			if context, ok := ext["context"].(map[string]interface{}); ok {
+				if data, ok := context["data"].(map[string]interface{}); ok {
+					if testJSON, ok := data["test"].([]interface{}); ok && len(testJSON) > 0 {
+						// Parse the embedded JSON string
+						var testConfig map[string]interface{}
+						if err := json.Unmarshal([]byte(testJSON[0].(string)), &testConfig); err == nil {
+							if enableFlag, ok := testConfig["test_ad"].(bool); ok {
+								return enableFlag
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false
+}
+
+func isDeviceApple(data map[string]interface{}) bool {
+	device, ok := data["device"].(map[string]interface{})
+	return ok && (device["os"] == "iOS" || device["os"] == "iPadOS")
+}
+
+func updateRequestToDebugProfile(data map[string]interface{}) {
+	if imps, ok := data["imp"].([]interface{}); ok {
+		for _, imp := range imps {
+			if impMap, ok := imp.(map[string]interface{}); ok {
+				if ext, ok := impMap["ext"].(map[string]interface{}); ok {
+					if prebid, ok := ext["prebid"].(map[string]interface{}); ok {
+						if storedRequest, ok := prebid["storedrequest"].(map[string]interface{}); ok {
+							storedRequest["id"] = "msp-android-foryou-large-display-prod-test_mode"
+						}
+					}
+				}
+			}
+		}
+	}
+	if ext, ok := data["ext"].(map[string]interface{}); ok {
+		if prebid, ok := ext["prebid"].(map[string]interface{}); ok {
+			if storedRequest, ok := prebid["storedrequest"].(map[string]interface{}); ok {
+				storedRequest["id"] = "sggU8Y1UB6xara62G23qGdcOA8co2O4N_debug"
+			}
+		}
 	}
 }
