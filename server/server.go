@@ -224,8 +224,8 @@ func sendSignal(to chan<- os.Signal, sig os.Signal) {
 func newMSPServer(cfg *config.Configuration) *http.Server {
 	if cfg.MSPMetricsConfig.Enabled {
 		mspBuilder, err := mspPlugin.LoadBuilderFromPath[MSPBuilder]("MSP Metrics", cfg.MSPMetricsConfig.SoPath)
-		if err == nil {
-			glog.Errorf("Failed to initialize MSP Metrics Server")
+		if err != nil {
+			glog.Errorf("Failed to initialize MSP Metrics Builder")
 		}
 		mspServer, err := mspBuilder.Build(cfg)
 		if err != nil {
