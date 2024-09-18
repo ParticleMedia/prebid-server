@@ -90,8 +90,8 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 			return
 		}
 
-    go runServer(prometheusServer, "Prometheus", prometheusListener)
-    
+		go runServer(prometheusServer, "Prometheus", prometheusListener)
+
 		if cfg.MSPMetricsConfig.Enabled {
 			wait(stopSignals, done, stopMain, stopAdmin, stopPrometheus, stopMsp)
 		} else {
