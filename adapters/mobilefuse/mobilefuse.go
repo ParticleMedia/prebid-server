@@ -119,15 +119,6 @@ func (adapter *MobileFuseAdapter) makeRequest(bidRequest *openrtb2.BidRequest) (
 		return nil, errs
 	}
 
-	if result, dataType, _, err := jsonparser.Get(bidRequest.Imp[0].Ext, "context", "data"); err == nil && dataType == jsonparser.Object {
-		var ctx ContextData
-		err := json.Unmarshal(result, &ctx)
-		if err == nil && len(ctx.MspPlacementId) > 0 && ctx.MspPlacementId[0] == "msp-android-article-inside-display-prod3" {
-			validImps[0].Banner = &openrtb2.Banner{Format: validImps[0].Banner.Format, API: validImps[0].Banner.API}
-			validImps[0].Banner.Format = append(validImps[0].Banner.Format, openrtb2.Format{W: 320, H: 50})
-		}
-	}
-
 	mobileFuseBidRequest := *bidRequest
 	mobileFuseBidRequest.Imp = validImps
 	body, err := json.Marshal(mobileFuseBidRequest)
