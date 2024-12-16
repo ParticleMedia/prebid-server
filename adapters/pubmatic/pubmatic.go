@@ -71,7 +71,6 @@ type extRequestAdServer struct {
 	Wrapper     *pubmaticWrapperExt `json:"wrapper,omitempty"`
 	Acat        []string            `json:"acat,omitempty"`
 	Marketplace *marketplaceReqExt  `json:"marketplace,omitempty"`
-	openrtb_ext.ExtRequest
 }
 
 type respExt struct {
@@ -371,7 +370,6 @@ func extractPubmaticExtFromRequest(request *openrtb2.BidRequest) (extRequestAdSe
 	if err != nil {
 		return pmReqExt, fmt.Errorf("error decoding Request.ext : %s", err.Error())
 	}
-	pmReqExt.ExtRequest = *reqExt
 
 	reqExtBidderParams := make(map[string]json.RawMessage)
 	if reqExt.Prebid.BidderParams != nil {
