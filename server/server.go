@@ -29,7 +29,7 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 	stopMain := make(chan os.Signal)
 	stopPrometheus := make(chan os.Signal)
 	stopMsp := make(chan os.Signal)
-	allStops := []chan<- os.Signal{stopAdmin, stopMain}
+	stopChannels := []chan<- os.Signal{stopMain}
 	done := make(chan struct{})
 
 	if cfg.UnixSocketEnable && len(cfg.UnixSocketName) > 0 { // start the unix_socket server if config enable-it.
@@ -57,6 +57,7 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 	}
 
 	if cfg.Admin.Enabled {
+		stopChannels = append(stopChannels, stopAdmin)
 		adminServer := newAdminServer(cfg, adminHandler)
 		go shutdownAfterSignals(adminServer, stopAdmin, done)
 
@@ -73,6 +74,7 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 			mspListener net.Listener
 			mspServer   = newMSPServer(cfg)
 		)
+		stopChannels = append(stopChannels, stopMsp)
 		go shutdownAfterSignals(mspServer, stopMsp, done)
 		if mspListener, err = newTCPListener(mspServer.Addr, nil); err != nil {
 			glog.Errorf("Error listening for TCP connections on %s: %v for MSP Metrics server", adminServer.Addr, err)
@@ -88,6 +90,7 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 			prometheusListener net.Listener
 			prometheusServer   = newPrometheusServer(cfg, metrics)
 		)
+		stopChannels = append(stopChannels, stopPrometheus)
 		go shutdownAfterSignals(prometheusServer, stopPrometheus, done)
 		if prometheusListener, err = newTCPListener(prometheusServer.Addr, nil); err != nil {
 			glog.Errorf("Error listening for TCP connections on %s: %v for prometheus server", prometheusServer.Addr, err)
@@ -95,9 +98,9 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 		}
 
 		go runServer(prometheusServer, "Prometheus", prometheusListener)
-		allStops = append(allStops, stopPrometheus)
 	}
-	wait(stopSignals, done, allStops...)
+
+	wait(stopSignals, done, stopChannels...)
 
 	return
 }
