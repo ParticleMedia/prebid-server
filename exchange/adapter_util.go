@@ -10,13 +10,13 @@ import (
 	"github.com/prebid/prebid-server/v3/openrtb_ext"
 )
 
-func BuildAdapters(client *http.Client, cfg *config.Configuration, infos config.BidderInfos, me metrics.MetricsEngine) (map[openrtb_ext.BidderName]AdaptedBidder, []error) {
+func BuildAdapters(client *http.Client, cfg *config.Configuration, infos config.BidderInfos, me metrics.MetricsEngine) (map[openrtb_ext.BidderName]AdaptedBidder, map[openrtb_ext.BidderName]struct{}, []error) {
 	server := config.Server{ExternalUrl: cfg.ExternalURL, GvlID: cfg.GDPR.HostVendorID, DataCenter: cfg.DataCenter}
 	adapterBuilders := mspAddAdaptersFromPlugins(newAdapterBuilders(), infos)
-	bidders, errs := buildBidders(infos, adapterBuilders, server)
+	bidders, singleFormatBidders, errs := buildBidders(infos, adapterBuilders, server)
 
 	if len(errs) > 0 {
-		return nil, errs
+		return nil, nil, errs
 	}
 
 	exchangeBidders := make(map[openrtb_ext.BidderName]AdaptedBidder, len(bidders))
@@ -26,11 +26,12 @@ func BuildAdapters(client *http.Client, cfg *config.Configuration, infos config.
 		exchangeBidder = addValidatedBidderMiddleware(exchangeBidder)
 		exchangeBidders[bidderName] = exchangeBidder
 	}
-	return exchangeBidders, nil
+	return exchangeBidders, singleFormatBidders, nil
 }
 
-func buildBidders(infos config.BidderInfos, builders map[openrtb_ext.BidderName]adapters.Builder, server config.Server) (map[openrtb_ext.BidderName]adapters.Bidder, []error) {
+func buildBidders(infos config.BidderInfos, builders map[openrtb_ext.BidderName]adapters.Builder, server config.Server) (map[openrtb_ext.BidderName]adapters.Bidder, map[openrtb_ext.BidderName]struct{}, []error) {
 	bidders := make(map[openrtb_ext.BidderName]adapters.Bidder)
+	singleFormatBidders := make(map[openrtb_ext.BidderName]struct{})
 	var errs []error
 
 	for bidder, info := range infos {
@@ -62,9 +63,12 @@ func buildBidders(infos config.BidderInfos, builders map[openrtb_ext.BidderName]
 				continue
 			}
 			bidders[bidderName] = adapters.BuildInfoAwareBidder(bidderInstance, info)
+			if !adapters.IsMultiFormatSupported(info) {
+				singleFormatBidders[bidderName] = struct{}{}
+			}
 		}
 	}
-	return bidders, errs
+	return bidders, singleFormatBidders, errs
 }
 
 func setAliasBuilder(info config.BidderInfo, builders map[openrtb_ext.BidderName]adapters.Builder, bidderName openrtb_ext.BidderName) error {
