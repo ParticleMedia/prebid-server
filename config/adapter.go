@@ -13,4 +13,5 @@ type Adapter struct {
 
 	// needed for Nova
 	NovaScylla AdapterNovaScylla
+	NovaNebula AdapterNovaNebula
 }

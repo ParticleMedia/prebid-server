@@ -55,6 +55,7 @@ type BidderInfo struct {
 
 	// For Nova Adapter only
 	NovaScylla AdapterNovaScylla `yaml:"scylla" mapstructure:"scylla"`
+	NovaNebula AdapterNovaNebula `yaml:"nebula" mapstructure:"nebula"`
 }
 
 // BidderInfoExperiment specifies non-production ready feature config for a bidder
@@ -190,6 +191,11 @@ type AdapterNovaScylla struct {
 	Cluster  string `yaml:"cluster" mapstructure:"cluster"`
 	KeySpace string `yaml:"keyspace" mapstructure:"keyspace"`
 	TimeOut  int32  `yaml:"query_timeout" mapstructure:"query_timeout"`
+}
+
+// AdapterNovaNebula specifies the nebula config for Nova Adapter
+type AdapterNovaNebula struct {
+	Endpoint string `yaml:"endpoint" mapstructure:"endpoint"`
 }
 
 func (bi BidderInfo) IsEnabled() bool {
@@ -457,6 +463,9 @@ func applyBidderInfoConfigOverrides(configBidderInfos BidderInfos, fsBidderInfos
 			}
 			if bidderInfo.NovaScylla.TimeOut == 0 && fsBidderCfg.NovaScylla.TimeOut > 0 {
 				bidderInfo.NovaScylla.TimeOut = fsBidderCfg.NovaScylla.TimeOut
+			}
+			if bidderInfo.NovaNebula.Endpoint == "" && fsBidderCfg.NovaNebula.Endpoint != "" {
+				bidderInfo.NovaNebula.Endpoint = fsBidderCfg.NovaNebula.Endpoint
 			}
 
 			// validate and try to apply the legacy usersync_url configuration in attempt to provide
