@@ -505,6 +505,23 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 		}
 	}
 
+	var reqJson map[string]interface{}
+	if err := json.Unmarshal(requestJson, &reqJson); err != nil {
+		return nil, nil, nil, nil, nil, nil, []error{err}
+	}
+	if ext, ok := reqJson["ext"].(map[string]interface{}); ok {
+		delete(ext, "db_accounts")
+		delete(ext, "db_fetched")
+		delete(ext, "db_storedimps")
+		delete(ext, "db_storedrequests")
+		reqJson["ext"] = ext
+	}
+	if newRequestJson, err := json.Marshal(reqJson); err != nil {
+		return nil, nil, nil, nil, nil, nil, []error{err}
+	} else {
+		requestJson = newRequestJson
+	}
+
 	// Fetch the Stored Request data and merge it into the HTTP request.
 	if requestJson, impExtInfoMap, errs = deps.processStoredRequests(requestJson, impInfo, storedRequests, storedImps, storedBidRequestId, hasStoredBidRequest); len(errs) > 0 {
 		return
