@@ -72,6 +72,7 @@ var mspBidders = map[openrtb_ext.BidderName]int{
 	openrtb_ext.BidderMspFbBeta:  1,
 	openrtb_ext.BidderMspFbGamma: 1,
 	openrtb_ext.BidderMspNova:    1,
+	openrtb_ext.BidderMspMoloco:  1,
 }
 
 func mspUpdateStoredAuctionResponse(r *AuctionRequest) bool {
