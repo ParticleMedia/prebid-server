@@ -596,7 +596,6 @@ const (
 	BidderTeads             BidderName = "teads"
 	BidderTelaria           BidderName = "telaria"
 	BidderTheadx            BidderName = "theadx"
-	BidderTheTradeDesk      BidderName = "thetradedesk"
 	BidderTpmn              BidderName = "tpmn"
 	BidderTradPlus          BidderName = "tradplus"
 	BidderTrafficGate       BidderName = "trafficgate"

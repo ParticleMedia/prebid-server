@@ -53,9 +53,8 @@ type ExtImpBidderPubmatic struct {
 	adapters.ExtImpBidder
 	Data    json.RawMessage `json:"data,omitempty"`
 	Context pubmaticContext `json:"context"`
-	Data    json.RawMessage `json:"data,omitempty"`
 	AE      int             `json:"ae,omitempty"`
-	GpId string          `json:"gpid,omitempty"`
+	GpId    string          `json:"gpid,omitempty"`
 }
 
 type ExtAdServer struct {

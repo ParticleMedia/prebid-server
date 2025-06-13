@@ -77,12 +77,11 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 		stopChannels = append(stopChannels, stopMsp)
 		go shutdownAfterSignals(mspServer, stopMsp, done)
 		if mspListener, err = newTCPListener(mspServer.Addr, nil); err != nil {
-			glog.Errorf("Error listening for TCP connections on %s: %v for MSP Metrics server", adminServer.Addr, err)
+			glog.Errorf("Error listening for TCP connections on port %d: %v for MSP Metrics server", cfg.MSPMetricsConfig.Port, err)
 			return
 		}
 
 		go runServer(mspServer, "MSP Metrics", mspListener)
-		allStops = append(allStops, stopMsp)
 	}
 
 	if cfg.Metrics.Prometheus.Port != 0 {
