@@ -465,24 +465,3 @@ func moveSid(imp *openrtb2.Imp, ixExt *openrtb_ext.ExtImpIx) error {
 	}
 	return nil
 }
-
-// moves sid from imp[].ext.bidder.sid to imp[].ext.sid
-func moveSid(imp *openrtb2.Imp, ixExt *openrtb_ext.ExtImpIx) error {
-	if ixExt == nil {
-		return fmt.Errorf("Nil Ix Ext")
-	}
-
-	if ixExt.Sid != "" {
-		var m map[string]interface{}
-		if err := json.Unmarshal(imp.Ext, &m); err != nil {
-			return err
-		}
-		m["sid"] = ixExt.Sid
-		ext, err := json.Marshal(m)
-		if err != nil {
-			return err
-		}
-		imp.Ext = ext
-	}
-	return nil
-}

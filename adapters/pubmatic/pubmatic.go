@@ -51,9 +51,9 @@ type pubmaticContext struct {
 
 type ExtImpBidderPubmatic struct {
 	adapters.ExtImpBidder
-	Data json.RawMessage `json:"data,omitempty"`
-	AE   int             `json:"ae,omitempty"`
-	GpId string          `json:"gpid,omitempty"`
+	Data    json.RawMessage `json:"data,omitempty"`
+	AE      int             `json:"ae,omitempty"`
+	GpId    string          `json:"gpid,omitempty"`
 	Context pubmaticContext `json:"context"`
 }
 
@@ -339,7 +339,7 @@ func parseImpressionObject(imp *openrtb2.Imp, extractWrapperExtFromImp, extractP
 
 	if bidderExt.GpId != "" {
 		extMap[gpIdKey] = bidderExt.GpId
-        }
+	}
 	if len(bidderExt.Context.Data) > 0 {
 		populateFirstPartyDataImpAttributes(bidderExt.Context.Data, extMap)
 	}

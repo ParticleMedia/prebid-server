@@ -138,4 +138,3 @@ func (a *adapter) buildEndpointURL(params *openrtb_ext.ExtImpAidem) (string, err
 	endpointParams := macros.EndpointTemplateParams{PublisherID: params.PublisherId}
 	return macros.ResolveMacros(a.EndpointTemplate, endpointParams)
 }
-

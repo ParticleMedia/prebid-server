@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/prebid/prebid-server/privacy"
 	"net/http"
 	"net/url"
 	"strings"
@@ -274,12 +273,8 @@ func (deps *endpointDeps) AmpAuction(w http.ResponseWriter, r *http.Request, _ h
 		HookExecutor:               hookExecutor,
 		QueryParams:                r.URL.Query(),
 		TCF2Config:                 tcf2Config,
-<<<<<<< HEAD
 		Activities:                 activityControl,
 		TmaxAdjustments:            deps.tmaxAdjustments,
-=======
-		Activities:                 activities,
->>>>>>> 345168a9 (Peiling/chore/sync to v0.263.0 (#48))
 	}
 
 	auctionResponse, err := deps.ex.HoldAuction(ctx, auctionRequest, nil)
