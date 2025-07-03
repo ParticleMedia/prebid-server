@@ -180,9 +180,9 @@ func (a *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest
 	//	return adapters.NewBidderResponse(), nil
 	//}
 
-	if err := adapters.CheckResponseStatusCodeForErrors(response); err != nil {
-		return nil, []error{err}
-	}
+	//if err := adapters.CheckResponseStatusCodeForErrors(response); err != nil {
+	//	return nil, []error{err}
+	//}
 
 	var bidResponse openrtb2.BidResponse
 	if err := json.Unmarshal(response.Body, &bidResponse); err != nil {
