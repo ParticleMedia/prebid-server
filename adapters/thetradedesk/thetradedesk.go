@@ -155,11 +155,6 @@ func getImpressionExt(imp *openrtb2.Imp) (*openrtb_ext.ExtImpTheTradeDesk, error
 }
 
 func (a *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest *adapters.RequestData, response *adapters.ResponseData) (*adapters.BidderResponse, []error) {
-	//uid, err := jsonparser.GetString(internalRequest, "imp", "[0]", "ext", "context", "data", "user_id", "[0]")
-	//if err == nil {
-	//	return uid
-	//}
-
 	if internalRequest.User.ID == "111111112222222" {
 		ttdBidResponseBody := []byte(`{
 		  "id": "response-id-123",
