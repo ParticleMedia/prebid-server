@@ -176,9 +176,9 @@ func (a *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest
 
 	response.Body = ttdBidResponseBody
 
-	if adapters.IsResponseStatusCodeNoContent(response) {
-		return adapters.NewBidderResponse(), nil
-	}
+	//if adapters.IsResponseStatusCodeNoContent(response) {
+	//	return adapters.NewBidderResponse(), nil
+	//}
 
 	if err := adapters.CheckResponseStatusCodeForErrors(response); err != nil {
 		return nil, []error{err}
