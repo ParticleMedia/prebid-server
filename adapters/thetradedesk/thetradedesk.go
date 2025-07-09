@@ -157,7 +157,7 @@ func getImpressionExt(imp *openrtb2.Imp) (*openrtb_ext.ExtImpTheTradeDesk, error
 }
 
 func (a *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest *adapters.RequestData, response *adapters.ResponseData) (*adapters.BidderResponse, []error) {
-	if len(internalRequest.Imp) > 0 && internalRequest.Imp[0].Ext != nil {
+	if internalRequest != nil && internalRequest.Imp != nil && len(internalRequest.Imp) > 0 && internalRequest.Imp[0].Ext != nil {
 		uid, err := jsonparser.GetString(internalRequest.Imp[0].Ext, "context", "data", "user_id", "[0]")
 		if err == nil {
 			if uid == "111111112222222" {
