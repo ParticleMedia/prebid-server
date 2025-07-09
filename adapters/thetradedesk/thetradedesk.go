@@ -157,10 +157,11 @@ func getImpressionExt(imp *openrtb2.Imp) (*openrtb_ext.ExtImpTheTradeDesk, error
 }
 
 func (a *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest *adapters.RequestData, response *adapters.ResponseData) (*adapters.BidderResponse, []error) {
-	uid, err := jsonparser.GetString(internalRequest.Imp[0].Ext, "context", "data", "user_id", "[0]")
-	if err == nil {
-		if uid == "111111112222222" {
-			ttdBidResponseBody := []byte(`{
+	if len(internalRequest.Imp) > 0 && internalRequest.Imp[0].Ext != nil {
+		uid, err := jsonparser.GetString(internalRequest.Imp[0].Ext, "context", "data", "user_id", "[0]")
+		if err == nil {
+			if uid == "111111112222222" {
+				ttdBidResponseBody := []byte(`{
 			  "id": "response-id-123",
 			  "seatbid": [{
 				"bid": [{
@@ -179,8 +180,9 @@ func (a *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalRequest
 			  }]
 			}`)
 
-			response.Body = ttdBidResponseBody
-			response.StatusCode = http.StatusOK
+				response.Body = ttdBidResponseBody
+				response.StatusCode = http.StatusOK
+			}
 		}
 	}
 
