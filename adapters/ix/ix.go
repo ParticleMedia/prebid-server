@@ -53,6 +53,7 @@ func (a *IxAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters
 
 	ixDiagFields := make(map[string]interface{})
 
+	impEndPoint := ""
 	for _, imp := range requestCopy.Imp {
 		var err error
 		ixExt, err := unmarshalToIxExt(&imp)
@@ -67,6 +68,7 @@ func (a *IxAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters
 			continue
 		}
 
+		impEndPoint = ixExt.Endpoint
 		if err := moveSid(&imp, ixExt); err != nil {
 			errs = append(errs, err)
 		}
@@ -96,7 +98,7 @@ func (a *IxAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters
 	}
 
 	if len(requestCopy.Imp) != 0 {
-		if requestData, err := createRequestData(a, &requestCopy, &headers); err == nil {
+		if requestData, err := createRequestData(a, &requestCopy, &headers, impEndPoint); err == nil {
 			requests = append(requests, requestData)
 		} else {
 			errs = append(errs, err)
@@ -172,11 +174,15 @@ func parseSiteId(ixExt *openrtb_ext.ExtImpIx, uniqueSiteIDs map[string]struct{})
 	return nil
 }
 
-func createRequestData(a *IxAdapter, request *openrtb2.BidRequest, headers *http.Header) (*adapters.RequestData, error) {
+func createRequestData(a *IxAdapter, request *openrtb2.BidRequest, headers *http.Header, impEndpoint string) (*adapters.RequestData, error) {
 	body, err := json.Marshal(request)
+	endPoint := a.URI
+	if len(impEndpoint) > 0 {
+		endPoint = impEndpoint
+	}
 	return &adapters.RequestData{
 		Method:  "POST",
-		Uri:     a.URI,
+		Uri:     endPoint,
 		Body:    body,
 		Headers: *headers,
 		ImpIDs:  openrtb_ext.GetImpIDs(request.Imp),
