@@ -669,6 +669,7 @@ const (
 	BidderMspFbAlpha      BidderName = "msp_fb_alpha"
 	BidderMspFbBeta       BidderName = "msp_fb_beta"
 	BidderMspFbGamma      BidderName = "msp_fb_gamma"
+	BidderMspFbDelta      BidderName = "msp_fb_delta"
 	BidderMspMoloco       BidderName = "msp_moloco"
 	BidderMspMolocoNative BidderName = "msp_moloco_native"
 )
