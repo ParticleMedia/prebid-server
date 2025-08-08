@@ -21,10 +21,12 @@ type BidderInfos map[string]BidderInfo
 
 // BidderInfo specifies all configuration for a bidder except for enabled status, endpoint, and extra information.
 type BidderInfo struct {
-	AliasOf          string `yaml:"aliasOf" mapstructure:"aliasOf"`
-	Disabled         bool   `yaml:"disabled" mapstructure:"disabled"`
-	Endpoint         string `yaml:"endpoint" mapstructure:"endpoint"`
-	ExtraAdapterInfo string `yaml:"extra_info" mapstructure:"extra_info"`
+	AliasOf          string       `yaml:"aliasOf" mapstructure:"aliasOf"`
+	WhiteLabelOnly   bool         `yaml:"whiteLabelOnly" mapstructure:"whiteLabelOnly"`
+	Disabled         bool         `yaml:"disabled" mapstructure:"disabled"`
+	Endpoint         string       `yaml:"endpoint" mapstructure:"endpoint"`
+	ExtraAdapterInfo string       `yaml:"extra_info" mapstructure:"extra_info"`
+	OpenRTB          *OpenRTBInfo `yaml:"openrtb" mapstructure:"openrtb"`
 
 	Maintainer              *MaintainerInfo   `yaml:"maintainer" mapstructure:"maintainer"`
 	Capabilities            *CapabilitiesInfo `yaml:"capabilities" mapstructure:"capabilities"`
@@ -44,7 +46,6 @@ type BidderInfo struct {
 	AppSecret  string `yaml:"app_secret" mapstructure:"app_secret"`
 	// EndpointCompression determines, if set, the type of compression the bid request will undergo before being sent to the corresponding bid server
 	EndpointCompression string       `yaml:"endpointCompression" mapstructure:"endpointCompression"`
-	OpenRTB             *OpenRTBInfo `yaml:"openrtb" mapstructure:"openrtb"`
 
 	// For MSP Plugin extension only.
 	MspSoPath string `mapstructure:"so_path,omitempty" json:"so_path,omitempty"`
@@ -212,7 +213,7 @@ type AdapterNovaScylla struct {
 }
 
 func (bi BidderInfo) IsEnabled() bool {
-	return !bi.Disabled
+	return !bi.WhiteLabelOnly && !bi.Disabled
 }
 
 // Defined returns true if at least one field exists, except for the supports field.
@@ -420,15 +421,24 @@ func (infos BidderInfos) validate(errs []error) []error {
 }
 
 func validateAliases(aliasBidderInfo BidderInfo, infos BidderInfos, bidderName string) error {
-	if len(aliasBidderInfo.AliasOf) > 0 {
-		if parentBidder, ok := infos[aliasBidderInfo.AliasOf]; ok {
-			if len(parentBidder.AliasOf) > 0 {
-				return fmt.Errorf("bidder: %s cannot be an alias of an alias: %s", aliasBidderInfo.AliasOf, bidderName)
-			}
-		} else {
-			return fmt.Errorf("bidder: %s not found for an alias: %s", aliasBidderInfo.AliasOf, bidderName)
-		}
+	if aliasBidderInfo.AliasOf == "" {
+		return nil
 	}
+
+	if aliasBidderInfo.WhiteLabelOnly {
+		return fmt.Errorf("bidder: %s is an alias and cannot be set as white label only", bidderName)
+	}
+
+	parentBidder, parentBidderFound := infos[aliasBidderInfo.AliasOf]
+
+	if !parentBidderFound {
+		return fmt.Errorf("bidder: %s not found for an alias: %s", aliasBidderInfo.AliasOf, bidderName)
+	}
+
+	if len(parentBidder.AliasOf) > 0 {
+		return fmt.Errorf("bidder: %s cannot be an alias of an alias: %s", aliasBidderInfo.AliasOf, bidderName)
+	}
+
 	return nil
 }
 
