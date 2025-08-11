@@ -1,4 +1,5 @@
 endpoint: "http://dsp.pubnative.net/bid/v1/request"
+disabled: true
 maintainer:
   email: product@pubnative.net
 gvlVendorID: 512

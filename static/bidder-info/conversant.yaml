@@ -1,4 +1,5 @@
 endpoint: "http://api.hb.ad.cpe.dotomi.com/cvx/server/hb/ortb"
+disabled: true
 openrtb:
   version: 2.6
 maintainer:
