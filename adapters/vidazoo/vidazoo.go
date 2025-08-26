@@ -42,12 +42,9 @@ func (a *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *adapte
 			errors = append(errors, fmt.Errorf("extract tagId: %w", err))
 			continue
 		}
-		var updatedImpression []openrtb2.Imp
-		for _, impCopy := range requestCopy.Imp {
-			impCopy.TagID = tagId
-			updatedImpression = append(updatedImpression, impCopy)
+		for i, _ := range requestCopy.Imp {
+			requestCopy.Imp[i].TagID = tagId
 		}
-		requestCopy.Imp = updatedImpression
 		// NewsBreak Custom Prebid Code Ends
 
 		requestJSON, err := json.Marshal(&requestCopy)
