@@ -36,6 +36,17 @@ func (a *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *adapte
 	for _, imp := range request.Imp {
 		requestCopy.Imp = []openrtb2.Imp{imp}
 
+		// NewsBreak Custom Prebid Code Starts
+		tagId, err := extractTagId(&imp)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("extract tagId: %w", err))
+			continue
+		}
+		for i, _ := range requestCopy.Imp {
+			requestCopy.Imp[i].TagID = tagId
+		}
+		// NewsBreak Custom Prebid Code Ends
+
 		requestJSON, err := json.Marshal(&requestCopy)
 		if err != nil {
 			errors = append(errors, fmt.Errorf("marshal bidRequest: %w", err))
@@ -131,4 +142,17 @@ func extractCid(imp *openrtb2.Imp) (string, error) {
 		return "", fmt.Errorf("unmarshal ImpExtVidazoo: %w", err)
 	}
 	return strings.TrimSpace(impExt.ConnectionId), nil
+}
+
+func extractTagId(imp *openrtb2.Imp) (string, error) {
+	var bidderExt adapters.ExtImpBidder
+	if err := jsonutil.Unmarshal(imp.Ext, &bidderExt); err != nil {
+		return "", fmt.Errorf("unmarshal bidderExt: %w", err)
+	}
+
+	var impExt openrtb_ext.ImpExtVidazoo
+	if err := jsonutil.Unmarshal(bidderExt.Bidder, &impExt); err != nil {
+		return "", fmt.Errorf("unmarshal ImpExtVidazoo: %w", err)
+	}
+	return strings.TrimSpace(impExt.TagId), nil
 }
