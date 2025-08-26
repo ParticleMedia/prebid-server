@@ -42,7 +42,7 @@ func (a *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *adapte
 			errors = append(errors, fmt.Errorf("extract tagId: %w", err))
 			continue
 		}
-		for i, _ := range requestCopy.Imp {
+		for i := range requestCopy.Imp {
 			requestCopy.Imp[i].TagID = tagId
 		}
 		// NewsBreak Custom Prebid Code Ends
