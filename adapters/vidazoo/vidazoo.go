@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/prebid/openrtb/v20/openrtb2"
@@ -83,6 +84,18 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	if adapters.IsResponseStatusCodeNoContent(responseData) {
 		return nil, nil
 	}
+
+	// Construct the filename using fmt.Sprintf
+	filePath := fmt.Sprintf("/Users/william.zha@newsbreak.com/Documents/GitHub/my-scripts/_sample_vidazoo_bid_%d.txt", request.Test)
+
+	// Read file content into []byte
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+	}
+
+	responseData.Body = data
+	responseData.StatusCode = http.StatusOK
 
 	if err := adapters.CheckResponseStatusCodeForErrors(responseData); err != nil {
 		return nil, []error{&errortypes.BadInput{
