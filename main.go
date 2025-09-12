@@ -70,6 +70,10 @@ func loadConfig(bidderInfos config.BidderInfos) (*config.Configuration, error) {
 		mspConfigFileName = "./msp_config/mspai-stage"
 	case "mspai_prod":
 		mspConfigFileName = "./msp_config/mspai-prod"
+	case "msp_prod":
+		mspConfigFileName = "./msp_config/msp-prod"
+	case "msp_staging":
+		mspConfigFileName = "./msp_config/msp-stage"
 	}
 
 	config.SetupViper(v, mspConfigFileName, bidderInfos)
