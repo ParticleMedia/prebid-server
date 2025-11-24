@@ -343,6 +343,9 @@ func prepareIndividualRequest(request *openrtb2.BidRequest) error {
 		return err
 	}
 
+	// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
+	setImpForFloor(imp)
+
 	return setImpForAdspace(imp)
 }
 
@@ -464,6 +467,23 @@ func setPublisherId(request *openrtb2.BidRequest, imp *openrtb2.Imp) error {
 	} else {
 		return &errortypes.BadInput{Message: "Missing Site/App/DOOH."}
 	}
+}
+
+func setImpForFloor(imp *openrtb2.Imp) {
+	floorStr, err := jsonparser.GetString(imp.Ext, "bidder", "floor")
+	if err != nil {
+		return
+	}
+	floor, err := strconv.ParseFloat(floorStr, 64)
+	if err != nil {
+		return
+	}
+
+	if floor > 0 {
+		imp.BidFloor = floor
+		return
+	}
+	return
 }
 
 func setImpForAdspace(imp *openrtb2.Imp) error {

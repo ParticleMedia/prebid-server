@@ -6,7 +6,8 @@ package openrtb_ext
 // AdSpaceId is the identifier for specific ad placement or ad tag
 // AdBreakId is the identifier for specific ad placement or ad tag
 type ExtImpSmaato struct {
-	PublisherID string `json:"publisherId"`
-	AdSpaceID   string `json:"adspaceId"`
-	AdBreakID   string `json:"adbreakId"`
+	Floor       float64 `json:"floor"`
+	PublisherID string  `json:"publisherId"`
+	AdSpaceID   string  `json:"adspaceId"`
+	AdBreakID   string  `json:"adbreakId"`
 }
