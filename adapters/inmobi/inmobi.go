@@ -33,6 +33,7 @@ func (a *InMobiAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adap
 			Message: "No impression in the request",
 		}}
 	}
+	
 	if err := preprocess(&request.Imp[0]); err != nil {
 		errs = append(errs, err)
 		return nil, errs
