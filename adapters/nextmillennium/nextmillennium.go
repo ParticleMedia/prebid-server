@@ -47,7 +47,6 @@ type nextMillJsonExt struct {
 
 // MakeRequests prepares request information for prebid-server core
 func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
-
 	resImps, err := getImpressionsInfo(request.Imp)
 	if len(err) > 0 {
 		return nil, err
@@ -142,6 +141,7 @@ func createBidRequest(prebidBidRequest *openrtb2.BidRequest, params *openrtb_ext
 		placementID = fmt.Sprintf("g%s;%s;%s", params.GroupID, size, domain)
 	}
 
+	// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
 	if params.Floor > 0 {
 		prebidBidRequest.Imp[0].BidFloor = params.Floor
 	}
