@@ -33,7 +33,10 @@ func (a *InMobiAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adap
 			Message: "No impression in the request",
 		}}
 	}
-
+	fmt.Printf("Address of inmobi imp[0] = %p\n", &request.Imp[0])
+	fmt.Printf("Address of inmobi app = %p\n", &request.App)
+	fmt.Printf("Address of inmobi device = %p\n", &request.Device)
+	fmt.Printf("Address of inmobi user = %p\n", &request.User)
 	if err := preprocess(&request.Imp[0]); err != nil {
 		errs = append(errs, err)
 		return nil, errs
@@ -117,6 +120,10 @@ func preprocess(imp *openrtb2.Imp) error {
 			banner.W = &format.W
 			banner.H = &format.H
 		}
+	}
+
+	if inMobiExt.Floor > 0 {
+		imp.BidFloor = inMobiExt.Floor
 	}
 
 	return nil

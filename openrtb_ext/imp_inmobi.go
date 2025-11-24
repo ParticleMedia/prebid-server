@@ -1,5 +1,6 @@
 package openrtb_ext
 
 type ExtImpInMobi struct {
-	Plc string `json:"plc"`
+	Floor float64 `json:"floor"`
+	Plc   string  `json:"plc"`
 }

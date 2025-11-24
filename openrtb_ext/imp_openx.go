@@ -7,6 +7,6 @@ type ExtImpOpenx struct {
 	Unit         json.Number            `json:"unit"`
 	Platform     string                 `json:"platform"`
 	DelDomain    string                 `json:"delDomain"`
-	CustomFloor  json.Number            `json:"customFloor"`
+	CustomFloor  json.Number            `json:"floor"`
 	CustomParams map[string]interface{} `json:"customParams"`
 }
