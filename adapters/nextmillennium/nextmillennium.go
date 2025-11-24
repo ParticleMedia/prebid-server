@@ -47,10 +47,6 @@ type nextMillJsonExt struct {
 
 // MakeRequests prepares request information for prebid-server core
 func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
-	fmt.Printf("Address of NM imp[0] = %p\n", &request.Imp[0])
-	fmt.Printf("Address of NM app = %p\n", &request.App)
-	fmt.Printf("Address of NM device = %p\n", &request.Device)
-	fmt.Printf("Address of NM user = %p\n", &request.User)
 
 	resImps, err := getImpressionsInfo(request.Imp)
 	if len(err) > 0 {
