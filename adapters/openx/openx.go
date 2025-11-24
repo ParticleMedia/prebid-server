@@ -145,6 +145,14 @@ func preprocess(imp *openrtb2.Imp, reqExt *openxReqExt) error {
 		}
 	}
 
+	// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
+	if openxExt.CustomFloor != "" {
+		f, err := openxExt.CustomFloor.Float64()
+		if err == nil {
+			imp.BidFloor = f
+		}
+	}
+
 	// outgoing imp.ext should be same as incoming imp.ext minus prebid and bidder
 	impExt := openxImpExt{}
 	if err := jsonutil.Unmarshal(imp.Ext, &impExt); err != nil {
