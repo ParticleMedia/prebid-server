@@ -304,12 +304,8 @@ func parseImpressionObject(imp *openrtb2.Imp, extractWrapperExtFromImp, extractP
 		imp.Banner = bannerCopy
 	}
 
-	if pubmaticExt.Kadfloor != "" {
-		bidfloor, err := strconv.ParseFloat(strings.TrimSpace(pubmaticExt.Kadfloor), 64)
-		if err == nil {
-			// In case of valid kadfloor, select maximum of original imp.bidfloor and kadfloor
-			imp.BidFloor = math.Max(bidfloor, imp.BidFloor)
-		}
+	if pubmaticExt.Kadfloor > 0 {
+		imp.BidFloor = math.Max(pubmaticExt.Kadfloor, imp.BidFloor)
 	}
 
 	extMap := make(map[string]interface{}, 0)
