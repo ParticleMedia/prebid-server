@@ -3,7 +3,7 @@ package openrtb_ext
 type ImpExtTaboola struct {
 	PublisherId     string   `json:"publisherId"`
 	PublisherDomain string   `json:"publisherDomain"`
-	BidFloor        float64  `json:"bidfloor"`
+	BidFloor        float64  `json:"floor"`
 	TagId           string   `json:"tagid"`
 	TagID           string   `json:"tagId"`
 	BCat            []string `json:"bcat"`
