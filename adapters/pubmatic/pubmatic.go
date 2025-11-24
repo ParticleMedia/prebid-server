@@ -304,6 +304,7 @@ func parseImpressionObject(imp *openrtb2.Imp, extractWrapperExtFromImp, extractP
 		imp.Banner = bannerCopy
 	}
 
+	// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
 	if pubmaticExt.Kadfloor > 0 {
 		imp.BidFloor = math.Max(pubmaticExt.Kadfloor, imp.BidFloor)
 	}

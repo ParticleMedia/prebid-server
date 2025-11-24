@@ -41,10 +41,6 @@ type ixRespExt struct {
 
 func (a *IxAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
 	requests := make([]*adapters.RequestData, 0, len(request.Imp))
-	fmt.Printf("Address of ix imp[0] = %p\n", &request.Imp[0])
-	fmt.Printf("Address of ix app = %p\n", &request.App)
-	fmt.Printf("Address of ix device = %p\n", &request.Device)
-	fmt.Printf("Address of ix user = %p\n", &request.User)
 	errs := make([]error, 0)
 
 	headers := http.Header{
@@ -90,6 +86,8 @@ func (a *IxAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters
 			}
 			imp.Banner = &bannerCopy
 		}
+
+		// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
 		if ixExt.Floor > 0 {
 			imp.BidFloor = ixExt.Floor
 		}
