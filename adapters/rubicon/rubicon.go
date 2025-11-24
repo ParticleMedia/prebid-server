@@ -1039,6 +1039,11 @@ func mapImpIdToCpmOverride(imps []openrtb2.Imp) map[string]float64 {
 		}
 
 		impIdToCmpOverride[imp.ID] = rubiconExt.Debug.CpmOverride
+
+		// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
+		if rubiconExt.Floor > 0 {
+			imp.BidFloor = rubiconExt.Floor
+		}
 	}
 	return impIdToCmpOverride
 }

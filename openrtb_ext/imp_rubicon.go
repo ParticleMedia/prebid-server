@@ -6,6 +6,7 @@ import (
 
 // ExtImpRubicon defines the contract for bidrequest.imp[i].ext.prebid.bidder.rubicon
 type ExtImpRubicon struct {
+	Floor            float64            `json:"floor"`
 	AccountId        json.Number        `json:"accountId"`
 	SiteId           json.Number        `json:"siteId"`
 	ZoneId           json.Number        `json:"zoneId"`
