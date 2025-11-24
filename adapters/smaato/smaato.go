@@ -470,17 +470,13 @@ func setPublisherId(request *openrtb2.BidRequest, imp *openrtb2.Imp) error {
 }
 
 func setImpForFloor(imp *openrtb2.Imp) {
-	floorStr, err := jsonparser.GetString(imp.Ext, "bidder", "floor")
-	if err != nil {
-		return
-	}
-	floor, err := strconv.ParseFloat(floorStr, 64)
+	floor, err := jsonparser.GetInt(imp.Ext, "bidder", "floor")
 	if err != nil {
 		return
 	}
 
 	if floor > 0 {
-		imp.BidFloor = floor
+		imp.BidFloor = float64(floor)
 		return
 	}
 	return
