@@ -55,6 +55,11 @@ func (a *PubnativeAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *a
 			continue
 		}
 
+		// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
+		if pubnativeExt.Floor > 0 {
+			imp.BidFloor = pubnativeExt.Floor
+		}
+
 		requestCopy.Imp = []openrtb2.Imp{imp}
 		reqJSON, err := json.Marshal(&requestCopy)
 		if err != nil {
