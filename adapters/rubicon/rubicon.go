@@ -298,6 +298,12 @@ func (a *RubiconAdapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *ada
 			}
 		}
 
+		// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
+		floor := rubiconExt.Floor
+		if floor > 0 {
+			imp.BidFloor = floor
+		}
+
 		if request.User != nil {
 			userCopy := *request.User
 			target, err := updateUserRpTargetWithFpdAttributes(rubiconExt.Visitor, userCopy)
@@ -1039,11 +1045,6 @@ func mapImpIdToCpmOverride(imps []openrtb2.Imp) map[string]float64 {
 		}
 
 		impIdToCmpOverride[imp.ID] = rubiconExt.Debug.CpmOverride
-
-		// Particle-Media Custom Logic: Override Bid Floor With Custom Floor
-		if rubiconExt.Floor > 0 {
-			imp.BidFloor = rubiconExt.Floor
-		}
 	}
 	return impIdToCmpOverride
 }
