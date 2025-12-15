@@ -7,9 +7,11 @@ type Adapter struct {
 	// needed for Rubicon
 	XAPI AdapterXAPI
 
-	// needed for Facebook
+	// needed for AppNexus and Facebook
 	PlatformID string
-	AppSecret  string
+
+	// nededed for Facebook
+	AppSecret string
 
 	// needed for Nova
 	NovaScylla AdapterNovaScylla
