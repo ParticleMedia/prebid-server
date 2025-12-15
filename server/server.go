@@ -77,7 +77,7 @@ func Listen(cfg *config.Configuration, handler http.Handler, adminHandler http.H
 		stopChannels = append(stopChannels, stopMsp)
 		go shutdownAfterSignals(mspServer, stopMsp, done)
 		if mspListener, err = newTCPListener(mspServer.Addr, nil); err != nil {
-			glog.Errorf("Error listening for TCP connections on port %d: %v for MSP Metrics server", cfg.MSPMetricsConfig.Port, err)
+			logger.Errorf("Error listening for TCP connections on port %d: %v for MSP Metrics server", cfg.MSPMetricsConfig.Port, err)
 			return
 		}
 
@@ -231,11 +231,11 @@ func sendSignal(to chan<- os.Signal, sig os.Signal) {
 func newMSPServer(cfg *config.Configuration) *http.Server {
 	mspBuilder, err := mspPlugin.LoadBuilderFromPath[MSPBuilder]("MSP Metrics", cfg.MSPMetricsConfig.SoPath)
 	if err != nil {
-		glog.Errorf("Failed to initialize MSP Metrics Builder")
+		logger.Errorf("Failed to initialize MSP Metrics Builder")
 	}
 	mspServer, err := mspBuilder.Build(cfg)
 	if err != nil {
-		glog.Errorf("Failed to initialize MSP Metrics Server")
+		logger.Errorf("Failed to initialize MSP Metrics Server")
 	}
 	return mspServer
 }

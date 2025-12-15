@@ -39,7 +39,7 @@ type Configuration struct {
 	StatusResponse    string           `mapstructure:"status_response"`
 	AuctionTimeouts   AuctionTimeouts  `mapstructure:"auction_timeouts_ms"`
 	TmaxAdjustments   TmaxAdjustments  `mapstructure:"tmax_adjustments"`
-	TmaxDefault       int             `mapstructure:"tmax_default"`
+	TmaxDefault       int              `mapstructure:"tmax_default"`
 	CacheURL          Cache            `mapstructure:"cache"`
 	ExtCacheURL       ExternalCache    `mapstructure:"external_cache"`
 	RecaptchaSecret   string           `mapstructure:"recaptcha_secret"`
