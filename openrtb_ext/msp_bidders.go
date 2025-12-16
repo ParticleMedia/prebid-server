@@ -14,6 +14,8 @@ func mspBidderNames() []BidderName {
 		BidderMspMoloco,
 		BidderMspMolocoNative,
 		BidderMspTtdVideo,
+		BidderMspLiftoff,
+		BidderMspLiftoffNative,
 	}
 }
 
