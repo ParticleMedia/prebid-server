@@ -1,4 +1,4 @@
-endpoint: "https://rtb.ads.vungle.com/bid/t/c770f32"
+endpoint: "https://rtb.ads.vungle.com/bid/t/15c348c"
 maintainer:
   email: vxssp@liftoff.io
 endpointCompression: gzip
@@ -6,7 +6,11 @@ modifyingVastXmlAllowed: true
 capabilities:
   app:
     mediaTypes:
+      - banner
       - video
+      - native
   site:
     mediaTypes:
+      - banner
       - video
+      - native
