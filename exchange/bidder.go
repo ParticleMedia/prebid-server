@@ -248,6 +248,17 @@ func (bidder *BidderAdapter) requestBid(ctx context.Context, bidderRequest Bidde
 		} else {
 			for _, oneReqData := range reqData {
 				go func(data *adapters.RequestData) {
+					defer func() {
+						if r := recover(); r != nil {
+							// Even if panic occurs, send error response to avoid blocking the channel
+							responseChannel <- &httpCallInfo{
+								request: data,
+								err: &errortypes.BadServerResponse{
+									Message: fmt.Sprintf("Panic in doRequest: %v", r),
+								},
+							}
+						}
+					}()
 					responseChannel <- bidder.doRequest(ctx, data, bidRequestOptions.bidderRequestStartTime, bidRequestOptions.tmaxAdjustments)
 				}(oneReqData) // Method arg avoids a race condition on oneReqData
 			}
@@ -261,6 +272,23 @@ func (bidder *BidderAdapter) requestBid(ctx context.Context, bidderRequest Bidde
 		}
 		for impId, bidResp := range bidderRequest.BidderStoredResponses {
 			go func(id string, resp json.RawMessage) {
+				defer func() {
+					if r := recover(); r != nil {
+						// Even if panic occurs, send error response to avoid blocking the channel
+						body := fmt.Sprintf("%s%s", ImpIdReqBody, id)
+						reqDataForStoredResp := adapters.RequestData{
+							Method: "POST",
+							Uri:    "",
+							Body:   []byte(body),
+						}
+						responseChannel <- &httpCallInfo{
+							request: &reqDataForStoredResp,
+							err: &errortypes.BadServerResponse{
+								Message: fmt.Sprintf("Panic in prepareStoredResponse: %v", r),
+							},
+						}
+					}
+				}()
 				responseChannel <- prepareStoredResponse(id, resp)
 			}(impId, bidResp)
 		}
