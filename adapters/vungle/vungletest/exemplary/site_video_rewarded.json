@@ -134,6 +134,11 @@
             "price": 0.5,
             "adm": "some-test-ad",
             "crid": "test-crid",
+            "ext": {
+              "vungle": {
+                "placement_reference_id": "123"
+              }
+            },
             "w": 300,
             "h": 250
           },
