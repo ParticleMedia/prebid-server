@@ -1,10 +1,6 @@
 package main
 
 import (
-	_ "net/http/pprof"
-
-	_ "github.com/grafana/pyroscope-go/godeltaprof/http/pprof"
-
 	"flag"
 	"net/http"
 	"os"
