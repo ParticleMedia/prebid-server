@@ -5,7 +5,7 @@ import (
 	"net/http/pprof"
 	"time"
 
-	"github.com/grafana/pyroscope-go/godeltaprof"
+	delta "github.com/grafana/pyroscope-go/godeltaprof/http/pprof"
 	"github.com/prebid/prebid-server/v3/currency"
 	"github.com/prebid/prebid-server/v3/endpoints"
 	"github.com/prebid/prebid-server/v3/version"
@@ -24,11 +24,9 @@ func Admin(rateConverter *currency.RateConverter, rateConverterFetchingInterval 
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	// NewsBreak Custom Code: delta_heap (Go 1.20+ only)
-	dhp := godeltaprof.NewHeapProfiler()
-	mux.HandleFunc("/debug/pprof/delta_heap", func(w http.ResponseWriter, r *http.Request) {
-		// This calculates the delta since the last time this endpoint was called
-		dhp.Profile(w)
-	})
+	mux.HandleFunc("/debug/pprof/delta_heap", delta.Heap)
+	mux.HandleFunc("/debug/pprof/delta_mutex", delta.Mutex)
+	mux.HandleFunc("/debug/pprof/delta_block", delta.Block)
 
 	// Register prebid-server defined admin handlers
 	mux.HandleFunc("/currency/rates", endpoints.NewCurrencyRatesEndpoint(rateConverter, rateConverterFetchingInterval))
