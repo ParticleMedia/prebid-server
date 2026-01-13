@@ -1,11 +1,11 @@
 package router
 
 import (
-	"github.com/grafana/pyroscope-go/godeltaprof"
 	"net/http"
 	"net/http/pprof"
 	"time"
 
+	"github.com/grafana/pyroscope-go/godeltaprof"
 	"github.com/prebid/prebid-server/v3/currency"
 	"github.com/prebid/prebid-server/v3/endpoints"
 	"github.com/prebid/prebid-server/v3/version"
