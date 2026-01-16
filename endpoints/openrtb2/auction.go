@@ -196,6 +196,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		return
 	}
 
+	injectServerIP(r, req, deps.privateNetworkIPValidator)
+
 	if rejectErr := hookexecution.FindFirstRejectOrNil(errL); rejectErr != nil {
 		ao.RequestWrapper = req
 		labels, ao = rejectAuctionRequest(*rejectErr, w, hookExecutor, req.BidRequest, account, labels, ao)
@@ -2100,4 +2102,31 @@ func (deps *endpointDeps) processGDPR(req *openrtb_ext.RequestWrapper, accountGD
 	gdprEnforced := gdpr.EnforceGDPR(gdprSignal, gdprDefaultValue, channelEnabled)
 
 	return tcf2Config, gdprSignal, gdprEnforced, gdprErrs
+}
+
+func injectServerIP(httpReq *http.Request, r *openrtb_ext.RequestWrapper, ipValidator iputil.IPValidator) {
+	if ip, _ := httputil.FindIP(httpReq, ipValidator); ip != nil {
+		reqExt, err := r.GetRequestExt()
+		if err != nil {
+			return
+		}
+		extMap := reqExt.GetExt()
+
+		var mspExt map[string]interface{}
+		if val, ok := extMap["msp"]; ok {
+			if err := json.Unmarshal(val, &mspExt); err != nil {
+				mspExt = make(map[string]interface{})
+			}
+		} else {
+			mspExt = make(map[string]interface{})
+		}
+
+		mspExt["server_ip"] = ip.String()
+
+		if mspBytes, err := json.Marshal(mspExt); err == nil {
+			extMap["msp"] = json.RawMessage(mspBytes)
+			reqExt.SetExt(extMap)
+			r.RebuildRequest()
+		}
+	}
 }
