@@ -192,8 +192,11 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	setBrowsingTopicsHeader(w, r)
 
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, account, errL := deps.parseRequest(r, &labels, hookExecutor)
-	if errortypes.ContainsFatalError(errL) && writeError(errL, w, &labels) {
-		return
+	if errortypes.ContainsFatalError(errL) {
+		logBadInputRequest(errL, req)
+		if writeError(errL, w, &labels) {
+			return
+		}
 	}
 
 	if rejectErr := hookexecution.FindFirstRejectOrNil(errL); rejectErr != nil {
@@ -236,6 +239,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	err := deps.setIntegrationType(req, account)
 	if err != nil {
 		errL = append(errL, err)
+		logBadInputRequest(errL, req)
 		writeError(errL, w, &labels)
 		return
 	}
@@ -281,6 +285,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	rejectErr, isRejectErr := hookexecution.CastRejectErr(err)
 	if err != nil && !isRejectErr {
 		if errortypes.ReadCode(err) == errortypes.BadInputErrorCode {
+			logBadInputRequest([]error{err}, req)
 			writeError([]error{err}, w, &labels)
 			return
 		}
@@ -1924,6 +1929,34 @@ func setDoNotTrackImplicitly(httpReq *http.Request, r *openrtb_ext.RequestWrappe
 				r.Device.DNT = &dntEnabled
 			}
 		}
+	}
+}
+
+// logBadInputRequest logs the request and errors for badinput cases
+func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper) {
+	// Check if this is a badinput case (not BlockedApp, AccountDisabled, or MalformedAcct)
+	isBadInput := true
+	for _, err := range errs {
+		erVal := errortypes.ReadCode(err)
+		if erVal == errortypes.BlockedAppErrorCode || erVal == errortypes.AccountDisabledErrorCode || erVal == errortypes.MalformedAcctErrorCode {
+			isBadInput = false
+			break
+		}
+	}
+
+	if !isBadInput {
+		return
+	}
+
+	// Log the request and errors for badinput
+	if req != nil && req.BidRequest != nil {
+		if reqBytes, marshalErr := jsonutil.Marshal(req.BidRequest); marshalErr == nil {
+			logger.Errorf("/openrtb2/auction BadInput request: %s, errors: %v", string(reqBytes), errs)
+		} else {
+			logger.Errorf("/openrtb2/auction BadInput errors: %v (failed to marshal request: %v)", errs, marshalErr)
+		}
+	} else {
+		logger.Errorf("/openrtb2/auction BadInput errors: %v (request not available)", errs)
 	}
 }
 
