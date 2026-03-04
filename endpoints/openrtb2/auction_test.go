@@ -3777,7 +3777,7 @@ func TestParseRequestParseImpInfoError(t *testing.T) {
 
 	req := httptest.NewRequest("POST", "/openrtb2/auction", strings.NewReader(reqBody))
 
-	resReq, impExtInfoMap, _, _, _, _, errL := deps.parseRequest(req, &metrics.Labels{}, hookExecutor)
+	resReq, impExtInfoMap, _, _, _, _, _, errL := deps.parseRequest(req, &metrics.Labels{}, hookExecutor)
 
 	assert.Nil(t, resReq, "Result request should be nil due to incorrect imp")
 	assert.Nil(t, impExtInfoMap, "Impression info map should be nil due to incorrect imp")
@@ -3871,7 +3871,7 @@ func TestParseGzipedRequest(t *testing.T) {
 		} else {
 			req = httptest.NewRequest("POST", "/openrtb2/auction", bytes.NewReader(reqBody))
 		}
-		resReq, impExtInfoMap, _, _, _, _, errL := deps.parseRequest(req, &metrics.Labels{}, hookExecutor)
+		resReq, impExtInfoMap, _, _, _, _, _, errL := deps.parseRequest(req, &metrics.Labels{}, hookExecutor)
 
 		if test.expectedErr == "" {
 			assert.Nil(t, errL, "Error list should be nil", test.desc)
