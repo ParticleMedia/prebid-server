@@ -191,9 +191,9 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	w.Header().Set("X-Prebid", version.BuildXPrebidHeader(version.Ver))
 	setBrowsingTopicsHeader(w, r)
 
-	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, account, errL := deps.parseRequest(r, &labels, hookExecutor)
+	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, account, rawRequestBody, errL := deps.parseRequest(r, &labels, hookExecutor)
 	if errortypes.ContainsFatalError(errL) {
-		logBadInputRequest(errL, req)
+		logBadInputRequest(errL, req, rawRequestBody)
 		if writeError(errL, w, &labels) {
 			return
 		}
@@ -239,7 +239,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	err := deps.setIntegrationType(req, account)
 	if err != nil {
 		errL = append(errL, err)
-		logBadInputRequest(errL, req)
+		logBadInputRequest(errL, req, rawRequestBody)
 		writeError(errL, w, &labels)
 		return
 	}
@@ -285,7 +285,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	rejectErr, isRejectErr := hookexecution.CastRejectErr(err)
 	if err != nil && !isRejectErr {
 		if errortypes.ReadCode(err) == errortypes.BadInputErrorCode {
-			logBadInputRequest([]error{err}, req)
+			logBadInputRequest([]error{err}, req, rawRequestBody)
 			writeError([]error{err}, w, &labels)
 			return
 		}
@@ -421,7 +421,7 @@ func setBrowsingTopicsHeader(w http.ResponseWriter, r *http.Request) {
 // possible, it will return errors with messages that suggest improvements.
 //
 // If the errors list has at least one element, then no guarantees are made about the returned request.
-func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metrics.Labels, hookExecutor hookexecution.HookStageExecutor) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, account *config.Account, errs []error) {
+func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metrics.Labels, hookExecutor hookexecution.HookStageExecutor) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, account *config.Account, rawRequestBody []byte, errs []error) {
 	errs = nil
 	var err error
 	var errL []error
@@ -448,9 +448,14 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	requestJson, err := io.ReadAll(limitedReqReader)
 	if err != nil {
 		errs = []error{err}
+		// Save raw body even if read failed (may be partial)
+		rawRequestBody = requestJson
 		return
 	}
 	labels.RequestSize = len(requestJson)
+	// Save a copy of the raw request body for logging purposes
+	rawRequestBody = make([]byte, len(requestJson))
+	copy(rawRequestBody, requestJson)
 
 	if limitedReqReader.N <= 0 {
 		// Limited Reader returns 0 if the request was exactly at the max size or over the limit.
@@ -482,7 +487,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 
 	impInfo, errs := parseImpInfo(requestJson)
 	if len(errs) > 0 {
-		return nil, nil, nil, nil, nil, nil, errs
+		return nil, nil, nil, nil, nil, nil, rawRequestBody, errs
 	}
 
 	storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(ctx, requestJson, impInfo)
@@ -528,7 +533,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	if hasPayloadUpdatesAt(hooks.StageRawAuctionRequest.String(), hookExecutor.GetOutcomes()) {
 		impInfo, errs = parseImpInfo(requestJson)
 		if len(errs) > 0 {
-			return nil, nil, nil, nil, nil, nil, errs
+			return nil, nil, nil, nil, nil, nil, rawRequestBody, errs
 		}
 		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs = deps.getStoredRequests(ctx, requestJson, impInfo)
 		if len(errs) > 0 {
@@ -578,7 +583,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	storedAuctionResponses, storedBidResponses, bidderImpReplaceImpId, errL = stored_responses.ProcessStoredResponses(ctx, req, deps.storedRespFetcher)
 	if len(errL) > 0 {
 		errs = append(errs, errL...)
-		return nil, nil, nil, nil, nil, nil, errs
+		return nil, nil, nil, nil, nil, nil, rawRequestBody, errs
 	}
 
 	hasStoredAuctionResponses := len(storedAuctionResponses) > 0
@@ -1933,7 +1938,7 @@ func setDoNotTrackImplicitly(httpReq *http.Request, r *openrtb_ext.RequestWrappe
 }
 
 // logBadInputRequest logs the request and errors for badinput cases
-func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper) {
+func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper, rawRequestBody []byte) {
 	// Check if this is a badinput case (not BlockedApp, AccountDisabled, or MalformedAcct)
 	isBadInput := true
 	for _, err := range errs {
@@ -1949,7 +1954,11 @@ func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper) {
 	}
 
 	// Log the request and errors for badinput
-	if req != nil && req.BidRequest != nil {
+	// Prefer raw request body if available (even if it's not valid JSON)
+	if len(rawRequestBody) > 0 {
+		logger.Errorf("/openrtb2/auction BadInput request body: %s, errors: %v", string(rawRequestBody), errs)
+	} else if req != nil && req.BidRequest != nil {
+		// Fallback to marshaling the parsed request if raw body is not available
 		if reqBytes, marshalErr := jsonutil.Marshal(req.BidRequest); marshalErr == nil {
 			logger.Errorf("/openrtb2/auction BadInput request: %s, errors: %v", string(reqBytes), errs)
 		} else {
