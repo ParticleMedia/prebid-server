@@ -193,7 +193,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 
 	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, account, rawRequestBody, errL := deps.parseRequest(r, &labels, hookExecutor)
 	if errortypes.ContainsFatalError(errL) {
-		logBadInputRequest(errL, req, rawRequestBody)
+		logBadInputRequest(errL, req, rawRequestBody, deps.cfg.RequestValidation.LogBadInputRequestBody)
 		if writeError(errL, w, &labels) {
 			return
 		}
@@ -239,7 +239,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	err := deps.setIntegrationType(req, account)
 	if err != nil {
 		errL = append(errL, err)
-		logBadInputRequest(errL, req, rawRequestBody)
+		logBadInputRequest(errL, req, rawRequestBody, deps.cfg.RequestValidation.LogBadInputRequestBody)
 		writeError(errL, w, &labels)
 		return
 	}
@@ -285,7 +285,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	rejectErr, isRejectErr := hookexecution.CastRejectErr(err)
 	if err != nil && !isRejectErr {
 		if errortypes.ReadCode(err) == errortypes.BadInputErrorCode {
-			logBadInputRequest([]error{err}, req, rawRequestBody)
+			logBadInputRequest([]error{err}, req, rawRequestBody, deps.cfg.RequestValidation.LogBadInputRequestBody)
 			writeError([]error{err}, w, &labels)
 			return
 		}
@@ -1938,7 +1938,7 @@ func setDoNotTrackImplicitly(httpReq *http.Request, r *openrtb_ext.RequestWrappe
 }
 
 // logBadInputRequest logs the request and errors for badinput cases
-func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper, rawRequestBody []byte) {
+func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper, rawRequestBody []byte, logRequestBody bool) {
 	// Check if this is a badinput case (not BlockedApp, AccountDisabled, or MalformedAcct)
 	isBadInput := true
 	for _, err := range errs {
@@ -1950,6 +1950,12 @@ func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper, rawReques
 	}
 
 	if !isBadInput {
+		return
+	}
+
+	// Only log request body if the feature is enabled
+	if !logRequestBody {
+		logger.Errorf("/openrtb2/auction BadInput errors: %v", errs)
 		return
 	}
 
