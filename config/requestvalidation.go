@@ -14,6 +14,11 @@ type RequestValidation struct {
 
 	IPv6PrivateNetworks       []string `mapstructure:"ipv6_private_networks,flow"`
 	IPv6PrivateNetworksParsed []net.IPNet
+
+	// LogBadInputRequestBody enables logging of raw request body for badinput errors.
+	// When enabled, the raw HTTP request body will be logged even if it's not valid JSON.
+	// Default is false (disabled).
+	LogBadInputRequestBody bool `mapstructure:"log_badinput_request_body"`
 }
 
 // Parse converts the CIDR representation of the IPv4 and IPv6 private networks as net.IPNet structs, or returns an error if at least one is invalid.
