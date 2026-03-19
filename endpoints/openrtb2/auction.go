@@ -16,7 +16,6 @@ import (
 
 	"github.com/buger/jsonparser"
 	"github.com/gofrs/uuid"
-	"github.com/golang/glog"
 	"github.com/julienschmidt/httprouter"
 	gpplib "github.com/prebid/go-gpp"
 	"github.com/prebid/go-gpp/constants"
@@ -24,6 +23,7 @@ import (
 	"github.com/prebid/openrtb/v20/openrtb3"
 	"github.com/prebid/prebid-server/v3/bidadjustment"
 	"github.com/prebid/prebid-server/v3/hooks"
+	"github.com/prebid/prebid-server/v3/logger"
 	"github.com/prebid/prebid-server/v3/ortb"
 	"github.com/prebid/prebid-server/v3/privacy"
 	"github.com/prebid/prebid-server/v3/privacysandbox"
@@ -191,9 +191,12 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	w.Header().Set("X-Prebid", version.BuildXPrebidHeader(version.Ver))
 	setBrowsingTopicsHeader(w, r)
 
-	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, account, errL := deps.parseRequest(r, &labels, hookExecutor)
-	if errortypes.ContainsFatalError(errL) && writeError(errL, w, &labels) {
-		return
+	req, impExtInfoMap, storedAuctionResponses, storedBidResponses, bidderImpReplaceImp, account, rawRequestBody, errL := deps.parseRequest(r, &labels, hookExecutor)
+	if errortypes.ContainsFatalError(errL) {
+		logBadInputRequest(errL, req, rawRequestBody, deps.cfg.RequestValidation.LogBadInputRequestBody)
+		if writeError(errL, w, &labels) {
+			return
+		}
 	}
 
 	if rejectErr := hookexecution.FindFirstRejectOrNil(errL); rejectErr != nil {
@@ -201,8 +204,6 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		labels, ao = rejectAuctionRequest(*rejectErr, w, hookExecutor, req.BidRequest, account, labels, ao)
 		return
 	}
-
-	tcf2Config := gdpr.NewTCF2Config(deps.cfg.GDPR.TCF2, account.GDPR)
 
 	activityControl = privacy.NewActivityControl(&account.Privacy)
 
@@ -217,6 +218,9 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		ctx, cancel = context.WithDeadline(ctx, start.Add(timeout))
 		defer cancel()
 	}
+
+	tcf2Config, gdprSignal, gdprEnforced, gdprErrs := deps.processGDPR(req, account.GDPR, labels.RType)
+	errL = append(errL, gdprErrs...)
 
 	// Read Usersyncs/Cookie
 	decoder := usersync.Base64Decoder{}
@@ -235,6 +239,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	err := deps.setIntegrationType(req, account)
 	if err != nil {
 		errL = append(errL, err)
+		logBadInputRequest(errL, req, rawRequestBody, deps.cfg.RequestValidation.LogBadInputRequestBody)
 		writeError(errL, w, &labels)
 		return
 	}
@@ -260,6 +265,8 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 		TCF2Config:                 tcf2Config,
 		Activities:                 activityControl,
 		TmaxAdjustments:            deps.tmaxAdjustments,
+		GDPRSignal:                 gdprSignal,
+		GDPREnforced:               gdprEnforced,
 	}
 	auctionResponse, err := deps.ex.HoldAuction(ctx, auctionRequest, nil)
 	defer func() {
@@ -278,13 +285,14 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	rejectErr, isRejectErr := hookexecution.CastRejectErr(err)
 	if err != nil && !isRejectErr {
 		if errortypes.ReadCode(err) == errortypes.BadInputErrorCode {
+			logBadInputRequest([]error{err}, req, rawRequestBody, deps.cfg.RequestValidation.LogBadInputRequestBody)
 			writeError([]error{err}, w, &labels)
 			return
 		}
 		labels.RequestStatus = metrics.RequestStatusErr
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Critical error while running the auction: %v", err)
-		glog.Errorf("/openrtb2/auction Critical error: %v", err)
+		logger.Errorf("/openrtb2/auction Critical error: %v", err)
 		ao.Status = http.StatusInternalServerError
 		ao.Errors = append(ao.Errors, err)
 		return
@@ -295,7 +303,7 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 
 	err = setSeatNonBidRaw(req, auctionResponse)
 	if err != nil {
-		glog.Errorf("Error setting seat non-bid: %v", err)
+		logger.Errorf("Error setting seat non-bid: %v", err)
 	}
 	labels, ao = sendAuctionResponse(w, hookExecutor, response, req.BidRequest, account, labels, ao)
 }
@@ -365,7 +373,7 @@ func sendAuctionResponse(
 		ext, warns, err := hookexecution.EnrichExtBidResponse(response.Ext, stageOutcomes, request, account)
 		if err != nil {
 			err = fmt.Errorf("Failed to enrich Bid Response with hook debug information: %s", err)
-			glog.Errorf(err.Error())
+			logger.Errorf("%v", err)
 			ao.Errors = append(ao.Errors, err)
 		} else {
 			response.Ext = ext
@@ -382,10 +390,13 @@ func sendAuctionResponse(
 
 	w.Header().Set("Content-Type", "application/json")
 
+	// Exitpoint will modify the response and set response headers according to hook implementation.
+	finalResponse := hookExecutor.ExecuteExitpointStage(response, w)
+
 	// If an error happens when encoding the response, there isn't much we can do.
 	// If we've sent _any_ bytes, then Go would have sent the 200 status code first.
 	// That status code can't be un-sent... so the best we can do is log the error.
-	if err := enc.Encode(response); err != nil {
+	if err := enc.Encode(finalResponse); err != nil {
 		labels.RequestStatus = metrics.RequestStatusNetworkErr
 		ao.Errors = append(ao.Errors, fmt.Errorf("/openrtb2/auction Failed to send response: %v", err))
 	}
@@ -410,7 +421,7 @@ func setBrowsingTopicsHeader(w http.ResponseWriter, r *http.Request) {
 // possible, it will return errors with messages that suggest improvements.
 //
 // If the errors list has at least one element, then no guarantees are made about the returned request.
-func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metrics.Labels, hookExecutor hookexecution.HookStageExecutor) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, account *config.Account, errs []error) {
+func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metrics.Labels, hookExecutor hookexecution.HookStageExecutor) (req *openrtb_ext.RequestWrapper, impExtInfoMap map[string]exchange.ImpExtInfo, storedAuctionResponses stored_responses.ImpsWithBidResponses, storedBidResponses stored_responses.ImpBidderStoredResp, bidderImpReplaceImpId stored_responses.BidderImpReplaceImpID, account *config.Account, rawRequestBody []byte, errs []error) {
 	errs = nil
 	var err error
 	var errL []error
@@ -437,8 +448,14 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	requestJson, err := io.ReadAll(limitedReqReader)
 	if err != nil {
 		errs = []error{err}
+		// Save raw body even if read failed (may be partial)
+		rawRequestBody = requestJson
 		return
 	}
+	labels.RequestSize = len(requestJson)
+	// Save a copy of the raw request body for logging purposes
+	rawRequestBody = make([]byte, len(requestJson))
+	copy(rawRequestBody, requestJson)
 
 	if limitedReqReader.N <= 0 {
 		// Limited Reader returns 0 if the request was exactly at the max size or over the limit.
@@ -459,7 +476,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	if rejectErr != nil {
 		errs = []error{rejectErr}
 		if err = jsonutil.UnmarshalValid(requestJson, req.BidRequest); err != nil {
-			glog.Errorf("Failed to unmarshal BidRequest during entrypoint rejection: %s", err)
+			logger.Errorf("Failed to unmarshal BidRequest during entrypoint rejection: %s", err)
 		}
 		return
 	}
@@ -470,7 +487,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 
 	impInfo, errs := parseImpInfo(requestJson)
 	if len(errs) > 0 {
-		return nil, nil, nil, nil, nil, nil, errs
+		return nil, nil, nil, nil, nil, nil, rawRequestBody, errs
 	}
 
 	storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs := deps.getStoredRequests(ctx, requestJson, impInfo)
@@ -507,7 +524,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	if rejectErr != nil {
 		errs = []error{rejectErr}
 		if err = jsonutil.UnmarshalValid(requestJson, req.BidRequest); err != nil {
-			glog.Errorf("Failed to unmarshal BidRequest during raw auction stage rejection: %s", err)
+			logger.Errorf("Failed to unmarshal BidRequest during raw auction stage rejection: %s", err)
 		}
 		return
 	}
@@ -516,7 +533,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	if hasPayloadUpdatesAt(hooks.StageRawAuctionRequest.String(), hookExecutor.GetOutcomes()) {
 		impInfo, errs = parseImpInfo(requestJson)
 		if len(errs) > 0 {
-			return nil, nil, nil, nil, nil, nil, errs
+			return nil, nil, nil, nil, nil, nil, rawRequestBody, errs
 		}
 		storedBidRequestId, hasStoredBidRequest, storedRequests, storedImps, errs = deps.getStoredRequests(ctx, requestJson, impInfo)
 		if len(errs) > 0 {
@@ -550,7 +567,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 		errs = append(errs, errsL...)
 	}
 
-	if err := ortb.SetDefaults(req); err != nil {
+	if err := ortb.SetDefaults(req, deps.cfg.TmaxDefault); err != nil {
 		errs = []error{err}
 		return
 	}
@@ -566,7 +583,7 @@ func (deps *endpointDeps) parseRequest(httpRequest *http.Request, labels *metric
 	storedAuctionResponses, storedBidResponses, bidderImpReplaceImpId, errL = stored_responses.ProcessStoredResponses(ctx, req, deps.storedRespFetcher)
 	if len(errL) > 0 {
 		errs = append(errs, errL...)
-		return nil, nil, nil, nil, nil, nil, errs
+		return nil, nil, nil, nil, nil, nil, rawRequestBody, errs
 	}
 
 	hasStoredAuctionResponses := len(storedAuctionResponses) > 0
@@ -1051,7 +1068,10 @@ func (deps *endpointDeps) validateAliases(aliases map[string]string) error {
 	for alias, bidderName := range aliases {
 		normalisedBidderName, _ := openrtb_ext.NormalizeBidderName(bidderName)
 		coreBidderName := normalisedBidderName.String()
-		if _, isCoreBidderDisabled := deps.disabledBidders[coreBidderName]; isCoreBidderDisabled {
+		if disabledMessage, isCoreBidderDisabled := deps.disabledBidders[coreBidderName]; isCoreBidderDisabled {
+			if exchange.IsBidderDisabledDueToWhiteLabelOnly(disabledMessage) {
+				return fmt.Errorf("request.ext.prebid.aliases.%s refers to a bidder that cannot be aliased: %s", alias, bidderName)
+			}
 			return fmt.Errorf("request.ext.prebid.aliases.%s refers to disabled bidder: %s", alias, bidderName)
 		}
 
@@ -1917,6 +1937,44 @@ func setDoNotTrackImplicitly(httpReq *http.Request, r *openrtb_ext.RequestWrappe
 	}
 }
 
+// logBadInputRequest logs the request and errors for badinput cases
+func logBadInputRequest(errs []error, req *openrtb_ext.RequestWrapper, rawRequestBody []byte, logRequestBody bool) {
+	// Check if this is a badinput case (not BlockedApp, AccountDisabled, or MalformedAcct)
+	isBadInput := true
+	for _, err := range errs {
+		erVal := errortypes.ReadCode(err)
+		if erVal == errortypes.BlockedAppErrorCode || erVal == errortypes.AccountDisabledErrorCode || erVal == errortypes.MalformedAcctErrorCode {
+			isBadInput = false
+			break
+		}
+	}
+
+	if !isBadInput {
+		return
+	}
+
+	// Only log request body if the feature is enabled
+	if !logRequestBody {
+		logger.Errorf("/openrtb2/auction BadInput errors: %v", errs)
+		return
+	}
+
+	// Log the request and errors for badinput
+	// Prefer raw request body if available (even if it's not valid JSON)
+	if len(rawRequestBody) > 0 {
+		logger.Errorf("/openrtb2/auction BadInput request body: %s, errors: %v", string(rawRequestBody), errs)
+	} else if req != nil && req.BidRequest != nil {
+		// Fallback to marshaling the parsed request if raw body is not available
+		if reqBytes, marshalErr := jsonutil.Marshal(req.BidRequest); marshalErr == nil {
+			logger.Errorf("/openrtb2/auction BadInput request: %s, errors: %v", string(reqBytes), errs)
+		} else {
+			logger.Errorf("/openrtb2/auction BadInput errors: %v (failed to marshal request: %v)", errs, marshalErr)
+		}
+	} else {
+		logger.Errorf("/openrtb2/auction BadInput errors: %v (request not available)", errs)
+	}
+}
+
 // Write(return) errors to the client, if any. Returns true if errors were found.
 func writeError(errs []error, w http.ResponseWriter, labels *metrics.Labels) bool {
 	var rc bool = false
@@ -2065,4 +2123,29 @@ func checkIfAppRequest(request []byte) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+// processGDPR handles GDPR signal processing and policy building.
+// It returns the created privacy policy (if GDPR is enforced) and any errors encountered.
+func (deps *endpointDeps) processGDPR(req *openrtb_ext.RequestWrapper, accountGDPR config.AccountGDPR, requestType metrics.RequestType) (
+	gdpr.TCF2ConfigReader, gdpr.Signal, bool, []error) {
+
+	tcf2Config := gdpr.NewTCF2Config(deps.cfg.GDPR.TCF2, accountGDPR)
+
+	var gdprErrs []error
+
+	// Retrieve EEA countries configuration from either host or account settings
+	eeaCountries := gdpr.SelectEEACountries(deps.cfg.GDPR.EEACountries, accountGDPR.EEACountries)
+
+	// Make our best guess if GDPR applies
+	gdprDefaultValue := gdpr.ParseGDPRDefaultValue(req, deps.cfg.GDPR.DefaultValue, eeaCountries)
+	gdprSignal, err := gdpr.GetGDPR(req)
+	if err != nil {
+		gdprErrs = append(gdprErrs, err)
+	}
+
+	channelEnabled := tcf2Config.ChannelEnabled(exchange.ChannelTypeMap[requestType])
+	gdprEnforced := gdpr.EnforceGDPR(gdprSignal, gdprDefaultValue, channelEnabled)
+
+	return tcf2Config, gdprSignal, gdprEnforced, gdprErrs
 }

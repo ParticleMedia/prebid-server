@@ -52,8 +52,10 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderAdView,
 	BidderAdxcg,
 	BidderAdyoulike,
+	BidderAfront,
 	BidderAidem,
 	BidderAJA,
+	BidderAkcelo,
 	BidderAlgorix,
 	BidderAlkimi,
 	BidderAMX,
@@ -80,14 +82,17 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderBigoAd,
 	BidderBlasto,
 	BidderBliink,
+	BidderBlis,
 	BidderBlue,
 	BidderBluesea,
 	BidderBmtm,
 	BidderBoldwin,
+	BidderBoldwinRapid,
 	BidderBrave,
 	BidderBWX,
 	BidderCadentApertureMX,
 	BidderCcx,
+	BidderClydo,
 	BidderCointraffic,
 	BidderCoinzilla,
 	BidderColossus,
@@ -96,6 +101,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderConnatix,
 	BidderConnectAd,
 	BidderConsumable,
+	BidderContxtful,
 	BidderConversant,
 	BidderCopper6ssp,
 	BidderCpmstar,
@@ -117,7 +123,9 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderEpom,
 	BidderEscalax,
 	BidderEVolution,
+	BidderExco,
 	BidderFeedAd,
+	BidderFlatads,
 	BidderFlipp,
 	BidderFreewheelSSP,
 	BidderFWSSP,
@@ -125,6 +133,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderGamma,
 	BidderGamoshi,
 	BidderGlobalsun,
+	BidderGoldbach,
 	BidderGothamads,
 	BidderGrid,
 	BidderGumGum,
@@ -170,14 +179,17 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderMetaX,
 	BidderMgid,
 	BidderMgidX,
+	BidderMicrosoft,
 	BidderMinuteMedia,
 	BidderMissena,
 	BidderMobfoxpb,
 	BidderMobileFuse,
 	BidderMobkoi,
 	BidderMotorik,
+	BidderNativery,
 	BidderNativo,
 	BidderNextMillennium,
+	BidderNexx360,
 	BidderNoBid,
 	BidderOgury,
 	BidderOms,
@@ -200,6 +212,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderPWBid,
 	BidderQT,
 	BidderReadpeak,
+	BidderRediads,
 	BidderRelevantDigital,
 	BidderResetDigital,
 	BidderRevcontent,
@@ -213,6 +226,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderSaLunaMedia,
 	BidderScreencore,
 	BidderSharethrough,
+	BidderShowheroes,
 	BidderSilverMob,
 	BidderSilverPush,
 	BidderSmaato,
@@ -227,6 +241,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderSonobi,
 	BidderSovrn,
 	BidderSovrnXsp,
+	BidderSparteo,
 	BidderSspBC,
 	BidderStartIO,
 	BidderStroeerCore,
@@ -234,6 +249,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderTappx,
 	BidderTeads,
 	BidderTelaria,
+	BidderTeqBlaze,
 	BidderTheadx,
 	BidderTheTradeDesk,
 	BidderTpmn,
@@ -262,6 +278,7 @@ var coreBidderNames []BidderName = []BidderName{
 	BidderYieldlab,
 	BidderYieldmo,
 	BidderYieldone,
+	BidderZentotem,
 	BidderZeroClickFraud,
 	BidderZetaGlobalSsp,
 	BidderZmaticoo,
@@ -412,8 +429,10 @@ const (
 	BidderAdView            BidderName = "adview"
 	BidderAdxcg             BidderName = "adxcg"
 	BidderAdyoulike         BidderName = "adyoulike"
+	BidderAfront            BidderName = "afront"
 	BidderAidem             BidderName = "aidem"
 	BidderAJA               BidderName = "aja"
+	BidderAkcelo            BidderName = "akcelo"
 	BidderAlgorix           BidderName = "algorix"
 	BidderAlkimi            BidderName = "alkimi"
 	BidderAMX               BidderName = "amx"
@@ -440,14 +459,17 @@ const (
 	BidderBigoAd            BidderName = "bigoad"
 	BidderBlasto            BidderName = "blasto"
 	BidderBliink            BidderName = "bliink"
+	BidderBlis              BidderName = "blis"
 	BidderBlue              BidderName = "blue"
 	BidderBluesea           BidderName = "bluesea"
 	BidderBmtm              BidderName = "bmtm"
 	BidderBoldwin           BidderName = "boldwin"
+	BidderBoldwinRapid      BidderName = "boldwin_rapid"
 	BidderBrave             BidderName = "brave"
 	BidderBWX               BidderName = "bwx"
 	BidderCadentApertureMX  BidderName = "cadent_aperture_mx"
 	BidderCcx               BidderName = "ccx"
+	BidderClydo             BidderName = "clydo"
 	BidderCointraffic       BidderName = "cointraffic"
 	BidderCoinzilla         BidderName = "coinzilla"
 	BidderColossus          BidderName = "colossus"
@@ -456,6 +478,7 @@ const (
 	BidderConnatix          BidderName = "connatix"
 	BidderConnectAd         BidderName = "connectad"
 	BidderConsumable        BidderName = "consumable"
+	BidderContxtful         BidderName = "contxtful"
 	BidderConversant        BidderName = "conversant"
 	BidderCopper6ssp        BidderName = "copper6ssp"
 	BidderCpmstar           BidderName = "cpmstar"
@@ -476,8 +499,10 @@ const (
 	BidderEPlanning         BidderName = "eplanning"
 	BidderEpom              BidderName = "epom"
 	BidderEscalax           BidderName = "escalax"
+	BidderExco              BidderName = "exco"
 	BidderEVolution         BidderName = "e_volution"
 	BidderFeedAd            BidderName = "feedad"
+	BidderFlatads           BidderName = "flatads"
 	BidderFlipp             BidderName = "flipp"
 	BidderFreewheelSSP      BidderName = "freewheelssp"
 	BidderFWSSP             BidderName = "fwssp"
@@ -485,6 +510,7 @@ const (
 	BidderGamma             BidderName = "gamma"
 	BidderGamoshi           BidderName = "gamoshi"
 	BidderGlobalsun         BidderName = "globalsun"
+	BidderGoldbach          BidderName = "goldbach"
 	BidderGothamads         BidderName = "gothamads"
 	BidderGrid              BidderName = "grid"
 	BidderGumGum            BidderName = "gumgum"
@@ -530,15 +556,18 @@ const (
 	BidderMetaX             BidderName = "metax"
 	BidderMgid              BidderName = "mgid"
 	BidderMgidX             BidderName = "mgidX"
+	BidderMicrosoft         BidderName = "msft"
 	BidderMinuteMedia       BidderName = "minutemedia"
 	BidderMissena           BidderName = "missena"
 	BidderMobfoxpb          BidderName = "mobfoxpb"
 	BidderMobileFuse        BidderName = "mobilefuse"
 	BidderMobkoi            BidderName = "mobkoi"
 	BidderMotorik           BidderName = "motorik"
+	BidderNativery          BidderName = "nativery"
 	BidderNativo            BidderName = "nativo"
 	BidderTheTradeDesk      BidderName = "thetradedesk"
 	BidderNextMillennium    BidderName = "nextmillennium"
+	BidderNexx360           BidderName = "nexx360"
 	BidderNoBid             BidderName = "nobid"
 	BidderOgury             BidderName = "ogury"
 	BidderOms               BidderName = "oms"
@@ -561,6 +590,7 @@ const (
 	BidderPWBid             BidderName = "pwbid"
 	BidderQT                BidderName = "qt"
 	BidderReadpeak          BidderName = "readpeak"
+	BidderRediads           BidderName = "rediads"
 	BidderRelevantDigital   BidderName = "relevantdigital"
 	BidderResetDigital      BidderName = "resetdigital"
 	BidderRevcontent        BidderName = "revcontent"
@@ -574,6 +604,7 @@ const (
 	BidderSaLunaMedia       BidderName = "sa_lunamedia"
 	BidderScreencore        BidderName = "screencore"
 	BidderSharethrough      BidderName = "sharethrough"
+	BidderShowheroes        BidderName = "showheroes"
 	BidderSilverMob         BidderName = "silvermob"
 	BidderSilverPush        BidderName = "silverpush"
 	BidderSmaato            BidderName = "smaato"
@@ -588,6 +619,7 @@ const (
 	BidderSonobi            BidderName = "sonobi"
 	BidderSovrn             BidderName = "sovrn"
 	BidderSovrnXsp          BidderName = "sovrnXsp"
+	BidderSparteo           BidderName = "sparteo"
 	BidderSspBC             BidderName = "sspBC"
 	BidderStartIO           BidderName = "startio"
 	BidderStroeerCore       BidderName = "stroeerCore"
@@ -595,6 +627,7 @@ const (
 	BidderTappx             BidderName = "tappx"
 	BidderTeads             BidderName = "teads"
 	BidderTelaria           BidderName = "telaria"
+	BidderTeqBlaze          BidderName = "teqblaze"
 	BidderTheadx            BidderName = "theadx"
 	BidderTpmn              BidderName = "tpmn"
 	BidderTradPlus          BidderName = "tradplus"
@@ -622,6 +655,7 @@ const (
 	BidderYieldlab          BidderName = "yieldlab"
 	BidderYieldmo           BidderName = "yieldmo"
 	BidderYieldone          BidderName = "yieldone"
+	BidderZentotem          BidderName = "zentotem"
 	BidderZeroClickFraud    BidderName = "zeroclickfraud"
 	BidderZetaGlobalSsp     BidderName = "zeta_global_ssp"
 	BidderZmaticoo          BidderName = "zmaticoo"

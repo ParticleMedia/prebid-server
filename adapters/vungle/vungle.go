@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/buger/jsonparser"
 	"net/http"
 	"strings"
 
@@ -132,14 +133,34 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 		return nil, []error{err}
 	}
 
+	// NewsBreak Custom SDK Logic Begins
+	ext := VungleBidExt{
+		Detail: VungleBidExtDetail{
+			PlacementReferenceId: getAdUnitIdForImp(request.Imp),
+		},
+	}
+	extBytes, err := json.Marshal(&ext)
+	if err != nil {
+		return nil, []error{err}
+	}
+	// NewsBreak Custom SDK Logic Ends
+
 	var errs []error
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(request.Imp))
 	bidResponse.Currency = response.Cur
 	for _, seatBid := range response.SeatBid {
 		for i := range seatBid.Bid {
+			// NewsBreak Custom SDK Logic Begins
+			seatBid.Bid[i].Ext = extBytes
+			mediaType, err := getMediaTypeForImp(seatBid.Bid[i].ImpID, request.Imp)
+			if err != nil {
+				return nil, []error{err}
+			}
+			// NewsBreak Custom SDK Logic Ends
+
 			b := &adapters.TypedBid{
 				Bid:     &seatBid.Bid[i],
-				BidType: openrtb_ext.BidTypeVideo,
+				BidType: mediaType,
 				Seat:    openrtb_ext.BidderName(seatBid.Seat),
 			}
 
@@ -148,4 +169,43 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	}
 
 	return bidResponse, errs
+}
+
+func getAdUnitIdForImp(imps []openrtb2.Imp) string {
+	var adUnitId = ""
+	for _, imp := range imps {
+		adUnitId, err := jsonparser.GetString(imp.Ext, "bidder", "placement_reference_id")
+		if err != nil {
+			continue
+		}
+		if adUnitId != "" {
+			return adUnitId
+		}
+	}
+	return adUnitId
+}
+
+func getMediaTypeForImp(impId string, imps []openrtb2.Imp) (openrtb_ext.BidType, error) {
+	var mediaType openrtb_ext.BidType
+	var typeCnt = 0
+	for _, imp := range imps {
+		if imp.ID == impId {
+			if imp.Banner != nil {
+				typeCnt += 1
+				mediaType = openrtb_ext.BidTypeBanner
+			}
+			if imp.Native != nil {
+				typeCnt += 1
+				mediaType = openrtb_ext.BidTypeNative
+			}
+			if imp.Video != nil {
+				typeCnt += 1
+				mediaType = openrtb_ext.BidTypeVideo
+			}
+		}
+	}
+	if typeCnt == 1 {
+		return mediaType, nil
+	}
+	return mediaType, fmt.Errorf("Vungle unable to fetch mediaType in multi-format: %s", impId)
 }
