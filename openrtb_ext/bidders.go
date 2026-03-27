@@ -673,6 +673,9 @@ const (
 	BidderMspMoloco       BidderName = "msp_moloco"
 	BidderMspMolocoNative BidderName = "msp_moloco_native"
 	BidderMspTtdVideo     BidderName = "msp_ttd_video"
+	BidderMspVungleAlpha  BidderName = "msp_vungle_alpha"
+	BidderMspVungleBeta   BidderName = "msp_vungle_beta"
+	BidderMspVungleGamma  BidderName = "msp_vungle_gamma"
 )
 
 // CoreBidderNames returns a slice of all core bidders.
