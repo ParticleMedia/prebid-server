@@ -21,3 +21,4 @@ userSync:
     - iframe
 openrtb:
   gpp-supported: true
+endpointCompression: "GZIP"
