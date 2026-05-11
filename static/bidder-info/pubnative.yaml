@@ -13,3 +13,4 @@ capabilities:
       - banner
       - video
       - native
+endpointCompression: "GZIP"
