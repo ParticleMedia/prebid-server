@@ -17,6 +17,7 @@ func mspBidderNames() []BidderName {
 		BidderMspVungleAlpha,
 		BidderMspVungleBeta,
 		BidderMspVungleGamma,
+		BidderMspVungleDelta,
 	}
 }
 
