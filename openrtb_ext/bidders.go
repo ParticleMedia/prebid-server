@@ -672,6 +672,7 @@ const (
 	BidderMspFbDelta      BidderName = "msp_fb_delta"
 	BidderMspMoloco       BidderName = "msp_moloco"
 	BidderMspMolocoNative BidderName = "msp_moloco_native"
+	BidderMspBidease      BidderName = "msp_bidease"
 	BidderMspTtdVideo     BidderName = "msp_ttd_video"
 	BidderMspVungleAlpha  BidderName = "msp_vungle_alpha"
 	BidderMspVungleBeta   BidderName = "msp_vungle_beta"
