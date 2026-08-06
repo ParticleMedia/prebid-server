@@ -117,7 +117,7 @@ func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *
 }
 
 // MakeBids translates Displayio bid response to prebid-server specific format
-func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, _ *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
+func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, requestData *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 
 	if adapters.IsResponseStatusCodeNoContent(responseData) {
 		return nil, nil
@@ -142,12 +142,29 @@ func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, _ *adapte
 	var errs []error
 	bidResponse := adapters.NewBidderResponse()
 
+	// Display.io answers with impid "1" instead of echoing the impression id we sent, so its bids match
+	// no impression in the request. Restamp them with the impression this request asked about —
+	// MakeRequests sends exactly one imp per request and records it in RequestData.ImpIDs, which stays
+	// correct when a multi-imp request is fanned out. Left alone, downstream steps that group bids by
+	// ImpID drop them silently.
+	impID := ""
+	if requestData != nil && len(requestData.ImpIDs) > 0 {
+		impID = requestData.ImpIDs[0]
+	} else if internalRequest != nil && len(internalRequest.Imp) == 1 {
+		// RequestData built without ImpIDs (as the JSON test harness does). Only safe to infer when the
+		// request carries a single imp; with several there is no way to tell which one answered.
+		impID = internalRequest.Imp[0].ID
+	}
+
 	for _, sb := range bidResp.SeatBid {
 		for i := range sb.Bid {
 			bidType, err := getBidMediaTypeFromMtype(&sb.Bid[i])
 			if err != nil {
 				errs = append(errs, err)
 			} else {
+				if impID != "" {
+					sb.Bid[i].ImpID = impID
+				}
 				b := &adapters.TypedBid{
 					Bid:     &sb.Bid[i],
 					BidType: bidType,
