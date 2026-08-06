@@ -196,6 +196,10 @@ func (req *httpRequest) ToRequestData(t *testing.T) *adapters.RequestData {
 		Method: "POST",
 		Uri:    req.Uri,
 		Body:   req.Body,
+		// Carried through so MakeBids sees what the exchange gives it in production, where the value
+		// comes from the adapter's own MakeRequests. Without it, an adapter that resolves a bid's
+		// impression from RequestData.ImpIDs cannot be covered by these fixtures at all.
+		ImpIDs: req.ImpIDs,
 	}
 }
 
