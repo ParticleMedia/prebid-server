@@ -662,6 +662,8 @@ const (
 
 	// For MSP extension only
 	BidderMspGoogle       BidderName = "msp_google"
+	BidderMspGoogleNative BidderName = "msp_google_native"
+	BidderMspGoogleBanner BidderName = "msp_google_banner"
 	BidderMspNova         BidderName = "msp_nova"
 	BidderMspNovaAlpha    BidderName = "msp_nova_alpha"
 	BidderMspNovaBeta     BidderName = "msp_nova_beta"
