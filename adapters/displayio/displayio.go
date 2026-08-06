@@ -150,10 +150,6 @@ func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, requestDa
 	impID := ""
 	if requestData != nil && len(requestData.ImpIDs) > 0 {
 		impID = requestData.ImpIDs[0]
-	} else if internalRequest != nil && len(internalRequest.Imp) == 1 {
-		// RequestData built without ImpIDs (as the JSON test harness does). Only safe to infer when the
-		// request carries a single imp; with several there is no way to tell which one answered.
-		impID = internalRequest.Imp[0].ID
 	}
 
 	for _, sb := range bidResp.SeatBid {
@@ -162,9 +158,7 @@ func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, requestDa
 			if err != nil {
 				errs = append(errs, err)
 			} else {
-				if impID != "" {
-					sb.Bid[i].ImpID = impID
-				}
+				sb.Bid[i].ImpID = impID
 				b := &adapters.TypedBid{
 					Bid:     &sb.Bid[i],
 					BidType: bidType,
