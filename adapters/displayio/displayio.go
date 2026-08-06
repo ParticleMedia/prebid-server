@@ -117,7 +117,7 @@ func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *
 }
 
 // MakeBids translates Displayio bid response to prebid-server specific format
-func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, _ *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
+func (adapter *adapter) MakeBids(bidReq *openrtb2.BidRequest, _ *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 
 	if adapters.IsResponseStatusCodeNoContent(responseData) {
 		return nil, nil
@@ -142,12 +142,28 @@ func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, _ *adapte
 	var errs []error
 	bidResponse := adapters.NewBidderResponse()
 
+	// Display.io answers with impid "1" instead of echoing the impression id we sent, so its bids match
+	// no impression in the request. Left alone, downstream steps that group bids by ImpID drop them
+	// silently. We send one imp per request, so the bid answers bidReq.Imp[0] and we restamp it.
+	//
+	// Only when the request carries exactly one imp: MakeRequests fans a multi-imp request out into one
+	// HTTP call per imp, but MakeBids is handed the whole request every time, so Imp[0] would be right
+	// for the first response and wrong for the rest. Nothing sends displayio more than one imp today;
+	// should that change, the bids are left as they arrive rather than mislabelled.
+	impID := ""
+	if bidReq != nil && len(bidReq.Imp) == 1 {
+		impID = bidReq.Imp[0].ID
+	}
+
 	for _, sb := range bidResp.SeatBid {
 		for i := range sb.Bid {
 			bidType, err := getBidMediaTypeFromMtype(&sb.Bid[i])
 			if err != nil {
 				errs = append(errs, err)
 			} else {
+				if impID != "" {
+					sb.Bid[i].ImpID = impID
+				}
 				b := &adapters.TypedBid{
 					Bid:     &sb.Bid[i],
 					BidType: bidType,
