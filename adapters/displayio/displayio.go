@@ -117,7 +117,7 @@ func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *
 }
 
 // MakeBids translates Displayio bid response to prebid-server specific format
-func (adapter *adapter) MakeBids(bidReq *openrtb2.BidRequest, _ *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
+func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, _ *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 
 	if adapters.IsResponseStatusCodeNoContent(responseData) {
 		return nil, nil
@@ -146,8 +146,8 @@ func (adapter *adapter) MakeBids(bidReq *openrtb2.BidRequest, _ *adapters.Reques
 	// no impression in the request and downstream steps that group bids by ImpID drop them silently.
 	// We send one imp per request, so the bid answers bidReq.Imp[0]; restamp it with that.
 	impID := ""
-	if bidReq != nil && len(bidReq.Imp) > 0 {
-		impID = bidReq.Imp[0].ID
+	if internalRequest != nil && len(internalRequest.Imp) > 0 {
+		impID = internalRequest.Imp[0].ID
 	}
 
 	for _, sb := range bidResp.SeatBid {
