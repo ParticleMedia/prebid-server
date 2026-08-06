@@ -117,7 +117,7 @@ func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *
 }
 
 // MakeBids translates Displayio bid response to prebid-server specific format
-func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, requestData *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
+func (adapter *adapter) MakeBids(_ *openrtb2.BidRequest, requestData *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 
 	if adapters.IsResponseStatusCodeNoContent(responseData) {
 		return nil, nil
