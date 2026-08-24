@@ -53,19 +53,18 @@ func TestMetricCountGatekeeping(t *testing.T) {
 		}
 	}
 
-	// Calculate Per-Adapter Cardinality
-	adapterCount := len(openrtb_ext.CoreBidderNames())
-	perAdapterCardinalityCount := adapterCardinalityCount / adapterCount
 	// Verify General Cardinality
 	// - This assertion provides a warning for newly added high-cardinality non-adapter specific metrics. The hardcoded limit
 	//   is an arbitrary soft ceiling. Thought should be given as to the value of the new metrics if you find yourself
 	//   needing to increase this number.
 	assert.True(t, generalCardinalityCount <= 500, "General Cardinality")
 
-	// Verify Per-Adapter Cardinality
-	// - This assertion provides a warning for newly added adapter metrics. Threre are 40+ adapters which makes the
-	//   cost of new per-adapter metrics rather expensive. Thought should be given when adding new per-adapter metrics.
-	assert.True(t, perAdapterCardinalityCount <= 33, "Per-Adapter Cardinality count equals %d \n", perAdapterCardinalityCount)
+	// MSP: per-adapter preloading is off (see preload.go), so nothing gathered here should
+	// carry an adapter label. Upstream asserted a ceiling on per-adapter cardinality, which
+	// would now pass on a count of zero and guard nothing. This asserts the invariant we
+	// actually want: re-enabling a preload block fails the test, because it puts ~340
+	// bidders x that metric back onto every pod.
+	assert.Zero(t, adapterCardinalityCount, "Adapter metrics should not be preloaded")
 }
 
 func TestConnectionMetrics(t *testing.T) {
