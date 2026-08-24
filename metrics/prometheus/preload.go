@@ -2,20 +2,25 @@ package prometheusmetrics
 
 import (
 	"github.com/prebid/prebid-server/v3/metrics"
-	"github.com/prebid/prebid-server/v3/openrtb_ext"
+	// "github.com/prebid/prebid-server/v3/openrtb_ext"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// MSP: the per-adapter preloads below are commented out rather than deleted, so a
+// rebase onto upstream keeps them visible and they can be switched back on in one
+// edit. They created a full series set for all ~340 bidders compiled into the
+// binary -- 9,180 series a pod, 97% of this registry -- for bidders that never see
+// a request. Adapter series are now created lazily on first use.
 func preloadLabelValues(m *Metrics, syncerKeys []string, moduleStageNames map[string][]string) {
 	var (
-		adapterErrorValues        = enumAsString(metrics.AdapterErrors())
-		adapterValues             = enumAsLowerCaseString(openrtb_ext.CoreBidderNames())
-		bidTypeValues             = []string{markupDeliveryAdm, markupDeliveryNurl}
-		boolValues                = boolValuesAsString()
-		cacheResultValues         = enumAsString(metrics.CacheResults())
-		connectionErrorValues     = []string{connectionAcceptError, connectionCloseError}
-		cookieSyncStatusValues    = enumAsString(metrics.CookieSyncStatuses())
-		cookieValues              = enumAsString(metrics.CookieTypes())
+		// adapterErrorValues        = enumAsString(metrics.AdapterErrors())
+		// adapterValues             = enumAsLowerCaseString(openrtb_ext.CoreBidderNames())
+		// bidTypeValues             = []string{markupDeliveryAdm, markupDeliveryNurl}
+		boolValues             = boolValuesAsString()
+		cacheResultValues      = enumAsString(metrics.CacheResults())
+		connectionErrorValues  = []string{connectionAcceptError, connectionCloseError}
+		cookieSyncStatusValues = enumAsString(metrics.CookieSyncStatuses())
+		// cookieValues              = enumAsString(metrics.CookieTypes())
 		overheadTypes             = enumAsString(metrics.OverheadTypes())
 		requestStatusValues       = enumAsString(metrics.RequestStatuses())
 		requestTypeValues         = enumAsString(metrics.RequestTypes())
@@ -124,81 +129,81 @@ func preloadLabelValues(m *Metrics, syncerKeys []string, moduleStageNames map[st
 		cacheResultLabel: cacheResultValues,
 	})
 
-	preloadLabelValuesForCounter(m.adapterBids, map[string][]string{
-		adapterLabel:        adapterValues,
-		markupDeliveryLabel: bidTypeValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterBids, map[string][]string{
+	// 		adapterLabel:        adapterValues,
+	// 		markupDeliveryLabel: bidTypeValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterErrors, map[string][]string{
-		adapterLabel:      adapterValues,
-		adapterErrorLabel: adapterErrorValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterErrors, map[string][]string{
+	// 		adapterLabel:      adapterValues,
+	// 		adapterErrorLabel: adapterErrorValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterPanics, map[string][]string{
-		adapterLabel: adapterValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterPanics, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterBidResponseSecureMarkupError, map[string][]string{
-		adapterLabel: adapterValues,
-		successLabel: boolValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterBidResponseSecureMarkupError, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 		successLabel: boolValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterBidResponseSecureMarkupWarn, map[string][]string{
-		adapterLabel: adapterValues,
-		successLabel: boolValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterBidResponseSecureMarkupWarn, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 		successLabel: boolValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterBidResponseValidationSizeError, map[string][]string{
-		adapterLabel: adapterValues,
-		successLabel: boolValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterBidResponseValidationSizeError, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 		successLabel: boolValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterBidResponseValidationSizeWarn, map[string][]string{
-		adapterLabel: adapterValues,
-		successLabel: boolValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterBidResponseValidationSizeWarn, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 		successLabel: boolValues,
+	// 	})
 
-	preloadLabelValuesForHistogram(m.adapterPrices, map[string][]string{
-		adapterLabel: adapterValues,
-	})
+	// 	preloadLabelValuesForHistogram(m.adapterPrices, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 	})
 
-	preloadLabelValuesForCounter(m.adapterRequests, map[string][]string{
-		adapterLabel: adapterValues,
-		cookieLabel:  cookieValues,
-		hasBidsLabel: boolValues,
-	})
+	// 	preloadLabelValuesForCounter(m.adapterRequests, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 		cookieLabel:  cookieValues,
+	// 		hasBidsLabel: boolValues,
+	// 	})
 
 	preloadLabelValuesForCounter(m.adsCertRequests, map[string][]string{
 		successLabel: boolValues,
 	})
 
-	if !m.metricsDisabled.AdapterConnectionMetrics {
-		preloadLabelValuesForCounter(m.adapterCreatedConnections, map[string][]string{
-			adapterLabel: adapterValues,
-		})
+	// if !m.metricsDisabled.AdapterConnectionMetrics {
+	// 		preloadLabelValuesForCounter(m.adapterCreatedConnections, map[string][]string{
+	// 			adapterLabel: adapterValues,
+	// 		})
 
-		preloadLabelValuesForCounter(m.adapterReusedConnections, map[string][]string{
-			adapterLabel: adapterValues,
-		})
+	// 		preloadLabelValuesForCounter(m.adapterReusedConnections, map[string][]string{
+	// 			adapterLabel: adapterValues,
+	// 		})
 
-		preloadLabelValuesForHistogram(m.adapterConnectionWaitTime, map[string][]string{
-			adapterLabel: adapterValues,
-		})
+	// 		preloadLabelValuesForHistogram(m.adapterConnectionWaitTime, map[string][]string{
+	// 			adapterLabel: adapterValues,
+	// 		})
 
-		if !m.metricsDisabled.AdapterConnectionDialMetrics {
-			preloadLabelValuesForCounter(m.adapterConnectionDialErrors, map[string][]string{
-				adapterLabel: adapterValues,
-			})
+	// if !m.metricsDisabled.AdapterConnectionDialMetrics {
+	// 			preloadLabelValuesForCounter(m.adapterConnectionDialErrors, map[string][]string{
+	// 				adapterLabel: adapterValues,
+	// 			})
 
-			preloadLabelValuesForHistogram(m.adapterConnectionDialTime, map[string][]string{
-				adapterLabel: adapterValues,
-			})
-		}
-	}
+	// 			preloadLabelValuesForHistogram(m.adapterConnectionDialTime, map[string][]string{
+	// 				adapterLabel: adapterValues,
+	// 			})
+	// }
+	// }
 
-	preloadLabelValuesForHistogram(m.adapterRequestsTimer, map[string][]string{
-		adapterLabel: adapterValues,
-	})
+	// 	preloadLabelValuesForHistogram(m.adapterRequestsTimer, map[string][]string{
+	// 		adapterLabel: adapterValues,
+	// 	})
 
 	preloadLabelValuesForHistogram(m.overheadTimer, map[string][]string{
 		overheadTypeLabel: overheadTypes,
@@ -239,17 +244,17 @@ func preloadLabelValues(m *Metrics, syncerKeys []string, moduleStageNames map[st
 		versionLabel: tcfVersionValues,
 	})
 
-	if !m.metricsDisabled.AdapterBuyerUIDScrubbed {
-		preloadLabelValuesForCounter(m.adapterScrubbedBuyerUIDs, map[string][]string{
-			adapterLabel: adapterValues,
-		})
-	}
+	// if !m.metricsDisabled.AdapterBuyerUIDScrubbed {
+	// 		preloadLabelValuesForCounter(m.adapterScrubbedBuyerUIDs, map[string][]string{
+	// 			adapterLabel: adapterValues,
+	// 		})
+	// }
 
-	if !m.metricsDisabled.AdapterGDPRRequestBlocked {
-		preloadLabelValuesForCounter(m.adapterGDPRBlockedRequests, map[string][]string{
-			adapterLabel: adapterValues,
-		})
-	}
+	// if !m.metricsDisabled.AdapterGDPRRequestBlocked {
+	// 		preloadLabelValuesForCounter(m.adapterGDPRBlockedRequests, map[string][]string{
+	// 			adapterLabel: adapterValues,
+	// 		})
+	// }
 
 	for module, stageValues := range moduleStageNames {
 		preloadLabelValuesForHistogram(m.moduleDuration[module], map[string][]string{
