@@ -181,6 +181,8 @@ func (a *adapter) modifyRequest(out *openrtb2.BidRequest) error {
 	if out.App != nil {
 		app := *out.App
 		app.Publisher = &openrtb2.Publisher{ID: pubId}
+		// Meta does not get the article URL MSP puts on app.content.
+		app.Content = nil
 		out.App = &app
 	}
 
