@@ -213,6 +213,13 @@ func (deps *endpointDeps) Auction(w http.ResponseWriter, r *http.Request, _ http
 	ctx := context.Background()
 
 	timeout := deps.cfg.AuctionTimeouts.LimitAuctionTimeout(time.Duration(req.TMax) * time.Millisecond)
+
+	// adjust tmax for requests with last peek feature enabled
+	msbConfig := exchange.ExtractMSBInfoReq(req.BidRequest)
+	if msbConfig.LastPeek.PeekStartTimeMilliSeconds > 0 {
+		timeout += time.Duration(msbConfig.LastPeek.PeekStartTimeMilliSeconds/2) * time.Millisecond
+	}
+
 	if timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithDeadline(ctx, start.Add(timeout))
