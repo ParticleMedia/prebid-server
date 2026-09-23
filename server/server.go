@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/prebid/prebid-server/v3/config"
-	"github.com/prebid/prebid-server/v3/logger"
-	"github.com/prebid/prebid-server/v3/metrics"
-	metricsconfig "github.com/prebid/prebid-server/v3/metrics/config"
-	mspPlugin "github.com/prebid/prebid-server/v3/msp/plugin"
+	"github.com/prebid/prebid-server/v4/config"
+	"github.com/prebid/prebid-server/v4/logger"
+	"github.com/prebid/prebid-server/v4/metrics"
+	metricsconfig "github.com/prebid/prebid-server/v4/metrics/config"
+	mspPlugin "github.com/prebid/prebid-server/v4/msp/plugin"
 )
 
 // Listen blocks forever, serving PBS requests on the given port. This will block forever, until the process is shut down.
