@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/51Degrees/device-detection-go/v4/dd"
-	"github.com/prebid/prebid-server/v4/hooks/hookstage"
+	"github.com/prebid/prebid-server/v3/hooks/hookstage"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -129,7 +129,7 @@ func TestExtract(t *testing.T) {
 
 	tests := []struct {
 		name              string
-		ctx               *hookstage.ModuleContext
+		ctx               hookstage.ModuleContext
 		wantEvidenceCount int
 		wantUserAgent     string
 		wantError         bool
@@ -141,120 +141,96 @@ func TestExtract(t *testing.T) {
 		},
 		{
 			name: "empty",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{})
-				ctx.Set(evidenceFromSuaCtxKey, []stringEvidence{})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromSuaCtxKey:     []stringEvidence{},
+				evidenceFromHeadersCtxKey: []stringEvidence{},
+			},
 			wantEvidenceCount: 0,
 			wantUserAgent:     "",
 		},
 		{
 			name: "from_headers",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{uaEvidence1})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{uaEvidence1},
+			},
 			wantEvidenceCount: 1,
 			wantUserAgent:     "uav1",
 		},
 		{
 			name: "from_headers_no_user_agent",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{evidence1})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{evidence1},
+			},
 			wantError: true,
 		},
 		{
 			name: "from_sua",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromSuaCtxKey, []stringEvidence{uaEvidence1})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromSuaCtxKey: []stringEvidence{uaEvidence1},
+			},
 			wantEvidenceCount: 1,
 			wantUserAgent:     "uav1",
 		},
 		{
 			name: "from_sua_no_user_agent",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromSuaCtxKey, []stringEvidence{evidence1})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromSuaCtxKey: []stringEvidence{evidence1},
+			},
 			wantError: true,
 		},
 		{
 			name: "from_headers_error",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, "bad value")
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: "bad value",
+			},
 			wantError: true,
 		},
 		{
 			name: "from_sua_error",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{})
-				ctx.Set(evidenceFromSuaCtxKey, "bad value")
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{},
+				evidenceFromSuaCtxKey:     "bad value",
+			},
 			wantError: true,
 		},
 		{
 			name: "from_sua_and_headers",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{uaEvidence1})
-				ctx.Set(evidenceFromSuaCtxKey, []stringEvidence{evidence1})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{uaEvidence1},
+				evidenceFromSuaCtxKey:     []stringEvidence{evidence1},
+			},
 			wantEvidenceCount: 2,
 			wantUserAgent:     "uav1",
 		},
 		{
 			name: "from_sua_and_headers_sua_can_overwrite_if_ua_present",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{uaEvidence1})
-				ctx.Set(evidenceFromSuaCtxKey, []stringEvidence{uaEvidence2})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{uaEvidence1},
+				evidenceFromSuaCtxKey:     []stringEvidence{uaEvidence2},
+			},
 			wantEvidenceCount: 1,
 			wantUserAgent:     "uav2",
 		},
 		{
 			name: "empty_string_values",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{emptyEvidence})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{emptyEvidence},
+			},
 			wantError: true,
 		},
 		{
 			name: "empty_sua_values",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromSuaCtxKey, []stringEvidence{emptyEvidence})
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromSuaCtxKey: []stringEvidence{emptyEvidence},
+			},
 			wantError: true,
 		},
 		{
 			name: "mixed_valid_and_invalid",
-			ctx: func() *hookstage.ModuleContext {
-				ctx := hookstage.NewModuleContext()
-				ctx.Set(evidenceFromHeadersCtxKey, []stringEvidence{uaEvidence1})
-				ctx.Set(evidenceFromSuaCtxKey, "bad value")
-				return ctx
-			}(),
+			ctx: hookstage.ModuleContext{
+				evidenceFromHeadersCtxKey: []stringEvidence{uaEvidence1},
+				evidenceFromSuaCtxKey:     "bad value",
+			},
 			wantError: true,
 		},
 	}

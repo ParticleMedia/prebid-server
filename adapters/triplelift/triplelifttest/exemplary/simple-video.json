@@ -40,7 +40,6 @@
             {
               "tagid": "aaw",
               "bidfloor": 0.10,
-              "bidfloorcur": "USD",
               "id": "test-imp-id",
               "video": {
                 "mimes": [

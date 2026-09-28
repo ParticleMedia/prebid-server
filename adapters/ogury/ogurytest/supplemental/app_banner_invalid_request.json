@@ -3,7 +3,10 @@
     "id": "test-request-id",
     "app": {
       "id": "1",
-      "bundle": "com.example"
+      "bundle": "com.example",
+      "publisher": {
+        "id":  "pub-id"
+      }
     },
     "imp": [
       {
@@ -23,7 +26,7 @@
 
   "expectedBidResponses": [],
   "expectedMakeRequestsErrors": [{
-    "value": "Invalid request. assetKey/adUnitId or request.site/app.publisher.id required",
+    "value": "Invalid request. assetKey/adUnitId required",
     "comparison": "literal"
   }]
 }

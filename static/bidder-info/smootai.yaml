@@ -1,2 +1,0 @@
-endpoint: "http://ads-pbs.ads-smoot.com/openrtb/{{.PublisherID}}?host={{.Host}}"
-aliasOf: "limelightDigital"

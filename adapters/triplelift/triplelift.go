@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/prebid/openrtb/v20/openrtb2"
-	"github.com/prebid/prebid-server/v4/adapters"
-	"github.com/prebid/prebid-server/v4/config"
-	"github.com/prebid/prebid-server/v4/errortypes"
-	"github.com/prebid/prebid-server/v4/openrtb_ext"
-	"github.com/prebid/prebid-server/v4/util/jsonutil"
+	"github.com/prebid/prebid-server/v3/adapters"
+	"github.com/prebid/prebid-server/v3/config"
+	"github.com/prebid/prebid-server/v3/errortypes"
+	"github.com/prebid/prebid-server/v3/openrtb_ext"
+	"github.com/prebid/prebid-server/v3/util/jsonutil"
 )
 
 type TripleliftAdapter struct {
@@ -34,7 +33,7 @@ func getBidType(ext TripleliftRespExt) openrtb_ext.BidType {
 	return openrtb_ext.BidTypeBanner
 }
 
-func processImp(imp *openrtb2.Imp, reqInfo *adapters.ExtraRequestInfo) error {
+func processImp(imp *openrtb2.Imp) error {
 	// get the triplelift extension
 	var ext adapters.ExtImpBidder
 	var tlext openrtb_ext.ExtImpTriplelift
@@ -49,32 +48,12 @@ func processImp(imp *openrtb2.Imp, reqInfo *adapters.ExtraRequestInfo) error {
 	}
 	imp.TagID = tlext.InvCode
 	// floor is optional
-	if tlext.Floor != nil {
+	if tlext.Floor == nil {
+		return nil
+	} else {
 		imp.BidFloor = *tlext.Floor
 	}
-	// Normalize bid floor to USD - TLX expects USD
-	if err := resolveBidFloorCurrency(imp, reqInfo); err != nil {
-		return err
-	}
 	// no error
-	return nil
-}
-
-// Normalize imp.BidFloor to USD
-func resolveBidFloorCurrency(imp *openrtb2.Imp, reqInfo *adapters.ExtraRequestInfo) error {
-	if imp.BidFloor <= 0 {
-		return nil
-	}
-	if imp.BidFloorCur != "" && strings.ToUpper(imp.BidFloorCur) != "USD" {
-		converted, err := reqInfo.ConvertCurrency(imp.BidFloor, imp.BidFloorCur, "USD")
-		if err != nil {
-			return &errortypes.BadInput{
-				Message: fmt.Sprintf("Unable to convert bid floor from %s to USD: %s", imp.BidFloorCur, err.Error()),
-			}
-		}
-		imp.BidFloor = converted
-	}
-	imp.BidFloorCur = "USD"
 	return nil
 }
 
@@ -87,7 +66,7 @@ func (a *TripleliftAdapter) MakeRequests(request *openrtb2.BidRequest, extra *ad
 	var validImps []openrtb2.Imp
 	// pre-process the imps
 	for _, imp := range tlRequest.Imp {
-		if err := processImp(&imp, extra); err == nil {
+		if err := processImp(&imp); err == nil {
 			validImps = append(validImps, imp)
 		} else {
 			errs = append(errs, err)
@@ -146,9 +125,6 @@ func (a *TripleliftAdapter) MakeBids(internalRequest *openrtb2.BidRequest, exter
 	var errs []error
 	count := getBidCount(bidResp)
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(count)
-
-	// Bids are always denominated in USD
-	bidResponse.Currency = "USD"
 
 	for _, sb := range bidResp.SeatBid {
 		for i := 0; i < len(sb.Bid); i++ {

@@ -51,10 +51,9 @@
           "codes": null,
           "gdpr": { "consent_required": false, "consent_string": "" },
           "type": "pbs",
-          "pbjs": "prebid-test-version",
-          "tech": {},
-          "test": true,
-          "user_uid": ""
+          "dsa": "",
+          "tech": { "device": null, "app": null },
+          "test": true
         },
         "impIDs": ["0", "1", "-42", "-1", "-0", "42"]
       },

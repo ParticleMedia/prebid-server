@@ -98,7 +98,7 @@
   ],
   "expectedMakeBidsErrors": [
     {
-      "value": "unsupported MType .*",
+      "value": "unexpected media type for bid: .*",
       "comparison": "regex"
     }
   ]

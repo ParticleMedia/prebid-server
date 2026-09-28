@@ -14,8 +14,7 @@
     },
     "publisherPath": {
       "type": "string",
-      "enum": ["/hubvisor", "/spotx"],
-      "description": "An optional path used in the bid endpoint. Only '/hubvisor' and '/spotx' are allowed."
+      "description": "An optional path used in the bid endpoint"
     }
   },
   "required": []

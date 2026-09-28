@@ -4,9 +4,8 @@ import (
 	"fmt"
 
 	"github.com/prebid/openrtb/v20/openrtb2"
-	"github.com/prebid/prebid-server/v4/adapters"
-	"github.com/prebid/prebid-server/v4/util/ptrutil"
-	"github.com/prebid/prebid-server/v4/version"
+	"github.com/prebid/prebid-server/v3/adapters"
+	"github.com/prebid/prebid-server/v3/util/ptrutil"
 )
 
 // msqResponse: Bid-Response sent by mediasquare.
@@ -21,14 +20,12 @@ type msqResponse struct {
 
 // msqParameters: Bid-Request sent to mediasquare.
 type msqParameters struct {
-	Codes     []msqParametersCodes `json:"codes"`
-	Gdpr      msqParametersGdpr    `json:"gdpr"`
-	Type      string               `json:"type"`
-	PrebidVer string               `json:"pbjs,omitempty"`
-	DSA       interface{}          `json:"dsa,omitempty"`
-	Support   msqSupport           `json:"tech"`
-	Test      bool                 `json:"test"`
-	UserUID   string               `json:"user_uid"`
+	Codes   []msqParametersCodes `json:"codes"`
+	Gdpr    msqParametersGdpr    `json:"gdpr"`
+	Type    string               `json:"type"`
+	DSA     interface{}          `json:"dsa,omitempty"`
+	Support msqSupport           `json:"tech"`
+	Test    bool                 `json:"test"`
 }
 
 type msqResponseBidsVideo struct {
@@ -86,10 +83,8 @@ type msqResponseBids struct {
 }
 
 type msqSupport struct {
-	Device *openrtb2.Device `json:"device,omitempty"`
-	App    *openrtb2.App    `json:"app,omitempty"`
-	Site   *openrtb2.Site   `json:"site,omitempty"`
-	User   *openrtb2.User   `json:"user,omitempty"`
+	Device interface{} `json:"device"`
+	App    interface{} `json:"app"`
 }
 
 type msqParametersCodes struct {
@@ -127,26 +122,13 @@ func initMsqParams(request *openrtb2.BidRequest) (msqParams msqParameters) {
 	msqParams.Support = msqSupport{
 		Device: request.Device,
 		App:    request.App,
-		Site:   request.Site,
-		User:   request.User,
 	}
 	msqParams.Gdpr = msqParametersGdpr{
 		ConsentRequired: (parserGDPR{}).getValue("consent_requirement", request) == "true",
 		ConsentString:   (parserGDPR{}).getValue("consent_string", request),
 	}
 	msqParams.DSA = (parserDSA{}).getValue(request)
-	if request.User != nil && len(request.User.BuyerUID) > 0 {
-		msqParams.UserUID = request.User.BuyerUID
-	}
-	msqParams.Test = (request.Test == int8(1))
-	switch {
-	case msqParams.Test:
-		msqParams.PrebidVer = "prebid-test-version"
-	case len(version.Ver) > 0:
-		msqParams.PrebidVer = version.Ver
-	default:
-		msqParams.PrebidVer = "n/a"
-	}
+
 	return
 }
 

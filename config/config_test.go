@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/prebid/go-gdpr/consentconstants"
-	"github.com/prebid/prebid-server/v4/openrtb_ext"
-	"github.com/prebid/prebid-server/v4/util/ptrutil"
+	"github.com/prebid/prebid-server/v3/openrtb_ext"
+	"github.com/prebid/prebid-server/v3/util/ptrutil"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -158,7 +158,7 @@ func TestDefaults(t *testing.T) {
 	cmpBools(t, "account_debug", true, cfg.Metrics.Disabled.AccountDebug)
 	cmpBools(t, "account_stored_responses", true, cfg.Metrics.Disabled.AccountStoredResponses)
 	cmpBools(t, "adapter_connections_metrics", true, cfg.Metrics.Disabled.AdapterConnectionMetrics)
-	cmpBools(t, "adapter_connections_dial_metrics", true, cfg.Metrics.Disabled.AdapterConnectionDialMetrics)
+	cmpBools(t, "adapter_connection_dial_metrics", true, cfg.Metrics.Disabled.AdapterConnectionDialMetrics)
 	cmpBools(t, "adapter_buyeruid_scrubbed", true, cfg.Metrics.Disabled.AdapterBuyerUIDScrubbed)
 	cmpBools(t, "adapter_gdpr_request_blocked", false, cfg.Metrics.Disabled.AdapterGDPRRequestBlocked)
 	cmpStrings(t, "certificates_file", "", cfg.PemCertsFile)
@@ -167,12 +167,11 @@ func TestDefaults(t *testing.T) {
 	cmpStrings(t, "stored_requests.filesystem.directorypath", "./stored_requests/data/by_id", cfg.StoredRequests.Files.Path)
 	cmpStrings(t, "stored_requests.http.endpoint", "", cfg.StoredRequests.HTTP.Endpoint)
 	cmpStrings(t, "stored_requests.http.amp_endpoint", "", cfg.StoredRequests.HTTP.AmpEndpoint)
-	cmpBools(t, "stored_requests.http.use_rfc3986_compliant_request_builder", true, cfg.StoredRequests.HTTP.UseRfcCompliantBuilder)
-	cmpBools(t, "video.enable_deprecated_endpoint", false, cfg.Video.EnableDeprecatedEndpoint)
+	cmpBools(t, "stored_requests.http.use_rfc3986_compliant_request_builder", false, cfg.StoredRequests.HTTP.UseRfcCompliantBuilder)
 	cmpBools(t, "accounts.filesystem.enabled", false, cfg.Accounts.Files.Enabled)
 	cmpStrings(t, "accounts.filesystem.directorypath", "./stored_requests/data/by_id", cfg.Accounts.Files.Path)
 	cmpStrings(t, "accounts.http.endpoint", "", cfg.Accounts.HTTP.Endpoint)
-	cmpBools(t, "accounts.http.use_rfc3986_compliant_request_builder", true, cfg.Accounts.HTTP.UseRfcCompliantBuilder)
+	cmpBools(t, "accounts.http.use_rfc3986_compliant_request_builder", false, cfg.Accounts.HTTP.UseRfcCompliantBuilder)
 	cmpStrings(t, "accounts.in_memory_cache.type", "none", cfg.Accounts.InMemoryCache.Type)
 	cmpInts(t, "accounts.in_memory_cache.ttl_seconds", 0, cfg.Accounts.InMemoryCache.TTL)
 	cmpInts(t, "accounts.in_memory_cache.size_bytes", 0, cfg.Accounts.InMemoryCache.Size)
@@ -255,7 +254,6 @@ func TestDefaults(t *testing.T) {
 	cmpInts(t, "analytics.agma.buffers.count", 100, cfg.Analytics.Agma.Buffers.EventCount)
 	cmpStrings(t, "analytics.agma.buffers.timeout", "15m", cfg.Analytics.Agma.Buffers.Timeout)
 	cmpInts(t, "analytics.agma.accounts", 0, len(cfg.Analytics.Agma.Accounts))
-	cmpInts(t, "gdpr.live_gvl_refresh_interval_seconds", 86400, cfg.GDPR.LiveGVLRefreshInterval)
 	expectedTCF2 := TCF2{
 		Enabled: true,
 		Purpose1: TCF2Purpose{
@@ -371,7 +369,7 @@ accounts:
     directorypath: "./example_directory"
   http:
     endpoint: "https://prebid.org"
-    use_rfc3986_compliant_request_builder: false
+    use_rfc3986_compliant_request_builder: true
   in_memory_cache:
     type: "lru"
     ttl_seconds: 300
@@ -388,7 +386,6 @@ gdpr:
   default_value: "1"
   non_standard_publishers: ["pub1", "pub2"]
   eea_countries: ["eea1", "eea2"]
-  live_gvl_refresh_interval_seconds: 3600
   tcf2:
     purpose1:
       enforce_vendors: false
@@ -425,14 +422,10 @@ gdpr:
       vendor_exceptions: ["foo10"]
     special_feature1:
       vendor_exceptions: ["fooSP1"]
-video:
-  enable_deprecated_endpoint: true
 ccpa:
   enforce: true
 lmt:
   enforce: true
-cookie_sync:
-  disabled_iframe_bidders: ["hostBidder1", "hostBidder2"]
 host_cookie:
   cookie_name: userid
   family: prebid
@@ -491,7 +484,7 @@ metrics:
     account_debug: false
     account_stored_responses: false
     adapter_connections_metrics: true
-    adapter_connections_dial_metrics: true
+    adapter_connection_dial_metrics: true
     adapter_buyeruid_scrubbed: false
     adapter_gdpr_request_blocked: true
     account_modules_metrics: true
@@ -607,6 +600,7 @@ analytics:
     - code: agma-code
       publisher_id: publisher-id
       site_app_id: site-or-app-id
+certificates_use_system: true
 `)
 
 func cmpStrings(t *testing.T, key, expected, actual string) {
@@ -653,7 +647,6 @@ func TestFullConfig(t *testing.T) {
 	cmpStrings(t, "cookie family", "prebid", cfg.HostCookie.Family)
 	cmpStrings(t, "opt out", "http://prebid.org/optout", cfg.HostCookie.OptOutURL)
 	cmpStrings(t, "opt in", "http://prebid.org/optin", cfg.HostCookie.OptInURL)
-	assert.Equal(t, []string{"hostBidder1", "hostBidder2"}, cfg.CookieSync.DisabledIFrameBidders, "cookie_sync.disabled_iframe_bidders")
 	cmpStrings(t, "external url", "http://prebid-server.prebid.org/", cfg.ExternalURL)
 	cmpStrings(t, "host", "prebid-server.prebid.org", cfg.Host)
 	cmpInts(t, "port", 1234, cfg.Port)
@@ -664,11 +657,11 @@ func TestFullConfig(t *testing.T) {
 	cmpInts(t, "stored_request_timeout_ms", 75, cfg.StoredRequestsTimeout)
 	cmpStrings(t, "stored_requests.http.endpoint", "", cfg.StoredRequests.HTTP.Endpoint)
 	cmpStrings(t, "stored_requests.http.amp_endpoint", "", cfg.StoredRequests.HTTP.AmpEndpoint)
-	cmpBools(t, "stored_requests.http.use_rfc3986_compliant_request_builder", true, cfg.StoredRequests.HTTP.UseRfcCompliantBuilder)
+	cmpBools(t, "stored_requests.http.use_rfc3986_compliant_request_builder", false, cfg.StoredRequests.HTTP.UseRfcCompliantBuilder)
 	cmpBools(t, "accounts.filesystem.enabled", true, cfg.Accounts.Files.Enabled)
 	cmpStrings(t, "accounts.filesystem.directorypath", "./example_directory", cfg.Accounts.Files.Path)
 	cmpStrings(t, "accounts.http.endpoint", "https://prebid.org", cfg.Accounts.HTTP.Endpoint)
-	cmpBools(t, "accounts.http.use_rfc3986_compliant_request_builder", false, cfg.Accounts.HTTP.UseRfcCompliantBuilder)
+	cmpBools(t, "accounts.http.use_rfc3986_compliant_request_builder", true, cfg.Accounts.HTTP.UseRfcCompliantBuilder)
 	cmpStrings(t, "accounts.in_memory_cache.type", "lru", cfg.Accounts.InMemoryCache.Type)
 	cmpInts(t, "accounts.in_memory_cache.ttl_seconds", 300, cfg.Accounts.InMemoryCache.TTL)
 	cmpInts(t, "accounts.in_memory_cache.size_bytes", 1000, cfg.Accounts.InMemoryCache.Size)
@@ -693,8 +686,6 @@ func TestFullConfig(t *testing.T) {
 	cmpInts(t, "http_client_cache.idle_connection_timeout_seconds", 3, cfg.CacheClient.IdleConnTimeout)
 	cmpInts(t, "gdpr.host_vendor_id", 15, cfg.GDPR.HostVendorID)
 	cmpStrings(t, "gdpr.default_value", "1", cfg.GDPR.DefaultValue)
-	cmpInts(t, "gdpr.live_gvl_refresh_interval_seconds", 3600, cfg.GDPR.LiveGVLRefreshInterval)
-	cmpBools(t, "video.enable_deprecated_endpoint", true, cfg.Video.EnableDeprecatedEndpoint)
 	cmpStrings(t, "host_schain_node.asi", "pbshostcompany.com", cfg.HostSChainNode.ASI)
 	cmpStrings(t, "host_schain_node.sid", "00001", cfg.HostSChainNode.SID)
 	cmpStrings(t, "host_schain_node.rid", "BidRequest", cfg.HostSChainNode.RID)
@@ -930,7 +921,7 @@ func TestFullConfig(t *testing.T) {
 	cmpBools(t, "account_debug", false, cfg.Metrics.Disabled.AccountDebug)
 	cmpBools(t, "account_stored_responses", false, cfg.Metrics.Disabled.AccountStoredResponses)
 	cmpBools(t, "adapter_connections_metrics", true, cfg.Metrics.Disabled.AdapterConnectionMetrics)
-	cmpBools(t, "adapter_connections_dial_metrics", true, cfg.Metrics.Disabled.AdapterConnectionDialMetrics)
+	cmpBools(t, "adapter_connection_dial_metrics", true, cfg.Metrics.Disabled.AdapterConnectionDialMetrics)
 	cmpBools(t, "adapter_buyeruid_scrubbed", false, cfg.Metrics.Disabled.AdapterBuyerUIDScrubbed)
 	cmpBools(t, "adapter_gdpr_request_blocked", true, cfg.Metrics.Disabled.AdapterGDPRRequestBlocked)
 	cmpStrings(t, "certificates_file", "/etc/ssl/cert.pem", cfg.PemCertsFile)
@@ -958,6 +949,7 @@ func TestFullConfig(t *testing.T) {
 	cmpStrings(t, "analytics.agma.accounts.0.publisher_id", "publisher-id", cfg.Analytics.Agma.Accounts[0].PublisherId)
 	cmpStrings(t, "analytics.agma.accounts.0.code", "agma-code", cfg.Analytics.Agma.Accounts[0].Code)
 	cmpStrings(t, "analytics.agma.accounts.0.site_app_id", "site-or-app-id", cfg.Analytics.Agma.Accounts[0].SiteAppId)
+	cmpBools(t, "certificates_use_system", true, cfg.CertsUseSystem)
 }
 
 func TestValidateConfig(t *testing.T) {
@@ -1029,6 +1021,8 @@ func TestMigrateConfigFromEnv(t *testing.T) {
 }
 
 func TestUserSyncFromEnv(t *testing.T) {
+	truePtr := true
+
 	// setup env vars for testing
 	if oldval, ok := os.LookupEnv("PBS_ADAPTERS_BIDDER1_USERSYNC_REDIRECT_URL"); ok {
 		defer os.Setenv("PBS_ADAPTERS_BIDDER1_USERSYNC_REDIRECT_URL", oldval)
@@ -1054,28 +1048,22 @@ func TestUserSyncFromEnv(t *testing.T) {
 		defer os.Unsetenv("PBS_ADAPTERS_BIDDER2_USERSYNC_IFRAME_URL")
 	}
 
-	if oldval, ok := os.LookupEnv("PBS_ADAPTERS_BIDDER2_USERSYNC_ENABLED"); ok {
-		defer os.Setenv("PBS_ADAPTERS_BIDDER2_USERSYNC_ENABLED", oldval)
-	} else {
-		defer os.Unsetenv("PBS_ADAPTERS_BIDDER2_USERSYNC_ENABLED")
-	}
-
 	// set new
 	os.Setenv("PBS_ADAPTERS_BIDDER1_USERSYNC_REDIRECT_URL", "http://some.url/sync?redirect={{.RedirectURL}}")
 	os.Setenv("PBS_ADAPTERS_BIDDER1_USERSYNC_REDIRECT_USER_MACRO", "[UID]")
 	os.Setenv("PBS_ADAPTERS_BIDDER1_USERSYNC_SUPPORT_CORS", "true")
 	os.Setenv("PBS_ADAPTERS_BIDDER2_USERSYNC_IFRAME_URL", "http://somedifferent.url/sync?redirect={{.RedirectURL}}")
-	os.Setenv("PBS_ADAPTERS_BIDDER2_USERSYNC_ENABLED", "false")
 
 	cfg, _ := newDefaultConfig(t)
 
 	assert.Equal(t, "http://some.url/sync?redirect={{.RedirectURL}}", cfg.BidderInfos["bidder1"].Syncer.Redirect.URL)
 	assert.Equal(t, "[UID]", cfg.BidderInfos["bidder1"].Syncer.Redirect.UserMacro)
 	assert.Nil(t, cfg.BidderInfos["bidder1"].Syncer.IFrame)
+	assert.Equal(t, &truePtr, cfg.BidderInfos["bidder1"].Syncer.SupportCORS)
 
 	assert.Equal(t, "http://somedifferent.url/sync?redirect={{.RedirectURL}}", cfg.BidderInfos["bidder2"].Syncer.IFrame.URL)
 	assert.Nil(t, cfg.BidderInfos["bidder2"].Syncer.Redirect)
-	assert.Equal(t, ptrutil.ToPtr(false), cfg.BidderInfos["bidder2"].Syncer.Enabled)
+	assert.Nil(t, cfg.BidderInfos["bidder2"].Syncer.SupportCORS)
 }
 
 func TestBidderInfoFromEnv(t *testing.T) {

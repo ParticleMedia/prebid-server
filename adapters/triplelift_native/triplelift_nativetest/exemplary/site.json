@@ -36,7 +36,6 @@
           },
           "tagid": "invcode",
           "bidfloor": 20,
-          "bidfloorcur": "USD",
           "ext": {
             "bidder": {
               "inventoryCode": "invcode",

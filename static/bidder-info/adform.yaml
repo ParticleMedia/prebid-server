@@ -1,5 +1,4 @@
 aliasOf: adf
-gvlVendorID: 50
 userSync:
   redirect:
     url: "https://c1.adform.net/cookie?redirect_url={{.RedirectURL}}"

@@ -1,23 +1,14 @@
-endpoint: https://prebid.resetdigital.co
-endpointCompression: gzip
+endpoint: http://b-us-east14.resetdigital.co:9001
 maintainer:
   email: biddersupport@resetdigital.co
-gvlVendorID: 1162
 capabilities:
   site:
     mediaTypes:
-      - banner
-      - video
-      - native
-      - audio
-  app:
-    mediaTypes:
-      - banner
-      - video
-      - native
-      - audio
-
-usersync:
+    - banner
+    - video
+    - audio
+gvlVendorID: 1162
+userSync:
   redirect:
-    url: "https://sync.resetdigital.co/usersync?gdpr={{.GDPR}}&gdpr_consent={{.GDPRConsent}}&us_privacy={{.USPrivacy}}&redirect={{.RedirectURL}}"
-    userMacro: "$UID"
+    url: https://sync.resetdigital.co/csync?redir={{.RedirectURL}}
+    userMacro: '$USER_ID'

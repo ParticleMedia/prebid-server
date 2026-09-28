@@ -43,8 +43,7 @@
               },
               "ext": {
                 "bidder": {}
-              },
-              "tagid": "test-native-imp"
+              }
             }
           ],
           "app": {

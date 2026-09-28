@@ -107,8 +107,6 @@ func mockValues(results *ResultsHashMock) {
 	mockValue(results, "HardwareModel", "Macbook")
 	mockValue(results, "HardwareFamily", "Macbook")
 	mockValue(results, "HardwareModelVariants", "Macbook")
-	mockValue(results, "HardwareNamePrefix", "Macbook")
-	mockValue(results, "HardwareNameVersion", "Pro")
 	mockValue(results, "ScreenInchesHeight", "12")
 }
 
@@ -126,8 +124,6 @@ func assertDeviceInfo(t *testing.T, deviceInfo *deviceInfo) {
 	assert.Equal(t, deviceInfo.PixelRatio, float64(223))
 	assert.Equal(t, deviceInfo.Javascript, true)
 	assert.Equal(t, deviceInfo.GeoLocation, true)
-	assert.Equal(t, deviceInfo.HardwareNamePrefix, "Macbook")
-	assert.Equal(t, deviceInfo.HardwareNameVersion, "Pro")
 }
 
 func mockValue(results *ResultsHashMock, name string, value string) {

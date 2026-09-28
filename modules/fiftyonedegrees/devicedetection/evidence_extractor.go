@@ -9,7 +9,7 @@ import (
 
 	"github.com/51Degrees/device-detection-go/v4/dd"
 	"github.com/51Degrees/device-detection-go/v4/onpremise"
-	"github.com/prebid/prebid-server/v4/hooks/hookstage"
+	"github.com/prebid/prebid-server/v3/hooks/hookstage"
 )
 
 type defaultEvidenceExtractor struct {
@@ -57,18 +57,16 @@ func merge(val1, val2 []stringEvidence) []stringEvidence {
 	return evidence
 }
 
-func (x *defaultEvidenceExtractor) extract(ctx *hookstage.ModuleContext) ([]onpremise.Evidence, string, error) {
+func (x *defaultEvidenceExtractor) extract(ctx hookstage.ModuleContext) ([]onpremise.Evidence, string, error) {
 	if ctx == nil {
 		return nil, "", errors.New("context is nil")
 	}
 
-	evidenceFromSuaCtx, _ := ctx.Get(evidenceFromSuaCtxKey)
-	suaStrings, err := x.getEvidenceStrings(evidenceFromSuaCtx)
+	suaStrings, err := x.getEvidenceStrings(ctx[evidenceFromSuaCtxKey])
 	if err != nil {
 		return nil, "", fmt.Errorf("error extracting sua evidence: %w", err)
 	}
-	evidenceFromHeadersCtx, _ := ctx.Get(evidenceFromHeadersCtxKey)
-	headerString, err := x.getEvidenceStrings(evidenceFromHeadersCtx)
+	headerString, err := x.getEvidenceStrings(ctx[evidenceFromHeadersCtxKey])
 	if err != nil {
 		return nil, "", fmt.Errorf("error extracting header evidence: %w", err)
 	}

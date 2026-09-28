@@ -3,16 +3,14 @@ maintainer:
   email: "devs@cwire.com"
 endpointCompression: gzip
 gvlVendorID: 1081
-modifyingVastXmlAllowed: true
+modifyingVastXmlAllowed: false
 capabilities:
   app:
     mediaTypes:
       - banner
-      - video
   site:
     mediaTypes:
       - banner
-      - video
 userSync:
   iframe:
     url: https://prebid.cwi.re/v1/usersync?gdpr={{.GDPR}}&gdpr_consent={{.GDPRConsent}}&rd={{.RedirectURL}}

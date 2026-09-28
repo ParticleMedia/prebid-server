@@ -10,13 +10,12 @@ import (
 
 	"github.com/buger/jsonparser"
 	"github.com/prebid/openrtb/v20/openrtb2"
-	"github.com/prebid/prebid-server/v4/adapters"
-	"github.com/prebid/prebid-server/v4/config"
-	"github.com/prebid/prebid-server/v4/errortypes"
-	"github.com/prebid/prebid-server/v4/macros"
-	"github.com/prebid/prebid-server/v4/openrtb_ext"
-	"github.com/prebid/prebid-server/v4/util/jsonutil"
-	"github.com/prebid/prebid-server/v4/util/urlutil"
+	"github.com/prebid/prebid-server/v3/adapters"
+	"github.com/prebid/prebid-server/v3/config"
+	"github.com/prebid/prebid-server/v3/errortypes"
+	"github.com/prebid/prebid-server/v3/macros"
+	"github.com/prebid/prebid-server/v3/openrtb_ext"
+	"github.com/prebid/prebid-server/v3/util/jsonutil"
 	jsonpatch "gopkg.in/evanphx/json-patch.v5"
 )
 
@@ -115,11 +114,6 @@ func setTMax(prebidBidRequest *openrtb2.BidRequest, pbsBufferMs int) {
 
 func createBidRequest(prebidBidRequest *openrtb2.BidRequest, params []*openrtb_ext.ExtRelevantDigital) ([]byte, error) {
 	bidRequestCopy := *prebidBidRequest
-	// Copy Imp slice so patchBidImpExt only mutates this outgoing request.
-	// MakeBids receives the same request and needs the original Imp[].Ext
-	// to read useSourceBidderCode from bidder params.
-	bidRequestCopy.Imp = make([]openrtb2.Imp, len(prebidBidRequest.Imp))
-	copy(bidRequestCopy.Imp, prebidBidRequest.Imp)
 
 	err := patchBidRequestExt(&bidRequestCopy, params[0].AccountId)
 	if err != nil {
@@ -183,9 +177,6 @@ func (a *adapter) buildEndpointURL(params *openrtb_ext.ExtRelevantDigital) (stri
 	params.Host = strings.ReplaceAll(params.Host, "http://", "")
 	params.Host = strings.ReplaceAll(params.Host, "https://", "")
 	params.Host = strings.ReplaceAll(params.Host, relevant_domain, "")
-	if !urlutil.IsSafeHost(params.Host) {
-		return "", &errortypes.BadInput{Message: "Invalid Host"}
-	}
 
 	endpointParams := macros.EndpointTemplateParams{Host: params.Host}
 	return macros.ResolveMacros(a.endpoint, endpointParams)
@@ -301,17 +292,6 @@ func isSupportedMediaType(bidType openrtb_ext.BidType) error {
 	return fmt.Errorf("bid type not supported %s", bidType)
 }
 
-func useSourceBidderCode(request *openrtb2.BidRequest) bool {
-	if request == nil || len(request.Imp) == 0 {
-		return false
-	}
-	impExt, err := getImpressionExt(&request.Imp[0])
-	if err != nil {
-		return false
-	}
-	return impExt.UseSourceBidderCode
-}
-
 func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 	if adapters.IsResponseStatusCodeNoContent(responseData) {
 		return nil, nil
@@ -325,8 +305,6 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	if err := jsonutil.Unmarshal(responseData.Body, &response); err != nil {
 		return nil, []error{err}
 	}
-
-	passSourceSeat := useSourceBidderCode(request)
 
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(response.SeatBid))
 	bidResponse.Currency = response.Cur
@@ -345,9 +323,6 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 				b := &adapters.TypedBid{
 					Bid:     &seatBid.Bid[i],
 					BidType: bidType,
-				}
-				if passSourceSeat {
-					b.Seat = openrtb_ext.BidderName(seatBid.Seat)
 				}
 				bidResponse.Bids = append(bidResponse.Bids, b)
 			}

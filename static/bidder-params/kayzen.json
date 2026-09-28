@@ -8,7 +8,6 @@
     "zone": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^[a-zA-Z0-9.-]+$",
       "description": "Zone ID"
     },
     "exchange": {

@@ -26,7 +26,6 @@
     ],
     "app": null,
     "device": null,
-    "site": null,
     "regs": {
       "gdpr": null,
       "ext": {
@@ -52,18 +51,17 @@
         "uri": "https://pbs-front.mediasquare.fr/msq_prebid",
         "body": {
           "codes": null,
-          "gdpr": { "consent_required": false, "consent_string": "" },
-          "type": "pbs",
-          "pbjs": "prebid-test-version",
-          "tech": {
-            "user": {
-              "ext": {
-                "consent": null
-              }
-            }
+          "gdpr": {
+            "consent_string": "",
+            "consent_required": false
           },
-          "test": true,
-          "user_uid": ""
+          "type": "pbs",
+          "dsa": "",
+          "tech": {
+            "device": null,
+            "app": null
+          },
+          "test": true
         },
         "impIDs": ["2c35e25e-e7d3-41bf-b810-06a449f456b9"]
       },

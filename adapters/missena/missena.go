@@ -7,13 +7,13 @@ import (
 	"text/template"
 
 	"github.com/prebid/openrtb/v20/openrtb2"
-	"github.com/prebid/prebid-server/v4/adapters"
-	"github.com/prebid/prebid-server/v4/config"
-	"github.com/prebid/prebid-server/v4/errortypes"
-	"github.com/prebid/prebid-server/v4/macros"
-	"github.com/prebid/prebid-server/v4/openrtb_ext"
-	"github.com/prebid/prebid-server/v4/util/jsonutil"
-	"github.com/prebid/prebid-server/v4/version"
+	"github.com/prebid/prebid-server/v3/adapters"
+	"github.com/prebid/prebid-server/v3/config"
+	"github.com/prebid/prebid-server/v3/errortypes"
+	"github.com/prebid/prebid-server/v3/macros"
+	"github.com/prebid/prebid-server/v3/openrtb_ext"
+	"github.com/prebid/prebid-server/v3/util/jsonutil"
+	"github.com/prebid/prebid-server/v3/version"
 )
 
 type adapter struct {
@@ -24,7 +24,6 @@ type MissenaAdRequest struct {
 	Adunit         string               `json:"adunit,omitempty"`
 	BuyerUID       string               `json:"buyeruid,omitempty"`
 	Currency       string               `json:"currency,omitempty"`
-	Debug          bool                 `json:"debug,omitempty"`
 	EIDs           []openrtb2.EID       `json:"userEids,omitempty"`
 	Floor          float64              `json:"floor,omitempty"`
 	FloorCurrency  string               `json:"floor_currency,omitempty"`
@@ -44,19 +43,19 @@ type BidServerResponse struct {
 }
 
 type UserParams struct {
-	APIKey    string         `json:"apiKey,omitempty"`
 	Formats   []string       `json:"formats,omitempty"`
 	Placement string         `json:"placement,omitempty" default:"sticky"`
-	Sample    string         `json:"sample,omitempty"`
+	TestMode  string         `json:"test,omitempty"`
 	Settings  map[string]any `json:"settings,omitempty"`
 }
 
-const (
-	currencyUSD = "USD"
-	currencyEUR = "EUR"
-)
+type MissenaAdapter struct {
+	EndpointTemplate *template.Template
+}
 
-// Builder builds a new instance of the Missena adapter for the given bidder with the given config.
+var defaultCur = "USD"
+
+// Builder builds a new instance of the Foo adapter for the given bidder with the given config.
 func Builder(bidderName openrtb_ext.BidderName, config config.Adapter, server config.Server) (adapters.Bidder, error) {
 	endpoint, err := template.New("endpointTemplate").Parse(config.Endpoint)
 	if err != nil {
@@ -68,25 +67,18 @@ func Builder(bidderName openrtb_ext.BidderName, config config.Adapter, server co
 	return bidder, nil
 }
 
-func getVersionString() string {
-	if version.Ver == "" {
-		return version.VerUnknown
-	}
-	return version.Ver
-}
-
 func getCurrency(currencies []string) (string, error) {
 	eurAvailable := false
 	for _, cur := range currencies {
-		if cur == currencyUSD {
-			return currencyUSD, nil
+		if cur == defaultCur {
+			return defaultCur, nil
 		}
-		if cur == currencyEUR {
+		if cur == "EUR" {
 			eurAvailable = true
 		}
 	}
 	if eurAvailable {
-		return currencyEUR, nil
+		return "EUR", nil
 	}
 	return "", fmt.Errorf("no currency supported %v", currencies)
 }
@@ -105,7 +97,7 @@ func (a *adapter) makeRequest(imp openrtb2.Imp, request *openrtb2.BidRequest, re
 	}
 	cur, err := getCurrency(request.Cur)
 	if err != nil {
-		cur = currencyUSD
+		cur = defaultCur
 	}
 
 	var floor float64
@@ -114,7 +106,7 @@ func (a *adapter) makeRequest(imp openrtb2.Imp, request *openrtb2.BidRequest, re
 		floor = imp.BidFloor
 		floorCur, err = getCurrency(request.Cur)
 		if err != nil {
-			floorCur = currencyUSD
+			floorCur = defaultCur
 			floor, err = requestInfo.ConvertCurrency(imp.BidFloor, imp.BidFloorCur, floorCur)
 			if err != nil {
 				return nil, err
@@ -122,20 +114,9 @@ func (a *adapter) makeRequest(imp openrtb2.Imp, request *openrtb2.BidRequest, re
 		}
 	}
 
-	// Extract EIDs from user.ext. Unmarshal errors are intentionally ignored
-	// to allow requests to proceed without EIDs, as they are optional.
-	var eids []openrtb2.EID
-	if request.User != nil && request.User.Ext != nil {
-		var extUser openrtb_ext.ExtUser
-		if err := jsonutil.Unmarshal(request.User.Ext, &extUser); err == nil {
-			eids = extUser.Eids
-		}
-	}
-
 	missenaRequest := MissenaAdRequest{
 		Adunit:         imp.ID,
 		Currency:       cur,
-		Debug:          request.Test == 1,
 		Floor:          floor,
 		FloorCurrency:  floorCur,
 		IdempotencyKey: request.ID,
@@ -143,14 +124,12 @@ func (a *adapter) makeRequest(imp openrtb2.Imp, request *openrtb2.BidRequest, re
 		RequestID:      request.ID,
 		Timeout:        request.TMax,
 		UserParams: UserParams{
-			APIKey:    params.APIKey,
 			Formats:   params.Formats,
 			Placement: params.Placement,
-			Sample:    params.Sample,
+			TestMode:  params.TestMode,
 			Settings:  params.Settings,
 		},
-		EIDs:    eids,
-		Version: fmt.Sprintf("prebid-server@%s", getVersionString()),
+		Version: version.Ver,
 	}
 
 	body, err := jsonutil.Marshal(missenaRequest)

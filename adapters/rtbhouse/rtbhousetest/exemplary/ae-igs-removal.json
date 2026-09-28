@@ -36,7 +36,6 @@
           ],
           "imp": [
             {
-              "id": "test-imp-id",
               "banner": {
                 "format": [
                   {
@@ -51,7 +50,7 @@
                 },
                 "someOtherField": "should-remain"
               },
-              "tagid": "test-imp-id"
+              "id": "test-imp-id"
             }
           ],
           "site": {
