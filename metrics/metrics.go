@@ -513,4 +513,5 @@ type MetricsEngine interface {
 	RecordAdapterThrottled(adapterName openrtb_ext.BidderName)
 	RecordAdapterConnectionDialError(adapterName openrtb_ext.BidderName)
 	RecordAdapterConnectionDialTime(adapterName openrtb_ext.BidderName, dialStartTime time.Duration)
+	RecordAdapterContentURLPrefix(adapterName openrtb_ext.BidderName, prefix string)
 }
