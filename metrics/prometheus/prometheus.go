@@ -81,6 +81,7 @@ type Metrics struct {
 	adapterThrottled                      *prometheus.CounterVec
 	adapterConnectionDialErrors           *prometheus.CounterVec
 	adapterConnectionDialTime             *prometheus.HistogramVec
+	adapterContentURLPrefix               *prometheus.CounterVec
 
 	// Syncer Metrics
 	syncerRequests *prometheus.CounterVec
@@ -165,6 +166,8 @@ const (
 	storedDataFetchTypeLabel = "stored_data_fetch_type"
 	storedDataErrorLabel     = "stored_data_error"
 )
+
+const contentURLPrefixLabel = "content_url_prefix"
 
 // NewMetrics initializes a new Prometheus metrics instance with preloaded label values.
 func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMetrics, syncerKeys []string, moduleStageNames map[string][]string) *Metrics {
@@ -460,6 +463,11 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 		"adapter_throttled",
 		"Count of requests throttled labeled by adapter.",
 		[]string{adapterLabel})
+
+	metrics.adapterContentURLPrefix = newCounter(cfg, reg,
+		"adapter_content_url_prefix",
+		"Count of requests sent to adapters labeled by the first characters of the content URL in the request body.",
+		[]string{adapterLabel, contentURLPrefixLabel})
 
 	metrics.overheadTimer = newHistogramVec(cfg, reg,
 		"overhead_time_seconds",
@@ -1151,4 +1159,11 @@ func (m *Metrics) RecordAdapterConnectionDialTime(adapterName openrtb_ext.Bidder
 	m.adapterConnectionDialTime.With(prometheus.Labels{
 		adapterLabel: strings.ToLower(string(adapterName)),
 	}).Observe(dialStartTime.Seconds())
+}
+
+func (m *Metrics) RecordAdapterContentURLPrefix(adapterName openrtb_ext.BidderName, prefix string) {
+	m.adapterContentURLPrefix.With(prometheus.Labels{
+		adapterLabel:          strings.ToLower(string(adapterName)),
+		contentURLPrefixLabel: prefix,
+	}).Inc()
 }
