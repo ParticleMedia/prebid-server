@@ -7,7 +7,7 @@ import (
 	"github.com/buger/jsonparser"
 )
 
-const contentURLPrefixLen = 6
+const contentURLPrefixLen = 11
 
 // contentURLPrefix returns the first characters of the app (or site) content URL in an outgoing bidder request body.
 func contentURLPrefix(body []byte) string {
