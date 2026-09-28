@@ -126,21 +126,14 @@
       "language": "fr",
       "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     },
-    "site": {
-      "id": "test-site-id",
-      "page": "https://www.example.com/"
-    },
     "regs": {
       "gdpr": 1,
       "ext": {
-        "dsa": {
-          "msq_test": 42
-        }
+        "dsa": "mediasquare-test"
       }
     },
     "user": {
-      "consent": "there-is-a-real-cs-in-it",
-      "buyeruid": "42"
+      "consent": "there-is-a-real-cs-in-it"
     },
     "test": 1
   },
@@ -244,10 +237,7 @@
             "consent_required": true,
             "consent_string": "there-is-a-real-cs-in-it"
           },
-          "dsa": {
-            "msq_test": 42
-          },
-          "pbjs": "prebid-test-version",
+          "dsa": "mediasquare-test",
           "tech": {
             "device": {
               "geo": {
@@ -267,19 +257,10 @@
                 "id": "MEDIA_SQUARE"
               },
               "content": {}
-            },
-            "site": {
-              "id": "test-site-id",
-              "page": "https://www.example.com/"
-            },
-            "user": {
-              "consent": "there-is-a-real-cs-in-it",
-              "buyeruid": "42"
             }
           },
           "type": "pbs",
-          "test": true,
-          "user_uid": "42"
+          "test": true
         },
         "impIDs": [
           "2c35e25e-e7d3-41bf-b810-06a449f456b9",
@@ -312,12 +293,7 @@
               "transaction_id": "2c35e25e-e7d3-41bf-b810-06a449f456b9",
               "ttl": 20000,
               "adomain": ["mediasquare.fr"],
-              "hasConsent": true,
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
+              "hasConsent": true
             },
             {
               "ad": "\u003c!-- This is an example --\u003e",
@@ -333,12 +309,7 @@
               "transaction_id": "2059a3e6-71a3-43ea-8290-b5ceb13d35a8",
               "ttl": 20000,
               "adomain": ["mediasquare.fr"],
-              "hasConsent": true,
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
+              "hasConsent": true
             },
             {
               "bid_id": "2c35e25e-e7d3-41bf-b810-06a449f456c9",
@@ -356,12 +327,7 @@
                 "title": "Learn about this awesome thing"
               },
               "adomain": ["mediasquare.fr"],
-              "hasConsent": true,
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
+              "hasConsent": true
             },
             {
               "bid_id": "2c35e25e-e7d3-41bf-b810-06a449f456d9",
@@ -379,14 +345,27 @@
                 "url": "https://dummy.domain.tv/some_vast"
               },
               "adomain": ["mediasquare.fr"],
-              "hasConsent": true,
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
+              "hasConsent": true
             }
-          ]
+          ],
+          "Calc_cpm": {
+            "2059a3e6-71a3-43ea-8290-b5ceb13d35a8": {
+              "TmpCpmMax": 0,
+              "CpmMax": 0.02
+            },
+            "2c35e25e-e7d3-41bf-b810-06a449f456b9": {
+              "TmpCpmMax": 0,
+              "CpmMax": 2
+            },
+            "2c35e25e-e7d3-41bf-b810-06a449f456c9": {
+              "TmpCpmMax": 0,
+              "CpmMax": 2
+            },
+            "2c35e25e-e7d3-41bf-b810-06a449f456d9": {
+              "TmpCpmMax": 0,
+              "CpmMax": 2
+            }
+          }
         }
       }
     }
@@ -403,13 +382,6 @@
             "adm": "\u003c!-- This is an example --\u003e",
             "adomain": ["mediasquare.fr"],
             "crid": "msq_test|fakeCreative",
-            "ext": {
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
-            },
             "w": 250,
             "mtype": 1
           },
@@ -427,13 +399,6 @@
             "adm": "\u003c!-- This is an example --\u003e",
             "adomain": ["mediasquare.fr"],
             "crid": "msq_test|fakeCreative",
-            "ext": {
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
-            },
             "w": 250,
             "mtype": 1
           },
@@ -450,13 +415,6 @@
             "price": 2,
             "adomain": ["mediasquare.fr"],
             "crid": "msq_test|fakeCreative",
-            "ext": {
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
-            },
             "mtype": 4
           },
           "BidMeta": {
@@ -472,13 +430,6 @@
             "price": 2,
             "adomain": ["mediasquare.fr"],
             "crid": "msq_test|fakeCreative",
-            "ext": {
-              "dsa": {
-                "adrender": 1,
-                "behalf": "test-behalf",
-                "paid": "test-paid"
-              }
-            },
             "mtype": 2
           },
           "BidMeta": {

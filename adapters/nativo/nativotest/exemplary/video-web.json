@@ -29,11 +29,6 @@
           "h": 480,
           "minduration": 120,
           "maxduration": 150
-        },
-        "ext": {
-          "bidder": {
-            "placementId": 12345678
-          }
         }
       }
     ]
@@ -62,11 +57,6 @@
                 "maxduration": 150,
                 "w": 640,
                 "h": 480
-              },
-              "ext": {
-                "bidder": {
-                  "placementId": 12345678
-                }
               }
             }
           ],

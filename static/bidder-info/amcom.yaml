@@ -1,2 +1,0 @@
-endpoint: "https://amcom-prebid.attekmi.co/pbserver/?seat={{.AccountID}}&token={{.SourceId}}"
-aliasOf: "smarthub"

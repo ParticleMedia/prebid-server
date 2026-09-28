@@ -53,8 +53,7 @@
                   "publisherId": "12345"
                 }
               },
-              "id": "test-imp-id",
-              "tagid": "test-imp-id"
+              "id": "test-imp-id"
             }
           ],
           "site": {

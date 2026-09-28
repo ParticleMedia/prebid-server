@@ -63,8 +63,7 @@
                   "publisherId": "new-publisher-123"
                 }
               },
-              "id": "test-imp-id",
-              "tagid": "test-imp-id"
+              "id": "test-imp-id"
             }
           ]
         },

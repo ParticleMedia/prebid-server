@@ -49,8 +49,7 @@
               },
               "ext": {
                 "bidder": {}
-              },
-              "tagid": "test-native-imp"
+              }
             },
             {
               "id": "test-banner-imp",
@@ -62,8 +61,7 @@
               },
               "ext": {
                   "bidder": {}
-              },
-              "tagid": "test-banner-imp"
+              }
           }
           ],
           "site": {

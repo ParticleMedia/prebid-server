@@ -7,12 +7,12 @@ import (
 	"net/url"
 
 	"github.com/prebid/openrtb/v20/openrtb2"
-	"github.com/prebid/prebid-server/v4/adapters"
-	"github.com/prebid/prebid-server/v4/config"
-	"github.com/prebid/prebid-server/v4/errortypes"
-	"github.com/prebid/prebid-server/v4/openrtb_ext"
-	"github.com/prebid/prebid-server/v4/util/jsonutil"
-	"github.com/prebid/prebid-server/v4/version"
+	"github.com/prebid/prebid-server/v3/adapters"
+	"github.com/prebid/prebid-server/v3/config"
+	"github.com/prebid/prebid-server/v3/errortypes"
+	"github.com/prebid/prebid-server/v3/openrtb_ext"
+	"github.com/prebid/prebid-server/v3/util/jsonutil"
+	"github.com/prebid/prebid-server/v3/version"
 )
 
 type adapter struct {
@@ -66,27 +66,11 @@ func processImps(impList []openrtb2.Imp) (imp []openrtb2.Imp, tagId string, plac
 			}
 		}
 
-		// Unmarshal entire ext to preserve all fields
-		var impExtMap map[string]interface{}
-		if err := jsonutil.Unmarshal(imp.Ext, &impExtMap); err != nil {
-			return nil, "", "", &errortypes.BadInput{
-				Message: err.Error(),
-			}
+		impExt := Ext{
+			Nexx360: bidderExt.Bidder,
 		}
 
-		// Unmarshal nexx360 bidder params to a map for merging
-		var nexx360ExtMap map[string]interface{}
-		if err := jsonutil.Unmarshal(bidderExt.Bidder, &nexx360ExtMap); err != nil {
-			return nil, "", "", &errortypes.BadInput{
-				Message: err.Error(),
-			}
-		}
-
-		// Replace bidder field with nexx360 field
-		delete(impExtMap, "bidder")
-		impExtMap["nexx360"] = nexx360ExtMap
-
-		impExtJSON, err := jsonutil.Marshal(impExtMap)
+		impExtJSON, err := json.Marshal(impExt)
 		if err != nil {
 			return nil, "", "", &errortypes.BadInput{
 				Message: err.Error(),

@@ -63,6 +63,7 @@
               "bidfloor": 25.0,
               "bidfloorcur":  "USD",
               "displaymanager": "prebid-s2s",
+              "displaymanagerver": "2.0.0",
               "video": {
                 "w": 300,
                 "h": 250,

@@ -64,11 +64,8 @@
   "httpCalls": [
     {
       "expectedRequest": {
-        "uri": "http://pbs-dev.amxrtb.com/auction/openrtb?v=pbs1.3",
+        "uri": "http://pbs-dev.amxrtb.com/auction/openrtb?v=pbs1.2",
         "body": {
-          "cur": [
-            "USD"
-          ],
           "app": {
             "bundle": "639881495",
             "name": "Imgur (iOS)",

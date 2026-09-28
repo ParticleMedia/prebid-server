@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/prebid/prebid-server/v4/config"
-	"github.com/prebid/prebid-server/v4/macros"
+	"github.com/prebid/prebid-server/v3/config"
+	"github.com/prebid/prebid-server/v3/macros"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -192,6 +192,7 @@ func TestShouldCreateSyncer(t *testing.T) {
 	var (
 		anySupports = []string{"iframe"}
 		anyEndpoint = &config.SyncerEndpoint{}
+		anyCORS     = true
 	)
 
 	testCases := []struct {
@@ -211,7 +212,7 @@ func TestShouldCreateSyncer(t *testing.T) {
 		},
 		{
 			description: "Enabled, Syncer - Fully Loaded",
-			given:       config.BidderInfo{Disabled: false, Syncer: &config.Syncer{Key: "anyKey", Supports: anySupports, IFrame: anyEndpoint, Redirect: anyEndpoint}},
+			given:       config.BidderInfo{Disabled: false, Syncer: &config.Syncer{Key: "anyKey", Supports: anySupports, IFrame: anyEndpoint, Redirect: anyEndpoint, SupportCORS: &anyCORS}},
 			expected:    true,
 		},
 		{
@@ -235,6 +236,11 @@ func TestShouldCreateSyncer(t *testing.T) {
 			expected:    true,
 		},
 		{
+			description: "Enabled, Syncer - Only SupportCORS",
+			given:       config.BidderInfo{Disabled: false, Syncer: &config.Syncer{SupportCORS: &anyCORS}},
+			expected:    true,
+		},
+		{
 			description: "Disabled, No Syncer",
 			given:       config.BidderInfo{Disabled: true, Syncer: nil},
 			expected:    false,
@@ -246,7 +252,7 @@ func TestShouldCreateSyncer(t *testing.T) {
 		},
 		{
 			description: "Disabled, Syncer - Fully Loaded",
-			given:       config.BidderInfo{Disabled: true, Syncer: &config.Syncer{Key: "anyKey", Supports: anySupports, IFrame: anyEndpoint, Redirect: anyEndpoint}},
+			given:       config.BidderInfo{Disabled: true, Syncer: &config.Syncer{Key: "anyKey", Supports: anySupports, IFrame: anyEndpoint, Redirect: anyEndpoint, SupportCORS: &anyCORS}},
 			expected:    false,
 		},
 		{
@@ -270,6 +276,11 @@ func TestShouldCreateSyncer(t *testing.T) {
 			expected:    false,
 		},
 		{
+			description: "Disabled, Syncer - Only SupportCORS",
+			given:       config.BidderInfo{Disabled: true, Syncer: &config.Syncer{SupportCORS: &anyCORS}},
+			expected:    false,
+		},
+		{
 			description: "WhiteLabelOnly, No Syncer",
 			given:       config.BidderInfo{WhiteLabelOnly: true, Syncer: nil},
 			expected:    false,
@@ -281,7 +292,7 @@ func TestShouldCreateSyncer(t *testing.T) {
 		},
 		{
 			description: "WhiteLabelOnly, Syncer - Fully Loaded",
-			given:       config.BidderInfo{WhiteLabelOnly: true, Syncer: &config.Syncer{Key: "anyKey", Supports: anySupports, IFrame: anyEndpoint, Redirect: anyEndpoint}},
+			given:       config.BidderInfo{WhiteLabelOnly: true, Syncer: &config.Syncer{Key: "anyKey", Supports: anySupports, IFrame: anyEndpoint, Redirect: anyEndpoint, SupportCORS: &anyCORS}},
 			expected:    false,
 		},
 	}

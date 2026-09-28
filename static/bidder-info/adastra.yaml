@@ -1,5 +1,0 @@
-endpoint: "https://adastra-prebid.attekmi.co/pbserver/?seat={{.AccountID}}&token={{.SourceId}}"
-aliasOf: "smarthub"
-userSync:
-  supports:
-    - redirect

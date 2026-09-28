@@ -51,7 +51,11 @@
                                     "crid": "test-crid",
                                     "h": 50,
                                     "w": 320,
-                                    "mtype": 4
+                                    "ext": {
+                                        "mf": {
+                                            "media_type": "native"
+                                        }
+                                    }
                                 }
                             ]
                         }
@@ -73,8 +77,7 @@
                         "adm": "{\"native\":{\"link\":{\"url\":\"http://mfx.mobilefuse.com/openrtb\"},\"assets\":[{\"id\":0,\"required\":1,\"img\":{\"url\":\"...\"}},{\"id\":1,\"required\":1,\"title\":{\"text\":\"custom title\"}}]}}",
                         "crid": "test-crid",
                         "h": 50,
-                        "w": 320,
-                        "mtype": 4
+                        "w": 320
                     },
                     "type": "native"
                 }

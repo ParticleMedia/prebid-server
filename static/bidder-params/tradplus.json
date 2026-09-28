@@ -11,8 +11,7 @@
     },
     "zoneId": {
       "type": "string",
-      "description": "Zone ID",
-      "pattern": "^[a-zA-Z0-9.-]*$"
+      "description": "Zone ID"
     }
   },
   "required": [

@@ -117,7 +117,11 @@
                                     "crid": "test-crid",
                                     "h": 50,
                                     "w": 320,
-                                    "mtype": 1
+                                    "ext": {
+                                        "mf": {
+                                            "media_type": "banner"
+                                        }
+                                    }
                                 }
                             ]
                         }
@@ -139,8 +143,7 @@
                         "adm": "some-test-ad",
                         "crid": "test-crid",
                         "w": 320,
-                        "h": 50,
-                        "mtype": 1
+                        "h": 50
                     },
                     "type": "banner"
                 }

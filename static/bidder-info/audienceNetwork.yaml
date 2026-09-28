@@ -2,8 +2,6 @@ endpoint: "https://an.facebook.com/placementbid.ortb"
 disabled: true
 maintainer:
   email: "none"
-openrtb:
-  multiformat-supported: true
 capabilities:
   app:
     mediaTypes:

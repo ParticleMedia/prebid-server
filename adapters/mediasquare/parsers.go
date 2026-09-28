@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/prebid/openrtb/v20/openrtb2"
-	"github.com/prebid/prebid-server/v4/util/jsonutil"
+	"github.com/prebid/prebid-server/v3/util/jsonutil"
 )
 
 // parserDSA: Struct used to extracts dsa content of a jsonutil.
@@ -24,14 +24,15 @@ func (parser *parserDSA) setContent(extJsonBytes []byte) error {
 }
 
 // getValue: Returns the DSA value as a string, defaultly returns empty-string.
-func (parser parserDSA) getValue(request *openrtb2.BidRequest) interface{} {
+func (parser parserDSA) getValue(request *openrtb2.BidRequest) (dsa string) {
 	if request == nil || request.Regs == nil {
-		return nil
+		return
 	}
-	if parser.setContent(request.Regs.Ext) != nil {
-		return nil
+	parser.setContent(request.Regs.Ext)
+	if parser.DSA != nil {
+		dsa = fmt.Sprint(parser.DSA)
 	}
-	return parser.DSA
+	return
 }
 
 // parserGDPR: Struct used to extract pair of GDPR/Consent of a jsonutil.
@@ -67,9 +68,9 @@ func (parser parserGDPR) getValue(field string, request *openrtb2.BidRequest) (g
 	if request != nil {
 		switch {
 		case field == "consent_requirement" && request.Regs != nil:
-			gdpr = "true"
-			if !ptrInt8ToBool(request.Regs.GDPR) {
-				gdpr = "false"
+			gdpr = "false"
+			if ptrInt8ToBool(request.Regs.GDPR) {
+				gdpr = "true"
 			}
 		case field == "consent_string" && request.User != nil:
 			gdpr = request.User.Consent

@@ -94,12 +94,10 @@
             }
           },
           "params": {
-            "apiKey": "test-api-key",
             "placement": "test-placement"
           },
           "request_id": "test-request-id",
-          "timeout": 500,
-          "version": "prebid-server@unknown"
+          "timeout": 500
         },
         "impIDs": ["test-imp-id"]
       },

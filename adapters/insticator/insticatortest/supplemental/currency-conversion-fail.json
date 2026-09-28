@@ -1,49 +1,49 @@
 {
-  "mockBidRequest": {
-    "cur": [
-      "GBP"
-    ],
-    "id": "test-request-id",
-    "imp": [
-      {
-        "id": "test-imp-id",
-        "banner": {
-          "format": [
+    "mockBidRequest": {
+        "cur": [
+            "GBP"
+        ],
+        "id": "test-request-id",
+        "imp": [
             {
-              "w": 728,
-              "h": 90
+                "id": "test-imp-id",
+                "banner": {
+                    "format": [
+                        {
+                            "w": 728,
+                            "h": 90
+                        }
+                    ]
+                },
+                "ext": {
+                    "bidder": {
+                        "adUnitId": "fake-site-id",
+                        "publisherId": "test-publisher-id"
+                    }
+                },
+                "bidfloor": 1,
+                "bidfloorcur": "GBP"
             }
-          ]
+        ],
+        "site": {
+            "publisher": {
+                "id": "test-publisher-id"
+            }
         },
         "ext": {
-          "bidder": {
-            "adUnitId": "fake-site-id",
-            "publisherId": "test-publisher-id"
-          }
-        },
-        "bidfloor": 1,
-        "bidfloorcur": "GBP"
-      }
-    ],
-    "site": {
-      "publisher": {
-        "id": "test-publisher-id"
-      }
-    },
-    "ext": {
-      "prebid": {
-        "currency": {
-          "rates": {
-            "INR": {
-              "USD": 2
+            "prebid": {
+                "currency": {
+                    "rates": {
+                        "INR": {
+                            "USD": 2
+                        }
+                    },
+                    "usepbsrates": false
+                }
             }
-          },
-          "usepbsrates": false
         }
-      }
-    }
-  },
-  "expectedMakeRequestsErrors": [
+    },
+    "expectedMakeRequestsErrors": [
     {
       "value": "Error in converting the provided bid floor currency from GBP to USD",
       "comparison": "literal"

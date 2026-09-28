@@ -13,7 +13,7 @@ type standardBidderChooser struct {
 
 func (c standardBidderChooser) choose(requested, available []string, cooperative Cooperative) []string {
 	if cooperative.Enabled {
-		return c.chooseCooperative(requested, available, cooperative)
+		return c.chooseCooperative(requested, available, cooperative.PriorityGroups)
 	}
 
 	if len(requested) == 0 {
@@ -23,7 +23,7 @@ func (c standardBidderChooser) choose(requested, available []string, cooperative
 	return c.shuffledCopy(requested)
 }
 
-func (c standardBidderChooser) chooseCooperative(requested, available []string, cooperative Cooperative) []string {
+func (c standardBidderChooser) chooseCooperative(requested, available []string, priorityGroups [][]string) []string {
 	// allocate enough memory for the slice to try to avoid re-allocation. the 50% overhead is a guess
 	// at a satisfactory value. since all available bidders are included in the slice, along with
 	// requested and prioritized bidders, expect there to be be many duplicates. the duplicate are
@@ -35,14 +35,12 @@ func (c standardBidderChooser) chooseCooperative(requested, available []string, 
 	bidders = c.shuffledAppend(bidders, requested)
 
 	// priority groups
-	for _, group := range cooperative.PriorityGroups {
+	for _, group := range priorityGroups {
 		bidders = c.shuffledAppend(bidders, group)
 	}
 
 	// available
-	if !cooperative.PriorityGroupsOnly {
-		bidders = c.shuffledAppend(bidders, available)
-	}
+	bidders = c.shuffledAppend(bidders, available)
 
 	return bidders
 }

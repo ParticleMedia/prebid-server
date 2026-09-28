@@ -62,8 +62,6 @@ type deviceInfo struct {
 	HardwareFamily        string
 	HardwareModel         string
 	HardwareModelVariants string
-	HardwareNamePrefix    string
-	HardwareNameVersion   string
 	UserAgent             string
 	DeviceId              string
 	ScreenInchesHeight    float64

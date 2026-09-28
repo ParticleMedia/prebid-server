@@ -19,15 +19,12 @@
                     }
                 }
             }
-        ],
-        "site": {
-            "domain": "dev.sparteo.com"
-        }
+        ]
     },
     "httpCalls": [
         {
             "expectedRequest": {
-                "uri": "https://bid-test.sparteo.com/s2s-auction?network_id=networkId&site_domain=dev.sparteo.com",
+                "uri": "https://bid-test.sparteo.com/s2s-auction",
                 "body": {
                     "id": "test-request-id",
                     "imp": [
@@ -50,17 +47,7 @@
                                 }
                             }
                         }
-                    ],
-                    "site": {
-                        "domain": "dev.sparteo.com",
-                        "publisher": {
-                            "ext": {
-                                "params": {
-                                    "networkId": "networkId"
-                                }
-                            }
-                        }
-                    }
+                    ]
                 },
                 "impIDs": [
                     "div-banner-id"

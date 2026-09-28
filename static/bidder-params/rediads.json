@@ -11,8 +11,7 @@
       "type": "string"
     },
     "endpoint": {
-      "type": "string",
-      "pattern": "^[a-zA-Z0-9.-]+$"
+      "type": "string"
     }
   },
   "required": ["account_id"]

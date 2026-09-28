@@ -39,7 +39,6 @@
                     "Accept": ["application/json"]
                 },
                 "body": {
-                    "cur": ["USD"],
                     "id": "test-request-id",
                     "imp": [
                         {
