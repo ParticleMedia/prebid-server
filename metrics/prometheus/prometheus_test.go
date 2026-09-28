@@ -1897,7 +1897,7 @@ func TestRecordAdapterGDPRRequestBlocked(t *testing.T) {
 
 func TestRecordAdapterContentURLPrefix(t *testing.T) {
 	m := createMetricsForTesting()
-	m.RecordAdapterContentURLPrefix(openrtb_ext.BidderName("AnyName"), "https:")
+	m.RecordAdapterContentURLPrefix(openrtb_ext.BidderName("AnyName"), "https://www")
 
 	assertCounterVecValue(t,
 		"Increment adapter content url prefix counter",
@@ -1906,7 +1906,7 @@ func TestRecordAdapterContentURLPrefix(t *testing.T) {
 		1,
 		prometheus.Labels{
 			adapterLabel:          "anyname",
-			contentURLPrefixLabel: "https:",
+			contentURLPrefixLabel: "https://www",
 		})
 }
 
