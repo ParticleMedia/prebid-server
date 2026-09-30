@@ -2149,7 +2149,7 @@ func TestCallRecordDNSTime(t *testing.T) {
 	metricsMock.Mock.On("RecordDNSTime", mock.Anything).Return()
 	metricsMock.On("RecordOverheadTime", metrics.PreBidder, mock.Anything).Once()
 	metricsMock.On("RecordBidderServerResponseTime", mock.Anything).Once()
-	metricsMock.On("RecordAdapterContentURLPrefix", mock.Anything, "no_body").Once()
+	metricsMock.On("RecordAdapterContentURLPrefix", mock.Anything, "none").Once()
 
 	// Instantiate the bidder that will send the request. We'll make sure to use an
 	// http.Client that runs our mock RoundTripper so DNSDone(httptrace.DNSDoneInfo{})
@@ -2174,7 +2174,7 @@ func TestCallRecordTLSHandshakeTime(t *testing.T) {
 	metricsMock.Mock.On("RecordTLSHandshakeTime", mock.Anything).Return()
 	metricsMock.On("RecordOverheadTime", metrics.PreBidder, mock.Anything).Once()
 	metricsMock.On("RecordBidderServerResponseTime", mock.Anything).Once()
-	metricsMock.On("RecordAdapterContentURLPrefix", mock.Anything, "no_body").Once()
+	metricsMock.On("RecordAdapterContentURLPrefix", mock.Anything, "none").Once()
 
 	// Instantiate the bidder that will send the request. We'll make sure to use an
 	// http.Client that runs our mock RoundTripper so DNSDone(httptrace.DNSDoneInfo{})
