@@ -466,7 +466,7 @@ func NewMetrics(cfg config.PrometheusMetrics, disabledMetrics config.DisabledMet
 
 	metrics.adapterContentURLPrefix = newCounter(cfg, reg,
 		"adapter_content_url_prefix",
-		"Count of requests sent to adapters labeled by the first characters of the content URL in the request body.",
+		"Count of requests sent to adapters labeled by whether the request body carries a content URL (present or none).",
 		[]string{adapterLabel, contentURLPrefixLabel})
 
 	metrics.overheadTimer = newHistogramVec(cfg, reg,
