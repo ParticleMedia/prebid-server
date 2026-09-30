@@ -242,7 +242,3 @@ func (me *MetricsEngineMock) RecordAdapterConnectionDialError(adapterName openrt
 func (me *MetricsEngineMock) RecordAdapterConnectionDialTime(adapterName openrtb_ext.BidderName, dialStartTime time.Duration) {
 	me.Called(adapterName, dialStartTime)
 }
-
-func (me *MetricsEngineMock) RecordAdapterContentURLPrefix(adapterName openrtb_ext.BidderName, prefix string) {
-	me.Called(adapterName, prefix)
-}

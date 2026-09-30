@@ -396,12 +396,6 @@ func (me *MultiMetricsEngine) RecordAdapterConnectionDialTime(adapterName openrt
 	}
 }
 
-func (me *MultiMetricsEngine) RecordAdapterContentURLPrefix(adapterName openrtb_ext.BidderName, prefix string) {
-	for _, thisME := range *me {
-		thisME.RecordAdapterContentURLPrefix(adapterName, prefix)
-	}
-}
-
 // NilMetricsEngine implements the MetricsEngine interface where no metrics are actually captured. This is
 // used if no metric backend is configured and also for tests.
 type NilMetricsEngine struct{}
@@ -589,7 +583,4 @@ func (me *NilMetricsEngine) RecordAdapterConnectionDialError(adapterName openrtb
 }
 
 func (me *NilMetricsEngine) RecordAdapterConnectionDialTime(adapterName openrtb_ext.BidderName, dialStartTime time.Duration) {
-}
-
-func (me *NilMetricsEngine) RecordAdapterContentURLPrefix(adapterName openrtb_ext.BidderName, prefix string) {
 }
