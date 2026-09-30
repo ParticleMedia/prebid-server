@@ -1895,21 +1895,6 @@ func TestRecordAdapterGDPRRequestBlocked(t *testing.T) {
 		})
 }
 
-func TestRecordAdapterContentURLPrefix(t *testing.T) {
-	m := createMetricsForTesting()
-	m.RecordAdapterContentURLPrefix(openrtb_ext.BidderName("AnyName"), "present")
-
-	assertCounterVecValue(t,
-		"Increment adapter content url prefix counter",
-		"adapter_content_url_prefix",
-		m.adapterContentURLPrefix,
-		1,
-		prometheus.Labels{
-			adapterLabel:          "anyname",
-			contentURLPrefixLabel: "present",
-		})
-}
-
 func TestStoredResponsesMetric(t *testing.T) {
 	testCases := []struct {
 		description                           string

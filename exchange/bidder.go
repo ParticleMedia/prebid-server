@@ -612,8 +612,6 @@ func (bidder *BidderAdapter) doRequestImpl(ctx context.Context, req *adapters.Re
 		}
 	}
 
-	bidder.me.RecordAdapterContentURLPrefix(bidder.BidderName, contentURLPrefix(req.Body))
-
 	httpCallStart := time.Now()
 	httpResp, err := ctxhttp.Do(ctx, bidder.Client, httpReq)
 	if err != nil {
