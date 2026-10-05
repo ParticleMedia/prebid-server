@@ -35,6 +35,14 @@ func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *
 	result := make([]*adapters.RequestData, 0, len(request.Imp))
 	errs := make([]error, 0, len(request.Imp))
 
+	// Display.io keys Apple traffic on "iOS" and does not recognise "iPadOS".
+	device := request.Device
+	if device != nil && device.OS == "iPadOS" {
+		deviceCopy := *device
+		deviceCopy.OS = "iOS"
+		device = &deviceCopy
+	}
+
 	for _, impression := range request.Imp {
 		var requestExt map[string]interface{}
 
@@ -75,6 +83,7 @@ func (adapter *adapter) MakeRequests(request *openrtb2.BidRequest, requestInfo *
 		dioExt := reqDioExt{PlacementId: impressionExt.PlacementId, InventoryId: impressionExt.InventoryId}
 
 		requestCopy := *request
+		requestCopy.Device = device
 
 		err = jsonutil.Unmarshal(requestCopy.Ext, &requestExt)
 		if err != nil {
