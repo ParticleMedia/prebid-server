@@ -151,6 +151,12 @@ func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalR
 
 			bid.Exp = adapter.getTTLFromHeaderOrDefault(response)
 
+			// NewsBreak custom logic, differs from upstream open-source Prebid Server:
+			// Smaato banner bids come back without w/h, so use the request's banner size.
+			if bidType == openrtb_ext.BidTypeBanner && (bid.W == 0 || bid.H == 0) {
+				bid.W, bid.H = requestBannerSize(internalRequest.Imp, bid.ImpID)
+			}
+
 			bidResponse.Bids = append(bidResponse.Bids, &adapters.TypedBid{
 				Bid:      &bid,
 				BidType:  bidType,
@@ -159,6 +165,25 @@ func (adapter *adapter) MakeBids(internalRequest *openrtb2.BidRequest, externalR
 		}
 	}
 	return bidResponse, errors
+}
+
+// requestBannerSize returns the banner size of the imp with the given id, preferring
+// banner.w/h and falling back to the first format entry.
+// NewsBreak custom logic, differs from upstream open-source Prebid Server.
+func requestBannerSize(imps []openrtb2.Imp, impID string) (int64, int64) {
+	for _, imp := range imps {
+		if imp.ID != impID || imp.Banner == nil {
+			continue
+		}
+		banner := imp.Banner
+		if banner.W != nil && banner.H != nil && *banner.W > 0 && *banner.H > 0 {
+			return *banner.W, *banner.H
+		}
+		if len(banner.Format) > 0 {
+			return banner.Format[0].W, banner.Format[0].H
+		}
+	}
+	return 0, 0
 }
 
 func (adapter *adapter) makeIndividualRequests(request *openrtb2.BidRequest) ([]*adapters.RequestData, []error) {
